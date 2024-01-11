@@ -70,8 +70,8 @@ app.UseCors(MyAllowSpecificOrigins);
 using (var scope = app.Services.CreateScope())
 {
     var _roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-   
-    var managerRole = new IdentityRole("Admin");
+
+    var managerRole = new IdentityRole("Manager");
 
     if (_roleManager.Roles.All(r => r.Name != managerRole.Name))
     {
@@ -79,12 +79,12 @@ using (var scope = app.Services.CreateScope())
     }
 
     // staff roles
-    var staffRole = new IdentityRole("Staff");
+    /*            var staffRole = new IdentityRole("Staff");
 
-    if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
-    {
-        await _roleManager.CreateAsync(staffRole);
-    }
+                if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
+                {
+                    await _roleManager.CreateAsync(staffRole);
+                }*/
 
     // customer roles
     var customerRole = new IdentityRole("Customer");
@@ -95,27 +95,26 @@ using (var scope = app.Services.CreateScope())
     }
 
     // sale roles
-    var saleRole = new IdentityRole("Saler");
+    var gardenerRole = new IdentityRole("Gardener");
 
-    if (_roleManager.Roles.All(r => r.Name != customerRole.Name))
+    if (_roleManager.Roles.All(r => r.Name != gardenerRole.Name))
     {
-        await _roleManager.CreateAsync(customerRole);
+        await _roleManager.CreateAsync(gardenerRole);
     }
 
-    // admin users
-    
+
 }
 
 using (var scope = app.Services.CreateScope())
 {
-    var administrator = new ApplicationUser { UserName = "admin@localhost", Email = "admin@localhost", Fullname = "Admin", Avatar = "(null)", Address = "no", Birthday = DateTime.Parse("2000-01-01") };
+    var manager = new ApplicationUser { UserName = "Manager@localhost", Email = "Manager@localhost", Fullname = "Manager", AvatarUrl = "(null)" };
     var _userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+    if (_userManager.Users.All(u => u.UserName != manager.UserName))
     {
-        await _userManager.CreateAsync(administrator, "Admin@123");
-        if (!string.IsNullOrWhiteSpace("Admin"))
+        await _userManager.CreateAsync(manager, "Manager@123");
+        if (!string.IsNullOrWhiteSpace("Manager"))
         {
-            await _userManager.AddToRolesAsync(administrator, new[] { "Admin" });
+            await _userManager.AddToRolesAsync(manager, new[] { "Manager" });
         }
     }
 }

@@ -55,7 +55,7 @@ namespace Infrastructures
         }
         public async Task TrySeedAsync()
         {
-            var managerRole = new IdentityRole("Admin");
+            var managerRole = new IdentityRole("Manager");
 
             if (_roleManager.Roles.All(r => r.Name != managerRole.Name))
             {
@@ -63,12 +63,12 @@ namespace Infrastructures
             }
 
             // staff roles
-            var staffRole = new IdentityRole("Staff");
+/*            var staffRole = new IdentityRole("Staff");
 
             if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
             {
                 await _roleManager.CreateAsync(staffRole);
-            }
+            }*/
 
             // customer roles
             var customerRole = new IdentityRole("Customer");
@@ -79,22 +79,22 @@ namespace Infrastructures
             }
             
             // sale roles
-            var saleRole = new IdentityRole("Saler");
+            var gardenerRole = new IdentityRole("Gardener");
 
-            if (_roleManager.Roles.All(r => r.Name != customerRole.Name))
+            if (_roleManager.Roles.All(r => r.Name != gardenerRole.Name))
             {
-                await _roleManager.CreateAsync(customerRole);
+                await _roleManager.CreateAsync(gardenerRole);
             }
 
             // admin users
-            var administrator = new ApplicationUser { UserName = "admin@localhost", Email = "admin@localhost", Fullname = "Admin", Avatar = "(null)", Address = "no", Birthday = DateTime.Parse("2000-01-01") };
+            var manager = new ApplicationUser { UserName = "manager@localhost", Email = "manager@localhost", Fullname = "Manager", AvatarUrl = "(null)"};
 
-            if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+            if (_userManager.Users.All(u => u.UserName != manager.UserName))
             {
-                await _userManager.CreateAsync(administrator, "Admin123456!");
+                await _userManager.CreateAsync(manager, "Manager@123");
                 if (!string.IsNullOrWhiteSpace(managerRole.Name))
                 {
-                    await _userManager.AddToRolesAsync(administrator, new[] { managerRole.Name });
+                    await _userManager.AddToRolesAsync(manager, new[] { managerRole.Name });
                 }
             }
 

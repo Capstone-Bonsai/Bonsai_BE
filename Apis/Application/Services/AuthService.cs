@@ -69,7 +69,7 @@ namespace Application.Services
                     userModel.Email = user.Email;
                     userModel.FullName = user.Fullname;
                     userModel.Username = user.UserName;
-                    userModel.Avatar = user.Avatar;
+                    userModel.Avatar = user.AvatarUrl;
                     userModel.listRoles = roles.ToList();
                     userModel.Token = result;
                     return userModel;
@@ -114,9 +114,7 @@ namespace Application.Services
                 UserName = model.Username,
                 Email = model.Email,
                 Fullname = model.Fullname,
-                Avatar = model.Avatar,
-                Address = model.Address,
-                Birthday = model.Birthday,
+                AvatarUrl = model.Avatar,
                 PhoneNumber = model.PhoneNumber
             };
 
