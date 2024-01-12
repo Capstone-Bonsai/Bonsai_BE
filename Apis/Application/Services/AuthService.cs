@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -212,9 +213,9 @@ namespace Application.Services
             }
 
             MailService mail = new MailService();
-            var temp = mail.SendEmail(user.Email, "Xác nhận tài khoản từ Thạch Sơn Garden",
-            $"<h3 style=\" color: #00B214;\">Xác thực tài khoản từ Thạch Sơn Garden</h3>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào {user.Fullname}"
-            +",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thạch Sơn Garden." +
+            var temp = mail.SendEmail(user.Email, "Xác nhận tài khoản từ Thanh Sơn Garden",
+            $"<h3 style=\" color: #00B214;\">Xác thực tài khoản từ Thanh Sơn Garden</h3>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>"
+            + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thanh Sơn Garden." +
             " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần hoàn thiện xác thực tài khoản.</p>"
             +$"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +
             $"    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>"
@@ -237,6 +238,26 @@ namespace Application.Services
                 throw new Exception("Tên đăng nhập này đã được sử dụng!");
             }
             return;
+        }
+
+        public async Task ConfirmEmailAsync(string? code, string? userId)
+        {
+
+            if (userId == null || code == null)
+            {
+                throw new Exception("Xác nhận Email không thành công! Link xác nhận không chính xác ! Vui lòng sử dụng đúng link được gửi từ Thanh Sơn Garden tới Email của bạn!");
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("Xác nhận Email không thành công! Link xác nhận không chính xác! Vui lòng sử dụng đúng link được gửi từ Thanh Sơn Garden tới Email của bạn!");
+            }
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+            if (!result.Succeeded)
+            {
+                throw new Exception("Xác nhận Email không thành công! Link xác nhận không chính xác hoặc đã hết hạn! Vui lòng sử dụng đúng link được gửi từ Thanh Sơn Garden tới Email của bạn!");
+            }
         }
 
     }

@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
                     }
 
                     await _auth.SendEmailConfirmAsync(model.Email.Trim(), callbackUrl);
-                    return Ok("Đăng ký tài khoản Thạch Sơn Garden thành công. Vui lòng kiểm tra email để kích hoạt tài khoản!");
+                    return Ok("Đăng ký tài khoản Thanh Sơn Garden thành công. Vui lòng kiểm tra email để kích hoạt tài khoản!");
                 }
                 else
                 {
@@ -162,26 +162,15 @@ namespace WebAPI.Controllers
         [Route("/ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string? code, string? userId)
         {
-            if (userId == null || code == null)
+            var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+            try
             {
-                return BadRequest("Xác nhận Email không thành công! Link xác nhận không chính xác ! Vui lòng sử dụng đúng link được gửi từ Thạch Sơn Garden tới Email của bạn!");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return BadRequest("Xác nhận Email không thành công! Link xác nhận không chính xác! Vui lòng sử dụng đúng link được gửi từ Thạch Sơn Garden tới Email của bạn!");
-            }
-            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var result = await _userManager.ConfirmEmailAsync(user, code);
-            if (result.Succeeded)
-            {
+                await _auth.ConfirmEmailAsync(code, userId);
                 return Ok("Xác nhận Email thành công!Bây giờ bạn có thể đăng nhập vào tài khoản của mình bằng Email hoặc Username vừa xác thực !");
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("Xác nhận Email không thành công! Link xác nhận không chính xác hoặc đã hết hạn! Vui lòng sử dụng đúng link được gửi từ Thạch Sơn Garden tới Email của bạn!");
-
+                return BadRequest(ex.Message);
             }
         }
 
