@@ -48,7 +48,7 @@ namespace Application.Services
             var user = await _userManager.FindByNameAsync(email);
             if (user == null)
             {
-                user = await _userManager.FindByEmailAsync(pass);
+                user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
                     throw new KeyNotFoundException($"Không tìm thấy tên đăng nhập hoặc địa chỉ email '{email}'");
@@ -156,11 +156,7 @@ namespace Application.Services
             }
             if (user.LockoutEnd != null && user.LockoutEnd.Value > DateTime.Now)
             {
-                throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ");
-            }
-            if (user.EmailConfirmed == false)
-            {
-                throw new KeyNotFoundException($"Email của tài khoản này chưa được xác nhận. Vui lòng nhấn quên mật khẩu!");
+                throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ!");
             }
 
             //sign in  
@@ -187,12 +183,9 @@ namespace Application.Services
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                     );
-
-
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
-
-            throw new InvalidOperationException("Sai mật khẩu. Vui lòng nhập lại!");
+            throw new InvalidOperationException("Sai mật khẩu. Vui lòng đăng nhập lại!");
         }
 
         public async Task<bool> SendEmailConfirmAsync(string username, string callbackUrl)
@@ -214,7 +207,7 @@ namespace Application.Services
 
             MailService mail = new MailService();
             var temp = mail.SendEmail(user.Email, "Xác nhận tài khoản từ Thanh Sơn Garden",
-            $"<h3 style=\" color: #00B214;\">Xác thực tài khoản từ Thanh Sơn Garden</h3>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>"
+            $"<h2 style=\" color: #00B214;\">Xác thực tài khoản từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>"
             + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thanh Sơn Garden." +
             " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần hoàn thiện xác thực tài khoản.</p>"
             +$"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +

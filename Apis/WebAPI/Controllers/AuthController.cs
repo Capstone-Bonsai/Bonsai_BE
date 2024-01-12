@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
                     host = uri.Host; // Lấy host của frontend
                     callbackUrl = schema + "://" + host + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
                 }
-                if (callbackUrl.Equals(""))
+                if (referer.Equals("https://localhost:5001/swagger/index.html"))
                 {
                     callbackUrl = Request.Scheme + "://" + Request.Host + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
                 }
@@ -101,6 +101,9 @@ namespace WebAPI.Controllers
         }
 
 
+
+
+
         [HttpPost]
         [Route("/Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
@@ -109,7 +112,7 @@ namespace WebAPI.Controllers
             try
             {
                 var validator = new RegisterModelValidator();
-                var result = validator.Validate(model);
+                var result = await validator.ValidateAsync(model);
                 if (!result.IsValid)
                 {
                     ErrorViewModel errors = new ErrorViewModel();
@@ -119,7 +122,6 @@ namespace WebAPI.Controllers
                 }
                 //check account
                 await _auth.CheckAccountExist(model);
-
                 //kết thúc lấy host để redirect về và tạo link
                 var temp = await _auth.Register(model);
                 if (temp == null)
@@ -166,7 +168,7 @@ namespace WebAPI.Controllers
             try
             {
                 await _auth.ConfirmEmailAsync(code, userId);
-                return Ok("Xác nhận Email thành công!Bây giờ bạn có thể đăng nhập vào tài khoản của mình bằng Email hoặc Username vừa xác thực !");
+                return Ok("Xác nhận Email thành công! Bây giờ bạn có thể đăng nhập vào tài khoản của mình bằng Email hoặc Username vừa xác thực !");
             }
             catch (Exception ex)
             {
