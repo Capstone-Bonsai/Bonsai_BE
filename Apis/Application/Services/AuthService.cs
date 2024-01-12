@@ -27,18 +27,20 @@ namespace Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
-        public readonly IWebHostEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IUnitOfWork _unit;
 
         public AuthService
             (UserManager<ApplicationUser> userManager,
              SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration,
-            IWebHostEnvironment environment)
+            IWebHostEnvironment environment,IUnitOfWork unit )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _environment = environment;
+            _unit= unit;
         }
         public async Task<LoginViewModel> Login(string email, string pass, string callbackUrl)
         {
@@ -86,7 +88,19 @@ namespace Application.Services
             if (resultData.Succeeded)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
+                try
+                {
+                    Customer customer = new Customer { UserId = user.Id };
+                    await _unit.CustomerRepository.AddAsync(customer);
+                    await _unit.SaveChangeAsync();
+                }
+                catch (Exception)
+                {
+                    await _userManager.DeleteAsync(user);
+                    throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
+                }
                 var addRoleResult = await _userManager.AddToRoleAsync(user, "Customer");
+               
                 if (addRoleResult.Succeeded)
                 {
                     return null;
@@ -114,7 +128,6 @@ namespace Application.Services
                 UserName = model.Username,
                 Email = model.Email,
                 Fullname = model.Fullname,
-                AvatarUrl = model.Avatar,
                 PhoneNumber = model.PhoneNumber
             };
 
@@ -192,25 +205,38 @@ namespace Application.Services
                     throw new KeyNotFoundException($"Không tìm thấy tên đăng nhập hoặc địa chỉ email '{username}'");
                 }
             }
-            if (user.LockoutEnd != null && user.LockoutEnd.Value > DateTime.Now)
+            var isLock = await _userManager.IsLockedOutAsync(user);
+            if (isLock)
             {
                 throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ");
             }
 
-            SendMail mail = new SendMail();
-            var temp = mail.SendEmailNoBccAsync(user.Email, "Email Xác Nhận Từ Warehouse Bridge",
-                "<style>\r\n    body {\r\n      font-family: Arial, sans-serif;\r\n      line-height: 1.5;\r\n    }\r\n    .container {\r\n      max-width: 600px;\r\n      margin: 0 auto;\r\n      padding: 20px;\r\n    }\r\n    h1 {\r\n      color: #333;\r\n    }\r\n    p {\r\n      margin-bottom: 20px;\r\n    }\r\n    .button {\r\n      display: inline-block;\r\n      background-color: #007bff;\r\n      color: #fff;\r\n      padding: 10px 20px;\r\n      text-decoration: none;\r\n      border-radius: 5px;\r\n    }\r\n  </style>\r\n  <div class=\"container\">\r\n    <h1>Xác nhận địa chỉ email từ Warehouse Brigde</h1>\r\n    <p>Xin vui lòng xác nhận rằng đây là địa chỉ email chính thức của công ty bằng cách nhấp vào nút bên dưới:</p>\r\n   " + $" <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Link xác nhân địa chỉ Email</a>" + "    <p>Vui lòng lưu ý rằng đường dẫn xác nhận sẽ chỉ có hiệu lực trong vòng 30 phút. Sau thời gian đó, đường dẫn sẽ hết hiệu lực và bạn sẽ cần yêu cầu xác nhận lại.</p>\r\n    <p>Nếu có bất kỳ thay đổi hoặc sự nhầm lẫn nào liên quan đến địa chỉ email của công ty, xin vui lòng thông báo cho chúng tôi ngay lập tức để chúng tôi có thể cập nhật thông tin đúng cho công ty.</p>\r\n    <p>Xin cảm ơn vì sự hỗ trợ của quý công ty trong việc xác nhận địa chỉ email. Chúng tôi mong muốn tiếp tục hợp tác và cung cấp các dịch vụ công nghệ tốt nhất cho công ty của quý vị.</p>\r\n   "
-              );
-            if (temp == true)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
+            MailService mail = new MailService();
+            var temp = mail.SendEmail(user.Email, "Xác nhận tài khoản từ Thạch Sơn Garden",
+            $"<h3 style=\" color: #00B214;\">Xác thực tài khoản từ Thạch Sơn Garden</h3>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào {user.Fullname}"
+            +",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thạch Sơn Garden." +
+            " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần hoàn thiện xác thực tài khoản.</p>"
+            +$"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +
+            $"    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>"
+            );
+            var result = (temp) ? true : false;
+            return result;
 
-            }
+        }
 
+        public async Task CheckAccountExist(RegisterModel model)
+        {
+            var existEmailUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existEmailUser != null)
+            {
+                throw new Exception("Email này đã được sử dụng!");
+            }
+            var existUsernameUser = await _userManager.FindByNameAsync(model.Username);
+            if (existUsernameUser != null)
+            {
+                throw new Exception("Tên đăng nhập này đã được sử dụng!");
+            }
+            return;
         }
 
     }

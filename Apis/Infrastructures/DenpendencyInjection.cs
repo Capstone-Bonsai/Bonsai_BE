@@ -23,6 +23,9 @@ namespace Infrastructures
             
 
             services.AddScoped<IChemicalRepository, ChemicalRepository>();
+            services.AddScoped<IGardenerRepository, GardenerRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             

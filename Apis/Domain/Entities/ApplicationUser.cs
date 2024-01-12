@@ -11,7 +11,7 @@ namespace Domain.Entities
     public class ApplicationUser: IdentityUser
     {
         public string Fullname { get; set; }
-        public string AvatarUrl { get; set; }
+        public string? AvatarUrl { get; set; }
 
         public virtual Customer? Customer { get; set; }
         public virtual Gardener? Gardener { get; set; }
