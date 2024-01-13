@@ -18,7 +18,9 @@ namespace Infrastructures.Repositories
             _timeService = timeService;
             _claimsService = claimsService;
         }
-        public Task<List<TEntity>> GetAllAsync() => _dbSet.ToListAsync();
+        public Task<List<TEntity>> GetAllAsync() => _dbSet.AsNoTracking().Where(x => !x.IsDeleted).ToListAsync();
+
+        public IQueryable<TEntity> GetAllQueryable() => _dbSet.Where(x => !x.IsDeleted).AsNoTracking();
 
         public async Task<TEntity?> GetByIdAsync(Guid id)
         {
@@ -73,11 +75,11 @@ namespace Infrastructures.Repositories
         {
             var itemCount = await _dbSet.CountAsync();
             var items = await _dbSet.OrderByDescending(x => x.CreationDate)
-                                    .Skip((pageIndex-1) * pageSize)
+                                    .Skip((pageIndex - 1) * pageSize)
                                     .Take(pageSize)
                                     .AsNoTracking()
                                     .ToListAsync();
-            
+
             var result = new Pagination<TEntity>()
             {
                 PageIndex = pageIndex,

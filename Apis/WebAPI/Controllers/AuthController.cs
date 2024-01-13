@@ -5,6 +5,8 @@ using Application.ViewModels;
 using Application.ViewModels.AuthViewModel;
 using Domain.Entities;
 using Infrastructures;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -12,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Plugins;
+using System.Security.Claims;
 using System.Text;
 using WebAPI.Validations.Auth;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -45,8 +48,7 @@ namespace WebAPI.Controllers
             _environment = environment;
             _unit = unit;
         }
-        [HttpPost]
-        [Route("/Login")]
+        [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
@@ -100,12 +102,7 @@ namespace WebAPI.Controllers
 
         }
 
-
-
-
-
-        [HttpPost]
-        [Route("/Register")]
+        [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
@@ -130,7 +127,7 @@ namespace WebAPI.Controllers
                     string callbackUrl = "";
                     //lấy host để redirect về
                     var referer = Request.Headers["Referer"].ToString().Trim();
-                    
+
                     string schema;
                     string host;
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -160,8 +157,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("/ConfirmEmail")]
+        [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string? code, string? userId)
         {
             var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
@@ -176,7 +172,20 @@ namespace WebAPI.Controllers
             }
         }
 
+        [HttpPost("Login/Google")]
+        public async Task<IActionResult> LoginGoogle([FromBody] ExternalLoginModel model)
+        {
+            try
+            {
+                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                var result = await _auth.HandleExternalLoginAsync(model);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        
     }
 }

@@ -50,12 +50,12 @@ namespace WebAPI
             });
             });
 
-            services.AddAuthentication().AddGoogle(opt =>
+/*            services.AddAuthentication().AddGoogle(opt =>
             {
                 opt.ClientId = "284200954268-769rt5k3g636ud13jasuopu1belmeovs.apps.googleusercontent.com";
                 opt.ClientSecret = "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";
             }
-            );
+            );*/
 
             return services;
         }

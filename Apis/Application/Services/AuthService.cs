@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.ViewModels;
 using Application.ViewModels.AuthViewModel;
 using Domain.Entities;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
@@ -23,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class AuthService 
+    public class AuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -35,13 +37,13 @@ namespace Application.Services
             (UserManager<ApplicationUser> userManager,
              SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration,
-            IWebHostEnvironment environment,IUnitOfWork unit )
+            IWebHostEnvironment environment, IUnitOfWork unit)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
             _environment = environment;
-            _unit= unit;
+            _unit = unit;
         }
         public async Task<LoginViewModel> Login(string email, string pass, string callbackUrl)
         {
@@ -101,7 +103,7 @@ namespace Application.Services
                     throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
                 }
                 var addRoleResult = await _userManager.AddToRoleAsync(user, "Customer");
-               
+
                 if (addRoleResult.Succeeded)
                 {
                     return null;
@@ -210,7 +212,7 @@ namespace Application.Services
             $"<h2 style=\" color: #00B214;\">Xác thực tài khoản từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>"
             + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thanh Sơn Garden." +
             " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần hoàn thiện xác thực tài khoản.</p>"
-            +$"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +
+            + $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +
             $"    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>"
             );
             var result = (temp) ? true : false;
@@ -252,6 +254,103 @@ namespace Application.Services
                 throw new Exception("Xác nhận Email không thành công! Link xác nhận không chính xác hoặc đã hết hạn! Vui lòng sử dụng đúng link được gửi từ Thanh Sơn Garden tới Email của bạn!");
             }
         }
+        public async Task<LoginViewModel> HandleExternalLoginAsync(ExternalLoginModel model)
+        {
+            var payload = await VerifyGoogleToken(model);
+            if (payload == null)
+                throw new Exception($"Lỗi đăng nhâp Google!");
+            var info = new UserLoginInfo(model.Provider, payload.Subject, model.Provider);
+            var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(payload.Email);
+                if (user == null)
+                {
+                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email, Fullname = payload.GivenName };
+                    await _userManager.CreateAsync(user);
+                    //prepare and send an email for the email confirmation
+                    //Create customer account
+                    Customer customer = new Customer { UserId = user.Id };
+                    await _unit.CustomerRepository.AddAsync(customer);
+                    await _unit.SaveChangeAsync();
+                    //Add to role customer
+                    await _userManager.AddToRoleAsync(user, "Customer");
 
+                    //Verify email
+                    string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var result = await _userManager.ConfirmEmailAsync(user, code);
+                    //Add login infor
+                    await _userManager.AddLoginAsync(user, info);
+                }
+                else
+                {
+                    await _userManager.AddLoginAsync(user, info);
+                }
+            }
+            user = await _userManager.FindByEmailAsync(payload.Email);
+            //check for the Locked out account
+            var isLockout = await _userManager.IsLockedOutAsync(user);
+            if (isLockout)
+            {
+                throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ!");
+            }
+            var token = await CreateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var userModel = new LoginViewModel();
+            userModel.Id = user.Id;
+            userModel.Email = user.Email;
+            userModel.FullName = user.Fullname;
+            userModel.Username = user.UserName;
+            userModel.Avatar = user.AvatarUrl;
+            userModel.listRoles = roles.ToList();
+            userModel.Token = token;
+            return userModel;
+        }
+
+        public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string>() { _configuration["GoogleAuthSettings:clientId"] }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(model.tokenId, settings);
+                return payload;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi đăng nhâp Google: {ex.Message}");
+            }
+        }
+
+
+        public async Task<string> CreateJwtToken(ApplicationUser user)
+        {
+            //tạo token
+            var roles = await _userManager.GetRolesAsync(user);
+
+            List<Claim> authClaims = new List<Claim>();
+            authClaims.Add(new Claim(ClaimTypes.Email, user.Email));
+            authClaims.Add(new Claim(ClaimTypes.Name, user.UserName));
+
+            authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+            foreach (var item in roles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, item));
+            }
+
+            var authenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecrectKey"]));
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                expires: DateTime.Now.AddDays(1),
+                claims: authClaims,
+                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }
