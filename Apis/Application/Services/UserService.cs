@@ -5,6 +5,8 @@ using Application.Utils;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructures.Services
@@ -15,39 +17,54 @@ namespace Infrastructures.Services
         private readonly IMapper _mapper;
         private readonly ICurrentTime _currentTime;
         private readonly AppConfiguration _configuration;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IClaimsService _claims;
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentTime currentTime, AppConfiguration configuration)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentTime currentTime, AppConfiguration configuration,UserManager<ApplicationUser> userManager,IClaimsService claims)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _currentTime = currentTime;
             _configuration= configuration;
+            _userManager = userManager;
+            _claims = claims;
+            
         }
-
-        public async Task<string> LoginAsync(UserLoginDTO userObject)
+        public async Task<List<string>> ChangePasswordAsync(ChangePassModel model,string userId)
         {
-            var user = await _unitOfWork.UserRepository.GetUserByUserNameAndPasswordHash(userObject.UserName, userObject.Password.Hash());
-            return user.GenerateJsonWebToken(_configuration.JWTSecretKey, _currentTime.GetCurrentTime());
-        }
-
-        public async Task RegisterAsync(UserLoginDTO userObject)
-        {
-            // check username exited
-            var isExited = await _unitOfWork.UserRepository.CheckUserNameExited(userObject.UserName);
-
-            if(isExited)
+            if (!model.NewPassword.Equals(model.ConfirmPassword))
             {
-                throw new Exception("Username exited please try again");
+                throw new Exception("Mật khẩu xác nhận không trùng khớp!");
+                
             }
-
-            var newUser = new User
+            if (model.NewPassword.Equals(model.OldPassword))
             {
-                UserName = userObject.UserName,
-                PasswordHash = userObject.Password.Hash()
-            };
+                throw new Exception("Mật khẩu mới phải khác mật khẩu cũ!");
+            }
+            try
+            {
 
-            await _unitOfWork.UserRepository.AddAsync(newUser);
-            await _unitOfWork.SaveChangeAsync();
+                var user = await _userManager.FindByIdAsync(userId);
+                var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    return null;
+                }
+                else
+                {
+                    List<string> err = new List<string>();
+                    foreach (var item in result.Errors)
+                    {
+                        err.Add(item.Description);
+                    }
+                   return err;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Đã xảy ra lỗi: {ex.Message}");
+            }
         }
+
     }
 }

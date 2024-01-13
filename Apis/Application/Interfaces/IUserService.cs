@@ -4,7 +4,6 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-        public Task RegisterAsync(UserLoginDTO userObject);
-        public Task<string> LoginAsync(UserLoginDTO userObject);
+        public Task<List<string>> ChangePasswordAsync(ChangePassModel model, string userId);
     }
 }

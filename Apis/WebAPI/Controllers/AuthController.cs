@@ -114,9 +114,8 @@ namespace WebAPI.Controllers
                 var result = await validator.ValidateAsync(model);
                 if (!result.IsValid)
                 {
-                    ErrorViewModel errors = new ErrorViewModel();
-                    errors.Errors = new List<string>();
-                    errors.Errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
+                    var errors = new List<string>();
+                    errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
                     return BadRequest(errors);
                 }
                 //check account
@@ -125,7 +124,6 @@ namespace WebAPI.Controllers
                 var temp = await _auth.Register(model);
                 if (temp == null)
                 {
-
                     //lấy host để redirect về
                     var referer = Request.Headers["Referer"].ToString().Trim();
                     var callbackUrl = await GetCallbackUrlAsync(model.Email.Trim(), referer, "EmailConfirm");

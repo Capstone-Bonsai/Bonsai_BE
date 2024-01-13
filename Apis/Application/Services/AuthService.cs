@@ -304,7 +304,7 @@ namespace Application.Services
             List<Claim> authClaims = new List<Claim>();
             authClaims.Add(new Claim(ClaimTypes.Email, user.Email));
             authClaims.Add(new Claim(ClaimTypes.Name, user.UserName));
-
+            authClaims.Add(new Claim("userId", user.Id));
             authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             foreach (var item in roles)
             {
