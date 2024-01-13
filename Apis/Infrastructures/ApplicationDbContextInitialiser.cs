@@ -12,7 +12,7 @@ namespace Infrastructures
 {
     public class ApplicationDbContextInitialiser
     {
-        private readonly ILogger<ApplicationDbContextInitialiser> _logger;
+        /*private readonly ILogger<ApplicationDbContextInitialiser> _logger;
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -63,12 +63,12 @@ namespace Infrastructures
             }
 
             // staff roles
-/*            var staffRole = new IdentityRole("Staff");
+*//*            var staffRole = new IdentityRole("Staff");
 
             if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
             {
                 await _roleManager.CreateAsync(staffRole);
-            }*/
+            }*//*
 
             // customer roles
             var customerRole = new IdentityRole("Customer");
@@ -98,6 +98,6 @@ namespace Infrastructures
                 }
             }
 
-        }
+        }*/
     }
 }

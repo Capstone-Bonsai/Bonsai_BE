@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using System.Diagnostics;
 using WebAPI.Middlewares;
@@ -23,6 +24,7 @@ namespace WebAPI
             services.AddHttpContextAccessor();
             services.AddFluentValidationAutoValidation();
             services.AddFluentValidationClientsideAdapters();
+            services.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan = TimeSpan.FromMinutes(30));
 
             services.AddSwaggerGen(options =>
             {
@@ -49,13 +51,6 @@ namespace WebAPI
                 }
             });
             });
-
-/*            services.AddAuthentication().AddGoogle(opt =>
-            {
-                opt.ClientId = "284200954268-769rt5k3g636ud13jasuopu1belmeovs.apps.googleusercontent.com";
-                opt.ClientSecret = "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";
-            }
-            );*/
 
             return services;
         }

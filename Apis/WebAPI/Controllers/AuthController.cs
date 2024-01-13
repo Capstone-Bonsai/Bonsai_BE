@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Commons;
 using Application.Interfaces;
 using Application.Services;
 using Application.ViewModels;
@@ -16,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Plugins;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 using WebAPI.Validations.Auth;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -123,27 +125,11 @@ namespace WebAPI.Controllers
                 var temp = await _auth.Register(model);
                 if (temp == null)
                 {
-                    var user = await _userManager.FindByEmailAsync(model.Email);
-                    string callbackUrl = "";
+
                     //lấy host để redirect về
                     var referer = Request.Headers["Referer"].ToString().Trim();
-
-                    string schema;
-                    string host;
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    if (!referer.Equals("") && Uri.TryCreate(referer, UriKind.Absolute, out var uri))
-                    {
-                        schema = uri.Scheme; // Lấy schema (http hoặc https) của frontend
-                        host = uri.Host; // Lấy host của frontend
-                        callbackUrl = schema + "://" + host + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
-                    }
-                    if (referer.Equals("https://localhost:5001/swagger/index.html"))
-                    {
-                        callbackUrl = "https://localhost:5001" + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
-                    }
-
-                    await _auth.SendEmailConfirmAsync(model.Email.Trim(), callbackUrl);
+                    var callbackUrl = await GetCallbackUrlAsync(model.Email.Trim(), referer, "EmailConfirm");
+                    await _auth.SendEmailAsync(model.Email.Trim(), callbackUrl, "EmailConfirm");
                     return Ok("Đăng ký tài khoản Thanh Sơn Garden thành công. Vui lòng kiểm tra email để kích hoạt tài khoản!");
                 }
                 else
@@ -185,6 +171,80 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPassModel model)
+        {
+            try
+            {
+                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                var result = await _auth.ResetPasswordAsync(model);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest( e.Message);
+            }
+        }
+
+        [HttpPost("ForgotPassword")]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return BadRequest("Không tìm thấy địa chỉ emal");
+                }
+                //lấy host để redirect về
+                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                var referer = Request.Headers["Referer"].ToString().Trim();
+                var callbackUrl = await GetCallbackUrlAsync(email.Trim(), referer, "ResetPassword");
+                await _auth.SendEmailAsync(email.Trim(), callbackUrl, "ResetPassword");
+                return Ok("Yêu cầu đổi mật khẩu đã được gửi thành công đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư đến của bạn và xác thực email để tiến hành đổi mật khẩu.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Xác nhận email không thành công: " + e.Message);
+            }
+        }
+
+        [NonAction]
+        public async Task<string> GetCallbackUrlAsync(string email, string referer, string type)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            string callbackUrl = "";
+            string schema;
+            string host;
+            var code = "";
+            var action = "";
+            switch (type)
+            {
+                case "EmailConfirm":
+                    code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    action = "ConfirmEmail";
+                    break;
+
+                case "ResetPassword":
+                    code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    action = "ResetPassword";
+                    break;
+            }
+
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            if (!referer.Equals("") && Uri.TryCreate(referer, UriKind.Absolute, out var uri))
+            {
+                schema = uri.Scheme; // Lấy schema (http hoặc https) của frontend
+                host = uri.Host; // Lấy host của frontend
+                callbackUrl = schema + "://" + host + Url.Action(action, "Auth", new { userId = user.Id, code = code });
+            }
+            if (referer.Equals("https://localhost:5001/swagger/index.html"))
+            {
+                callbackUrl = "https://localhost:5001" + Url.Action(action, "Auth", new { userId = user.Id, code = code });
+            }
+            return callbackUrl;
         }
 
     }

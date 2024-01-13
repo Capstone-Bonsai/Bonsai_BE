@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -22,6 +23,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Application.Services
 {
@@ -58,7 +60,7 @@ namespace Application.Services
             }
             if (user.EmailConfirmed == false)
             {
-                var result = await SendEmailConfirmAsync(email.Trim(), callbackUrl);
+                var result = await SendEmailAsync(email.Trim(), callbackUrl,"EmailConfirm");
                 throw new Exception("Tài khoản này chưa xác thực Email. Vui lòng kiểm tra Email được vừa gửi đến hoặc liên hệ quản trị viên để được hỗ trợ!");
             }
             else
@@ -83,7 +85,6 @@ namespace Application.Services
                 throw new AuthenticationException("Đăng nhập không thành công!");
             }
         }
-
 
         public async Task<ErrorViewModel> Register(RegisterModel model)
         {
@@ -188,36 +189,6 @@ namespace Application.Services
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
             throw new InvalidOperationException("Sai mật khẩu. Vui lòng đăng nhập lại!");
-        }
-
-        public async Task<bool> SendEmailConfirmAsync(string username, string callbackUrl)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-            {
-                user = await _userManager.FindByEmailAsync(username);
-                if (user == null)
-                {
-                    throw new KeyNotFoundException($"Không tìm thấy tên đăng nhập hoặc địa chỉ email '{username}'");
-                }
-            }
-            var isLock = await _userManager.IsLockedOutAsync(user);
-            if (isLock)
-            {
-                throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ");
-            }
-
-            MailService mail = new MailService();
-            var temp = mail.SendEmail(user.Email, "Xác nhận tài khoản từ Thanh Sơn Garden",
-            $"<h2 style=\" color: #00B214;\">Xác thực tài khoản từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>"
-            + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thanh Sơn Garden." +
-            " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần hoàn thiện xác thực tài khoản.</p>"
-            + $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +
-            $"    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>"
-            );
-            var result = (temp) ? true : false;
-            return result;
-
         }
 
         public async Task CheckAccountExist(RegisterModel model)
@@ -325,7 +296,6 @@ namespace Application.Services
             }
         }
 
-
         public async Task<string> CreateJwtToken(ApplicationUser user)
         {
             //tạo token
@@ -352,5 +322,82 @@ namespace Application.Services
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public async Task<bool> SendEmailAsync(string username, string callbackUrl, string type)
+        {
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                user = await _userManager.FindByEmailAsync(username);
+                if (user == null)
+                {
+                    throw new KeyNotFoundException($"Không tìm thấy tên đăng nhập hoặc địa chỉ email '{username}'");
+                }
+            }
+            var isLock = await _userManager.IsLockedOutAsync(user);
+            if (isLock)
+            {
+                throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ");
+            }
+
+            MailService mail = new MailService();
+            var temp = false;
+            switch (type)
+            {
+                case "EmailConfirm":
+                    temp = mail.SendEmail(user.Email, "Xác nhận tài khoản từ Thanh Sơn Garden",
+            $"<h2 style=\" color: #00B214;\">Xác thực tài khoản từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>"
+            + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã đăng ký tài khoản tại Thanh Sơn Garden." +
+            " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần hoàn thiện xác thực tài khoản.</p>"
+            + $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}' style=\"display: inline-block; background-color: #00B214;  color: #fff;" +
+            $"    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>"
+            );
+                    break;
+                case "ResetPassword":
+                    string body = "<h3 style=\" color: #00B214;\">Xác nhận yêu cầu đổi mật khẩu truy cập vào Thạch Sơn Garden</h3>\r\n"+$"<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>,</p>\r\n<p style=\"margin-bottom: 10px;\r\n   " +
+                    " text-align: left;\"> Bạn đã yêu cầu đổi mật khẩu. Vui lòng nhấp vào liên kết bên dưới để xác nhận yêu cầu. Vui lòng\r\n  lưu ý rằng đường dẫn xác nhận chỉ cs hiệu lực trong vòng 30 phút. Sau thời gian đó, đường đãn sẽ hết hiệu lực và bạn\r\n" +
+                    "  sẽ cần yêu cầu xác nhận lại. Nếu bạn không có bất kỳ yêu cầu thay đổi nào vui lòng không nhấn bất kỳ đường dẫn nào. Cảm ơn\r\n</p>" + $"<a href=\"{callbackUrl}\" style=\"display: inline-block;\r\n   " +
+                    " background-color: #00B214;\r\n    color: #fff;\r\n    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>";
+                    temp = mail.SendEmail(user.Email, "Xác thực yêu cầu đổi mật khẩu tài khoản từ Thanh Sơn Garden", body);
+                    break;
+            }
+
+            var result = (temp) ? true : false;
+
+            return result;
+
+        }
+
+        public async Task<string> ResetPasswordAsync(ResetPassModel model)
+        {
+            if (model.UserId == null || model.Code == null)
+            {
+                throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
+            }
+            if (!model.NewPassword.Equals(model.ConfirmPassword))
+            {
+                throw new Exception("Mật khẩu với và mật khẩu xác nhận không khớp!");
+            }
+            var code = model.Code;
+            // Kiểm tra xác thực người dùng và tạo mã đặt lại mật khẩu (reset token)
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                throw new Exception("Không tìm thấy tài khoản bạn yêu cầu!");
+            }
+            code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+            var result = await _userManager.ResetPasswordAsync(user, code, model.NewPassword);
+            if (result.Succeeded)
+            {
+                // Mật khẩu đã được đặt lại thành công
+                return "Mật khẩu đã được đặt lại thành công! Vui lòng tiến hành đăng nhập!";
+            }
+            else
+            {
+                // Đặt lại mật khẩu không thành công
+                throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
+            }
+        }
+
     }
 }
