@@ -2,12 +2,20 @@
 
 PLEASE READ THIS FILE CAREFULLY!
 
-## EF migration code first
+## EF migration
 
-To apply the latest migrations to your physical database, run this command(run the command from <strong>Bonsai_BE solution folder</strong>)
+To apply the latest migrations to your physical database, run this command(run the command from `Apis` folder)
+
+1. Install global tool to make migration(do only 1 time & your machine is good to go for the next)
 
 ```
-We do not have it right now.
+dotnet tool install --global dotnet-ef
+```
+
+2. Apply the change
+
+```
+dotnet ef database update -s WebAPI -p Infrastructures
 ```
 
 ## Branch convention
@@ -25,29 +33,6 @@ When you add a new commit, it must follow this naming convention:
 
 You must create a pull request before your code is merged into main. The pull request must be followed this naming convention:
 **"[YourName][YourFunction]"**
-
-## EF migration
-
-0. install global tool to make migration(do only 1 time & your machine is good to go for the next)
-
-```
-dotnet tool install --global dotnet-ef
-```
-
-1. create migrations & the dbcontext snapshot will rendered.
-   Open CLI at apis folder & run command
-   -s is startup project(create dbcontext instance at design time)
-   -p is migrations assembly project
-
-```
-dotnet ef migrations add NewMigration -s WebAPI -p Infrastructures
-```
-
-2. apply the change
-
-```
-dotnet ef database update -s WebAPI -p Infrastructures
-```
 
 ## Spring2024SE079_Bonsai Capstone Project
 
