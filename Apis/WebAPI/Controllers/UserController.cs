@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
             _claims = claimsService;
         }
         [Authorize]
-        [HttpPut("ChangePassword")]
+        [HttpPost("ChangePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassModel model)
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
@@ -32,6 +32,29 @@ namespace WebAPI.Controllers
             {
                 var result = await _userService.ChangePasswordAsync(model, userId);
                 if(result == null)
+                {
+                    return Ok("Đổi mật khẩu thành công");
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] ChangePassModel model)
+        {
+            string userId = _claims.GetCurrentUserId.ToString().ToLower();
+            try
+            {
+                var result = await _userService.ChangePasswordAsync(model, userId);
+                if (result == null)
                 {
                     return Ok("Đổi mật khẩu thành công");
                 }

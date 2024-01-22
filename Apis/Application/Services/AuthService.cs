@@ -86,7 +86,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<ErrorViewModel> Register(RegisterModel model)
+        public async Task<List<string>> Register(RegisterModel model)
         {
             var resultData = await CreateUserAsync(model);
             if (resultData.Succeeded)
@@ -117,9 +117,8 @@ namespace Application.Services
             }
             else
             {
-                ErrorViewModel errors = new ErrorViewModel();
-                errors.Errors = new List<string>();
-                errors.Errors.AddRange(resultData.Errors.Select(x => x.Description));
+                var errors = new List<string>();
+                errors.AddRange(resultData.Errors.Select(x => x.Description));
                 return errors;
             }
         }

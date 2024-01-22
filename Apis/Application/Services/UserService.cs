@@ -66,5 +66,9 @@ namespace Infrastructures.Services
             }
         }
 
+        public Task<List<string>> UpdateUserAsync(ChangePassModel model, string userId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
