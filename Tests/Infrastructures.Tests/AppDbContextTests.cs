@@ -8,7 +8,7 @@ namespace Infrastructures.Tests
 {
     public class AppDbContextTests : SetupTest, IDisposable
     {
-        [Fact]
+        /*[Fact]
         public async Task AppDbContext_ChemicalsDbSetShouldReturnCorrectData()
         {
 
@@ -26,6 +26,6 @@ namespace Infrastructures.Tests
         {
             var result = await _dbContext.Chemicals.ToListAsync();
             result.Should().BeEmpty();
-        }
+        }*/
     }
 }

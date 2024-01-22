@@ -75,12 +75,12 @@ using (var scope = app.Services.CreateScope())
     }
 
     // staff roles
-    /*            var staffRole = new IdentityRole("Staff");
+    var staffRole = new IdentityRole("Staff");
 
-                if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
-                {
-                    await _roleManager.CreateAsync(staffRole);
-                }*/
+    if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
+    {
+        await _roleManager.CreateAsync(staffRole);
+    }
 
     // customer roles
     var customerRole = new IdentityRole("Customer");

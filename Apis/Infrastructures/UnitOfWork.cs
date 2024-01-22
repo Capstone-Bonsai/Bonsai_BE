@@ -6,24 +6,16 @@ namespace Infrastructures
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _dbContext;
-        private readonly IChemicalRepository _chemicalRepository;
-        private readonly IUserRepository _userRepository;
         private readonly IGardenerRepository _gardenerRepository;
         private readonly ICustomerRepository _customerRepository;
 
-        public UnitOfWork(AppDbContext dbContext,
-            IChemicalRepository chemicalRepository,
-            IUserRepository userRepository, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository)
+        public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository)
         {
             _dbContext = dbContext;
-            _chemicalRepository = chemicalRepository;
-            _userRepository = userRepository;
             _gardenerRepository = gardenerRepository;
             _customerRepository = customerRepository;
         }
-        public IChemicalRepository ChemicalRepository => _chemicalRepository;
 
-        public IUserRepository UserRepository => _userRepository;
 
         public IGardenerRepository GardenerRepository => _gardenerRepository;
 

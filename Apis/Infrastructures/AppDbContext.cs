@@ -17,9 +17,34 @@ namespace Infrastructures
 
         }
 
-        public DbSet<Chemical> Chemicals { get; set; }
-        public DbSet<User> Users { get; set; }
-        
+        public DbSet<Category> Category { get; set; }
+        public DbSet<SubCategory> SubCategory { get; set; }
+        public DbSet<Tag> Tag { get; set; }
+        public DbSet<Product> Product { get; set; }
+        public DbSet<ProductImage> ProductImage { get; set; }
+        public DbSet<ProductTag> ProductTag { get; set; }
+        public DbSet<Customer> Customer { get; set; }
+        public DbSet<Manager> Manager { get; set; }
+        public DbSet<Staff> Staf { get; set; }
+        public DbSet<Gardener> Gardener { get; set; }
+        public DbSet<Address> Address { get; set; }
+        public DbSet<Order> Order { get; set; }
+        public DbSet<OrderDetail> OrderDetail { get; set; }
+        public DbSet<OrderTransaction> OrderTransaction { get; set; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

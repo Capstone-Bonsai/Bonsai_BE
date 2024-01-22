@@ -4,6 +4,7 @@ using Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,13 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240122201753_AddOrderEntity")]
+    partial class AddOrderEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.10")
+                .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -60,7 +63,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Address");
+                    b.ToTable("Addresses");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
@@ -172,7 +175,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Category");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Customer", b =>
@@ -211,7 +214,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Customer");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Gardener", b =>
@@ -250,7 +253,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Gardener");
+                    b.ToTable("Gardeners");
                 });
 
             modelBuilder.Entity("Domain.Entities.Manager", b =>
@@ -289,7 +292,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Manager");
+                    b.ToTable("Managers");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -354,7 +357,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderDetail", b =>
@@ -402,7 +405,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetail");
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderTransaction", b =>
@@ -506,7 +509,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("OrderId")
                         .IsUnique();
 
-                    b.ToTable("OrderTransaction");
+                    b.ToTable("OrderTransactions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Product", b =>
@@ -570,7 +573,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("Product");
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductImage", b =>
@@ -611,7 +614,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImage");
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductTag", b =>
@@ -653,7 +656,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("ProductTag");
+                    b.ToTable("ProductTags");
                 });
 
             modelBuilder.Entity("Domain.Entities.Staff", b =>
@@ -692,7 +695,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Staf");
+                    b.ToTable("Staffs");
                 });
 
             modelBuilder.Entity("Domain.Entities.SubCategory", b =>
@@ -737,7 +740,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("SubCategory");
+                    b.ToTable("SubCategories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Tag", b =>
@@ -781,7 +784,7 @@ namespace Infrastructures.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tag");
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

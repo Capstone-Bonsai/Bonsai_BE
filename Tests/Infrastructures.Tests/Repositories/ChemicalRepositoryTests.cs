@@ -14,7 +14,7 @@ namespace Infrastructures.Tests.Repositories
 {
     public class ChemicalRepositoryTests : SetupTest
     {
-        private readonly IChemicalRepository _chemicalRepository;
+       /* private readonly IChemicalRepository _chemicalRepository;
         public ChemicalRepositoryTests()
         {
             _chemicalRepository = new ChemicalRepository(
@@ -36,6 +36,6 @@ namespace Infrastructures.Tests.Repositories
 
             // assert
             result.Should().BeEquivalentTo(mockData);
-        }
+        }*/
     }
 }

@@ -8,7 +8,7 @@ namespace Infrastructures.Tests.Mappers
 {
     public class MapperConfigurasionTests : SetupTest
     {
-        [Fact]
+       /* [Fact]
         public void TestMapper()
         {
             //arrange
@@ -19,6 +19,6 @@ namespace Infrastructures.Tests.Mappers
 
             //assert
             result._Id.Should().Be(chemicalMock.Id.ToString());
-        }
+        }*/
     }
 }

@@ -9,10 +9,10 @@ namespace Infrastructures.Mappers
     {
         public MapperConfigurationsProfile()
         {
-            CreateMap<CreateChemicalViewModel, Chemical>();
+            /*CreateMap<CreateChemicalViewModel, Chemical>();
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             CreateMap<Chemical, ChemicalViewModel>()
-                .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));
+                .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
             
 
         }

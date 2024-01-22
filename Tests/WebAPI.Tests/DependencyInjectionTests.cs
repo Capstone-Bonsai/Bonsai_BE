@@ -15,7 +15,7 @@ namespace WebAPI.Tests
 {
     public class DependencyInjectionTests
     {
-        private readonly ServiceProvider _serviceProvider;
+        /*private readonly ServiceProvider _serviceProvider;
         public DependencyInjectionTests()
         {
             var service = new ServiceCollection();
@@ -44,6 +44,6 @@ namespace WebAPI.Tests
             stopwatchResolved.GetType().Should().Be(typeof(Stopwatch));
             chemicalServiceResolved.GetType().Should().Be(typeof(ChemicalService));
             chemicalRepositoryResolved.GetType().Should().Be(typeof(ChemicalRepository));
-        }
+        }*/
     }
 }

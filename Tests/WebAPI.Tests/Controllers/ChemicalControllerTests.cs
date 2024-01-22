@@ -10,7 +10,7 @@ namespace WebAPI.Tests.Controllers
 {
     public class ChemicalControllerTests : SetupTest
     {
-        private readonly ChemicalController _chemicalController;
+       /* private readonly ChemicalController _chemicalController;
         public ChemicalControllerTests()
         {
             _chemicalController = new ChemicalController(_chemicalServiceMock.Object);
@@ -75,6 +75,6 @@ namespace WebAPI.Tests.Controllers
                     x => x.Equals(mockModelRequest))), Times.Once());
 
             result.Should().BeEquivalentTo(mockModelResponse);
-        }
+        }*/
     }
 }

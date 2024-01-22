@@ -18,15 +18,14 @@ namespace Infrastructures
     {
         public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
-            services.AddScoped<IChemicalService, ChemicalService>();
+           
             services.AddScoped<IUserService, UserService>();
-            
 
-            services.AddScoped<IChemicalRepository, ChemicalRepository>();
+            
             services.AddScoped<IGardenerRepository, GardenerRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
 
-            services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             
             
