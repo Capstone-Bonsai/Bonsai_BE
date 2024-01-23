@@ -7,6 +7,7 @@ namespace Application
 
         public IGardenerRepository GardenerRepository { get; }
         public ICustomerRepository CustomerRepository { get; }
+        public IProductRepository ProductRepository { get; }
 
         public Task<int> SaveChangeAsync();
     }
