@@ -2,6 +2,7 @@
 using AutoMapper;
 using Application.Commons;
 using Domain.Entities;
+using Application.ViewModels.ProductModels;
 
 namespace Infrastructures.Mappers
 {
@@ -13,7 +14,7 @@ namespace Infrastructures.Mappers
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             CreateMap<Chemical, ChemicalViewModel>()
                 .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
-            
+            CreateMap<ProductModel, Product>();
 
         }
     }
