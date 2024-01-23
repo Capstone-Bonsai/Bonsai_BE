@@ -4,6 +4,6 @@ namespace Application.Services
 {
     public class CurrentTime : ICurrentTime
     {
-        public DateTime GetCurrentTime() => DateTime.UtcNow;
+        public DateTime GetCurrentTime() => DateTime.Now;
     }
 }

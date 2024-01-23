@@ -24,7 +24,7 @@ namespace Infrastructures.Repositories
 
         public async Task<TEntity?> GetByIdAsync(Guid id)
         {
-            var result = await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
+            var result = await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             // todo should throw exception when not found
             return result;
         }
@@ -38,6 +38,7 @@ namespace Infrastructures.Repositories
 
         public void SoftRemove(TEntity entity)
         {
+            entity.DeletionDate = _timeService.GetCurrentTime();
             entity.IsDeleted = true;
             entity.DeleteBy = _claimsService.GetCurrentUserId;
             _dbSet.Update(entity);
@@ -74,7 +75,8 @@ namespace Infrastructures.Repositories
         public async Task<Pagination<TEntity>> ToPagination(int pageIndex = 1, int pageSize = 20)
         {
             var itemCount = await _dbSet.CountAsync();
-            var items = await _dbSet.OrderByDescending(x => x.CreationDate)
+            var items = await _dbSet.Where(x => !x.IsDeleted)
+                                    .OrderByDescending(x => x.CreationDate)
                                     .Skip((pageIndex - 1) * pageSize)
                                     .Take(pageSize)
                                     .AsNoTracking()
