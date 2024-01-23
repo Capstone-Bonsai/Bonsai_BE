@@ -1,4 +1,8 @@
-﻿using AutoMapper;
+﻿using Application.Interfaces;
+using Application.ViewModels.CategoryViewModels;
+using Application.ViewModels.ProductModels;
+using AutoMapper;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -16,6 +20,58 @@ namespace Application.Services
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+        }
+        public async Task<List<Category>> GetCategories()
+        {
+            var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+            return categories;
+        }
+        public async Task AddCategory(CategoryModel categoryModel)
+        {
+            var checkCategory = _unitOfWork.CategoryRepository.GetAllAsync().Result.Where(x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()));
+            var category = _mapper.Map<Category>(categoryModel);
+            try
+            {
+                await _unitOfWork.CategoryRepository.AddAsync(category);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                _unitOfWork.CategoryRepository.SoftRemove(category);
+                throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
+            }
+        }
+        public async Task UpdateCategory(Guid id, CategoryModel categoryModel)
+        {
+            var category = _mapper.Map<Category>(categoryModel);
+            category.Id = id;
+            var result = await _unitOfWork.CategoryRepository.GetByIdAsync(category.Id);
+            if (result == null)
+                throw new Exception("Không tìm thấy sản phẩm!");
+            try
+            {
+                _unitOfWork.CategoryRepository.Update(category);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
+            }
+        }
+        public async Task DeleteCategory(Guid id)
+        {
+            var result = await _unitOfWork.CategoryRepository.GetByIdAsync(id);
+            if (result == null)
+                throw new Exception("Không tìm thấy phân loại!");
+            try
+            {
+                _unitOfWork.CategoryRepository.SoftRemove(result);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
+            }
         }
     }
 }

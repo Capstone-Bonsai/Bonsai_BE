@@ -73,10 +73,6 @@ namespace WebAPI.Controllers
             {
                 await _productService.AddProduct(productModel);
             }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
-            }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
@@ -91,7 +87,6 @@ namespace WebAPI.Controllers
             {
                 return NotFound();
             }
-
             return Ok(product);
         }
         [HttpPut("{id}")]
@@ -100,10 +95,6 @@ namespace WebAPI.Controllers
             try
             {
                 await _productService.UpdateProduct(id, productModel);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
@@ -117,10 +108,6 @@ namespace WebAPI.Controllers
             try
             {
                 await _productService.DeleteProduct(id);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {
