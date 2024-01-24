@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240122203554_UpdateOrderEntites")]
-    partial class UpdateOrderEntites
+    [Migration("20240124115656_newMigration")]
+    partial class newMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -323,8 +323,8 @@ namespace Infrastructures.Migrations
                     b.Property<double>("DeliveryPrice")
                         .HasColumnType("float");
 
-                    b.Property<double>("ExpectedDeliveryDate")
-                        .HasColumnType("float");
+                    b.Property<DateTime>("ExpectedDeliveryDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -344,10 +344,13 @@ namespace Infrastructures.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
+                    b.Property<int>("OrderType")
+                        .HasColumnType("int");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<Guid>("StaffId")
+                    b.Property<Guid?>("StaffId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("TotalPrice")
