@@ -1,5 +1,4 @@
 ﻿using Application.Interfaces;
-using Application.ViewModels.ChemicalsViewModels;
 using AutoFixture;
 using Application.Commons;
 using Domain.Entities;

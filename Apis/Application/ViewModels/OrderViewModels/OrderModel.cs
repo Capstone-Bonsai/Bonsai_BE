@@ -1,18 +1,16 @@
 ﻿using Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Entities
+namespace Application.ViewModels.OrderViewModels
 {
-    public class Order : BaseEntity
+    public class OrderModel
     {
-        [ForeignKey("Customer")]
         public Guid CustomerId { get; set; }
-        public Guid? StaffId { get; set; }
+        public Guid StaffId { get; set; }
         public string Address { get; set; }
         public DateTime OrderDate { get; set; }
         public double ExpectedDeliveryDate { get; set; }
@@ -22,8 +20,5 @@ namespace Domain.Entities
         public OrderStatus OrderStatus { get; set; }
         public string? Note { get; set; }
         public OrderType OrderType { get; set; }
-        public virtual Customer Customer { get; set; }
-        public virtual OrderTransaction OrderTransaction { get; set; }
-        public IList<OrderDetail> OrderDetails { get;}
     }
 }

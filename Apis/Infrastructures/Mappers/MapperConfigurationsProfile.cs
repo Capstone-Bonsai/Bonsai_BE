@@ -1,4 +1,4 @@
-﻿using Application.ViewModels.ChemicalsViewModels;
+﻿
 using AutoMapper;
 using Application.Commons;
 using Domain.Entities;

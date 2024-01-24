@@ -1,4 +1,4 @@
-﻿using Application.ViewModels.ChemicalsViewModels;
+﻿
 using AutoFixture;
 using Application.Commons;
 using Domain.Tests;
