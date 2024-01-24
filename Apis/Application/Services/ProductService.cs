@@ -1,6 +1,6 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -39,8 +39,8 @@ namespace Application.Services
 
         public async Task<Product?> GetProductById(Guid id)
         {
-            var product = await _unitOfWork.ProductRepository.GetAsync(expression: o => o.Id.Equals(id), pageSize: 1);
-            return product.Items[0];
+            var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+            return product;
         }
 
         public async Task AddProduct(ProductModel productModel)

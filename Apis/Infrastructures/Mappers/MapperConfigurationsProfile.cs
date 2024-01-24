@@ -2,8 +2,9 @@
 using AutoMapper;
 using Application.Commons;
 using Domain.Entities;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.CategoryViewModels;
+using Application.ViewModels.SubCategoryViewModels;
 
 namespace Infrastructures.Mappers
 {
@@ -16,7 +17,8 @@ namespace Infrastructures.Mappers
             CreateMap<Chemical, ChemicalViewModel>()
                 .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
             CreateMap<ProductModel, Product>();
-            CreateMap<CategoryModel, Category>();
+            CreateMap<CategoryViewModel, Category>();
+            CreateMap<SubCategoryModel, SubCategory>();
         }
     }
 }

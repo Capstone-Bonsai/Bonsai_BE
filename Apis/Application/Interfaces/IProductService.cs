@@ -1,5 +1,5 @@
 ﻿using Application.Commons;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;

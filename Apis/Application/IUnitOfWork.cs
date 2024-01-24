@@ -9,6 +9,7 @@ namespace Application
         public ICustomerRepository CustomerRepository { get; }
         public IProductRepository ProductRepository { get; }
         public ICategoryRepository CategoryRepository { get; }
+        public ISubCategoryRepository SubCategoryRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

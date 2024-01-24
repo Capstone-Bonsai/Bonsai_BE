@@ -10,14 +10,17 @@ namespace Infrastructures
         private readonly ICustomerRepository _customerRepository;
         private readonly IProductRepository _productRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ISubCategoryRepository _subcategoryRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository, IProductRepository productRepository, ICategoryRepository categoryRepository)
+        public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository, 
+            IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
             _customerRepository = customerRepository;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
+            _subcategoryRepository = subcategoryRepository;
         }
 
 
@@ -28,6 +31,8 @@ namespace Infrastructures
         public IProductRepository ProductRepository => _productRepository;
 
         public ICategoryRepository CategoryRepository => _categoryRepository;
+
+        public ISubCategoryRepository SubCategoryRepository => _subcategoryRepository;
 
         public async Task<int> SaveChangeAsync()
         {

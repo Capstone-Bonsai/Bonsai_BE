@@ -1,6 +1,7 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.Interfaces;
 using Application.ViewModels.CategoryViewModels;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
 using System;
@@ -21,14 +22,14 @@ namespace Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<List<Category>> GetCategories()
+        public async Task<Pagination<Category>> GetCategories()
         {
-            var categories = await _unitOfWork.CategoryRepository.GetAllAsync();
+            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return categories;
         }
-        public async Task AddCategory(CategoryModel categoryModel)
+        public async Task AddCategory(CategoryViewModel categoryModel)
         {
-            var checkCategory = _unitOfWork.CategoryRepository.GetAllAsync().Result.Where(x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()));
+            var checkCategory =  _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
             var category = _mapper.Map<Category>(categoryModel);
             try
             {
@@ -41,7 +42,7 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }
-        public async Task UpdateCategory(Guid id, CategoryModel categoryModel)
+        public async Task UpdateCategory(Guid id, CategoryViewModel categoryModel)
         {
             var category = _mapper.Map<Category>(categoryModel);
             category.Id = id;
