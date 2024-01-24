@@ -14,6 +14,7 @@ namespace Domain.Entities
         public Guid CustomerId { get; set; }
         public Guid? StaffId { get; set; }
         public string Address { get; set; }
+        public string Province { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime ExpectedDeliveryDate { get; set; }
         public double Price { get; set; }
