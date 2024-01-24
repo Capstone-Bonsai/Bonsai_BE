@@ -1,8 +1,6 @@
 ﻿using Application.Interfaces;
-using Application.Repositories;
-using Application.Services;
 using Application.ViewModels.CategoryViewModels;
-using Application.ViewModels.ProductViewModels;
+using Application.ViewModels.SubCategoryViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,15 +8,15 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class SubCategoryController : ControllerBase
     {
-        private readonly ICategoryService _categoryService;
+        private readonly ISubCategoryService _subCategoryService;
         private readonly IClaimsService _claims;
 
-        public CategoryController(ICategoryService categoryService,
+        public SubCategoryController(ISubCategoryService subCategoryService,
             IClaimsService claimsService)
         {
-            _categoryService = categoryService;
+            _subCategoryService = subCategoryService;
             _claims = claimsService;
         }
         [HttpGet]
@@ -26,14 +24,14 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var categories = await _categoryService.GetCategories();
-                if (categories == null)
+                var subCategories = await _subCategoryService.GetSubCategories();
+                if (subCategories == null)
                 {
                     return BadRequest("Không tìm thấy");
                 }
                 else
                 {
-                    return Ok(categories);
+                    return Ok(subCategories);
                 }
             }
             catch (Exception ex)
@@ -42,11 +40,11 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CategoryViewModel categoryModel)
+        public async Task<IActionResult> Post([FromBody] SubCategoryModel subCategoryModel)
         {
             try
             {
-                await _categoryService.AddCategory(categoryModel);
+                await _subCategoryService.AddSubCategory(subCategoryModel);
             }
             catch (Exception ex)
             {
@@ -55,11 +53,11 @@ namespace WebAPI.Controllers
             return NoContent();
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] CategoryViewModel categoryModel)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] SubCategoryModel subCategoryModel)
         {
             try
             {
-                await _categoryService.UpdateCategory(id, categoryModel);
+                await _subCategoryService.UpdateSubCategory(id, subCategoryModel);
             }
             catch (Exception ex)
             {
@@ -72,7 +70,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _categoryService.DeleteCategory(id);
+                await _subCategoryService.DeleteSubCategory(id);
             }
             catch (Exception ex)
             {

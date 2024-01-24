@@ -1,5 +1,5 @@
 ﻿using Application.Interfaces;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;

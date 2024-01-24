@@ -1,4 +1,5 @@
-﻿using Application.ViewModels.CategoryViewModels;
+﻿using Application.Commons;
+using Application.ViewModels.CategoryViewModels;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -10,9 +11,9 @@ namespace Application.Interfaces
 {
     public interface ICategoryService
     {
-        Task<List<Category>> GetCategories();
-        Task AddCategory(CategoryModel categoryModel);
-        Task UpdateCategory(Guid id, CategoryModel categoryModel);
+        Task<Pagination<Category>> GetCategories();
+        Task AddCategory(CategoryViewModel categoryModel);
+        Task UpdateCategory(Guid id, CategoryViewModel categoryModel);
         Task DeleteCategory(Guid id);
     }
 }

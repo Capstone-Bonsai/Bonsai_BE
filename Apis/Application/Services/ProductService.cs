@@ -1,6 +1,6 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -28,12 +28,12 @@ namespace Application.Services
 
         public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize)
         {
-            var products = await _unitOfWork.ProductRepository.ToPagination(pageIndex, pageSize);
+            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize);
             return products;
         }
-        public async Task<List<Product>> GetProducts()
+        public async Task<Pagination<Product>> GetProducts()
         {
-            var products = await _unitOfWork.ProductRepository.GetAllAsync();
+            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return products;
         }
 

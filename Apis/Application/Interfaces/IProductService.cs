@@ -1,5 +1,5 @@
 ﻿using Application.Commons;
-using Application.ViewModels.ProductModels;
+using Application.ViewModels.ProductViewModels;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Application.Interfaces
     public interface IProductService
     {
         Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize);
-        Task<List<Product>> GetProducts();
+        Task<Pagination<Product>> GetProducts();
         Task<Product?> GetProductById(Guid id);
         Task AddProduct(ProductModel productModel);
         Task UpdateProduct(Guid id, ProductModel productModel);

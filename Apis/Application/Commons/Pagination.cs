@@ -1,4 +1,6 @@
-﻿namespace Application.Commons
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace Application.Commons
 {
     public class Pagination<T>
     {
@@ -8,21 +10,23 @@
         {
             get
             {
-                var temp = TotalItemsCount / PageSize;
-                if (TotalItemsCount % PageSize == 0)
+                if (PageSize != 0)
                 {
-                    return temp;
+                    var temp = TotalItemsCount / PageSize;
+                    if (TotalItemsCount % PageSize == 0)
+                    {
+                        return temp;
+                    }
+                    return temp + 1;
                 }
-                return temp + 1;
+                else
+                    return 1;
             }
         }
         public int PageIndex { get; set; }
 
-        /// <summary>
-        /// page number start from 0
-        /// </summary>
         public bool Next => PageIndex + 1 < TotalPagesCount;
         public bool Previous => PageIndex > 0;
-        public ICollection<T> Items { get; set; }
+        public List<T> Items { get; set; } = new List<T>();
     }
 }
