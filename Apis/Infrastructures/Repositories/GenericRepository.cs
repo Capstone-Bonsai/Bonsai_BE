@@ -3,6 +3,8 @@ using Application.Repositories;
 using Application.Commons;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructures.Repositories
 {
@@ -72,25 +74,40 @@ namespace Infrastructures.Repositories
             _dbSet.UpdateRange(entities);
         }
 
-        public async Task<Pagination<TEntity>> ToPagination(int pageIndex = 1, int pageSize = 20)
+        public async Task<int> CountAsync(Expression<Func<TEntity, bool>> expression = null)
         {
-            var itemCount = await _dbSet.CountAsync();
-            var items = await _dbSet.Where(x => !x.IsDeleted)
-                                    .OrderByDescending(x => x.CreationDate)
-                                    .Skip((pageIndex - 1) * pageSize)
-                                    .Take(pageSize)
-                                    .AsNoTracking()
-                                    .ToListAsync();
+            return expression == null ? await _dbSet.CountAsync() : await _dbSet.CountAsync(expression);
+        }
 
-            var result = new Pagination<TEntity>()
+        public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0)
+        {
+                IQueryable<TEntity> query = _dbSet;
+            var paginationResult = new Pagination<TEntity>();
+            paginationResult.PageIndex = pageIndex;
+            if (pageSize == 0)
+                paginationResult.PageSize = await CountAsync(expression);
+            else
+                paginationResult.PageSize = pageSize;
+            paginationResult.TotalItemsCount = await CountAsync(expression);
+            if (expression != null)
+                query = query.Where(expression);
+            if (isDisableTracking is true)
+                query = query.AsNoTracking();
+            if (isTakeAll is true)
             {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                TotalItemsCount = itemCount,
-                Items = items,
-            };
-
-            return result;
+                if (orderBy != null)
+                    paginationResult.Items = await orderBy(query).ToListAsync();
+                else
+                    paginationResult.Items = await query.ToListAsync();
+            }
+            else
+            {
+                if (orderBy == null)
+                    paginationResult.Items = await query.Skip(pageSize * pageIndex).Take(pageSize).ToListAsync();
+                else
+                    paginationResult.Items = await orderBy(query).Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
+            }
+            return paginationResult;
         }
 
         public void UpdateRange(List<TEntity> entities)

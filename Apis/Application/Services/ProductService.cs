@@ -28,19 +28,19 @@ namespace Application.Services
 
         public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize)
         {
-            var products = await _unitOfWork.ProductRepository.ToPagination(pageIndex, pageSize);
+            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize);
             return products;
         }
-        public async Task<List<Product>> GetProducts()
+        public async Task<Pagination<Product>> GetProducts()
         {
-            var products = await _unitOfWork.ProductRepository.GetAllAsync();
+            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return products;
         }
 
         public async Task<Product?> GetProductById(Guid id)
         {
-            var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
-            return product;
+            var product = await _unitOfWork.ProductRepository.GetAsync(expression: o => o.Id.Equals(id), pageSize: 1);
+            return product.Items[0];
         }
 
         public async Task AddProduct(ProductModel productModel)
