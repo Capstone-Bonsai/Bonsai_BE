@@ -5,6 +5,7 @@ using Domain.Entities;
 using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.SubCategoryViewModels;
+using Application.ViewModels.OrderViewModels;
 
 namespace Infrastructures.Mappers
 {
@@ -19,6 +20,9 @@ namespace Infrastructures.Mappers
             CreateMap<ProductModel, Product>();
             CreateMap<CategoryViewModel, Category>();
             CreateMap<SubCategoryModel, SubCategory>();
+
+
+            CreateMap<OrderModel, Order>().ReverseMap();
         }
     }
 }

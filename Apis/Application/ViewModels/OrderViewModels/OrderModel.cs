@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Application.ViewModels.OrderDetailModels;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,16 +10,11 @@ namespace Application.ViewModels.OrderViewModels
 {
     public class OrderModel
     {
-        public Guid CustomerId { get; set; }
-        public Guid StaffId { get; set; }
+        public OrderInfoModel? OrderInfo { get; set; }
         public string Address { get; set; }
-        public DateTime OrderDate { get; set; }
-        public double ExpectedDeliveryDate { get; set; }
-        public double Price { get; set; }
-        public double DeliveryPrice { get; set; }
-        public double TotalPrice { get; set; }
-        public OrderStatus OrderStatus { get; set; }
+        public DateTime ExpectedDeliveryDate { get; set; }
         public string? Note { get; set; }
-        public OrderType OrderType { get; set; }
+        public IList<OrderDetailModel> ListProduct { get; set; }
+
     }
 }
