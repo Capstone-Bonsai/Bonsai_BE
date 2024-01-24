@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Application.ViewModels.OrderViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -7,10 +8,12 @@ namespace WebAPI.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-/*        [HttpPost]
-        public async Task<IActionResult> CreateOrderAsync()
+        /*[HttpPost]
+        public async Task<IActionResult> CreateOrderAsync(OrderModel model)
         {
-
+            
         }*/
+
+        
     }
 }

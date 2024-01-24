@@ -1,7 +1,12 @@
 ﻿using Application.ViewModels.UserViewModels;
 using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace WebAPI.Validations.User
+namespace Application.Validations.User
 {
     public class UserModelValidator : AbstractValidator<UserRequestModel>
     {

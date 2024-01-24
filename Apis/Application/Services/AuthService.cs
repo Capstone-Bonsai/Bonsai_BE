@@ -1,5 +1,6 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Validations.Auth;
 using Application.ViewModels;
 using Application.ViewModels.AuthViewModel;
 using Domain.Entities;
@@ -396,6 +397,20 @@ namespace Application.Services
                 // Đặt lại mật khẩu không thành công
                 throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
             }
+        }
+
+
+        public async Task<IList<string>> ValidateAsync(RegisterModel model)
+        {
+            var validator = new RegisterModelValidator();
+            var result = await validator.ValidateAsync(model);
+            if (!result.IsValid)
+            {
+                var errors = new List<string>();
+                errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
+                return errors;
+            }
+            return null; 
         }
 
     }

@@ -29,4 +29,9 @@
     <ProjectReference Include="..\Infrastructures\Infrastructures.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Validations\Auth\" />
+    <Folder Include="Validations\Order\" />
+  </ItemGroup>
+
 </Project>

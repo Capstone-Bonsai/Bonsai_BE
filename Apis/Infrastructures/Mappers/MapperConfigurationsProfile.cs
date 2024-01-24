@@ -6,6 +6,7 @@ using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.SubCategoryViewModels;
 using Application.ViewModels.OrderViewModels;
+using Application.ViewModels.OrderDetailModels;
 
 namespace Infrastructures.Mappers
 {
@@ -23,6 +24,9 @@ namespace Infrastructures.Mappers
 
 
             CreateMap<OrderModel, Order>().ReverseMap();
+            CreateMap<OrderDetailModel, OrderDetail>().ReverseMap();
+
+
         }
     }
 }

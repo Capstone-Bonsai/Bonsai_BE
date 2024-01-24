@@ -1,9 +1,14 @@
 ﻿using Application.ViewModels.OrderViewModels;
 using FluentValidation;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace WebAPI.Validations.Order
+namespace Application.Validations.Order
 {
-    public class OrderModelValidator:AbstractValidator<OrderModel>
+    public class OrderModelValidator : AbstractValidator<OrderModel>
     {
         public OrderModelValidator()
         {

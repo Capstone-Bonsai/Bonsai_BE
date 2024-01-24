@@ -18,7 +18,6 @@ using NuGet.Protocol.Plugins;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
-using WebAPI.Validations.Auth;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebAPI.Controllers
@@ -68,28 +67,11 @@ namespace WebAPI.Controllers
                     }
                 }
 
-                string callbackUrl = "";
-                //lấy host để redirect về
-                var referer = Request.Headers["Referer"].ToString();
-                string schema;
-                string host;
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                //lấy host để redirect về send email
+                var referer = Request.Headers["Referer"].ToString().Trim();
+                var callbackUrl = await GetCallbackUrlAsync(model.Email.Trim(), referer, "EmailConfirm");
+                await _auth.SendEmailAsync(model.Email.Trim(), callbackUrl, "EmailConfirm");
 
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                if (Uri.TryCreate(referer, UriKind.Absolute, out var uri))
-                {
-                    schema = uri.Scheme; // Lấy schema (http hoặc https) của frontend
-                    host = uri.Host; // Lấy host của frontend
-                    callbackUrl = schema + "://" + host + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
-                }
-                if (referer.Equals("https://localhost:5001/swagger/index.html"))
-                {
-                    callbackUrl = Request.Scheme + "://" + Request.Host + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
-                }
-                //kết thúc lấy host để redirect về và tạo link
-
-
-                //callbackUrl = Request.Scheme + "://" + Request.Host + Url.Action("ConfirmEmail", "Auth", new { userId = user.Id, code = code });
                 var result = await _auth.Login(model.Email, model.Password, callbackUrl);
                 if (result == null)
                 {
@@ -110,13 +92,10 @@ namespace WebAPI.Controllers
             var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
             try
             {
-                var validator = new RegisterModelValidator();
-                var result = await validator.ValidateAsync(model);
-                if (!result.IsValid)
+                var validateResult = await _auth.ValidateAsync(model);
+                if (validateResult != null)
                 {
-                    var errors = new List<string>();
-                    errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
-                    return BadRequest(errors);
+                    return BadRequest(validateResult);
                 }
                 //check account
                 await _auth.CheckAccountExist(model);
