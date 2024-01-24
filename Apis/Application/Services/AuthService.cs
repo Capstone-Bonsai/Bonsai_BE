@@ -132,7 +132,8 @@ namespace Application.Services
                 UserName = model.Username,
                 Email = model.Email,
                 Fullname = model.Fullname,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                IsRegister = true
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -237,7 +238,7 @@ namespace Application.Services
                 user = await _userManager.FindByEmailAsync(payload.Email);
                 if (user == null)
                 {
-                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email, Fullname = payload.GivenName };
+                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email, Fullname = payload.GivenName, IsRegister = true };
                     await _userManager.CreateAsync(user);
                     //prepare and send an email for the email confirmation
                     //Create customer account

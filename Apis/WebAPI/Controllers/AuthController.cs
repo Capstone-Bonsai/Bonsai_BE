@@ -70,7 +70,6 @@ namespace WebAPI.Controllers
                 //lấy host để redirect về send email
                 var referer = Request.Headers["Referer"].ToString().Trim();
                 var callbackUrl = await GetCallbackUrlAsync(model.Email.Trim(), referer, "EmailConfirm");
-                await _auth.SendEmailAsync(model.Email.Trim(), callbackUrl, "EmailConfirm");
 
                 var result = await _auth.Login(model.Email, model.Password, callbackUrl);
                 if (result == null)

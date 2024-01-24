@@ -36,6 +36,8 @@ namespace Infrastructures
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+
 
 
 
@@ -58,7 +60,10 @@ namespace Infrastructures
                     options.UseSqlServer(GetConnection(configuration, env),
                         builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
-            services.AddIdentity < ApplicationUser, IdentityRole>().AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
+            services.AddIdentity < ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            }).AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
             // this configuration just use in-memory for fast develop
             //services.AddDbContext<AppDbContext>(option => option.UseInMemoryDatabase("test"));
 
