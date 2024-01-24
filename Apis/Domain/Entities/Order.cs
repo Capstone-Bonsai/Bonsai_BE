@@ -21,7 +21,7 @@ namespace Domain.Entities
         public double TotalPrice { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public string? Note { get; set; }
-
+        public OrderType OrderType { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual OrderTransaction OrderTransaction { get; set; }
         public IList<OrderDetail> OrderDetails { get;}
