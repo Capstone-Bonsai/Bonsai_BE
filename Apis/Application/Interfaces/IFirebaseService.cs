@@ -11,8 +11,5 @@ namespace Application.Interfaces
     public interface IFirebaseService
     {
         Task<string?> UploadFileToFirebaseStorage(IFormFile files, string fileName, string folderName);
-        Task DeleteFileInFirebaseStorage(string fileName, string folderName);
-        Task<string?> DownloadFileFromFirebaseStorage(string fileName, string folderName);
-        Task<FirebaseMetaData?> GetMetadataFileFromFirebaseStorage(string fileName, string folderName);
     }
 }

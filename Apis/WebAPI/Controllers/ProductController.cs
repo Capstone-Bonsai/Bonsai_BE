@@ -86,7 +86,13 @@ namespace WebAPI.Controllers
                         string newImageName = id + "_i" + singleImage.index;
                         string folderName = $"product/{id}/Image";
                         string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp"};
 
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1)
+                        {
+                            throw new Exception("Invalid image file format");
+                        }
                         var url = await _firebaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
                         if (url == null)
                             throw new Exception("Lỗi khi đăng ảnh lên firebase!");
