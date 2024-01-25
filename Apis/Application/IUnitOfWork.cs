@@ -11,6 +11,9 @@ namespace Application
         public ICategoryRepository CategoryRepository { get; }
         public ISubCategoryRepository SubCategoryRepository { get; }
         public IProductImageRepository ProductImageRepository { get; }
+        public IOrderRepository OrderRepository { get; }
+        public IOrderDetailRepository OrderDetailRepository { get; }
+        public IOrderTransactionRepository OrderTransactionRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

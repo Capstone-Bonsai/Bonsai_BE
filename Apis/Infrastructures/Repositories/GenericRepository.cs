@@ -26,7 +26,7 @@ namespace Infrastructures.Repositories
 
         public async Task<TEntity?> GetByIdAsync(Guid id)
         {
-            var result = await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            var result = await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
             // todo should throw exception when not found
             return result;
         }
@@ -86,7 +86,7 @@ namespace Infrastructures.Repositories
             return expression == null ? await _dbSet.CountAsync() : await _dbSet.CountAsync(expression);
         }
 
-        public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0)
+        public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, Expression<Func<TEntity, object>> expressionInclude = null)
         {
                 IQueryable<TEntity> query = _dbSet;
             var paginationResult = new Pagination<TEntity>();
@@ -96,6 +96,8 @@ namespace Infrastructures.Repositories
             else
                 paginationResult.PageSize = pageSize;
             paginationResult.TotalItemsCount = await CountAsync(expression);
+            if (expressionInclude != null)
+                query = query.Include(expressionInclude);
             if (expression != null)
                 query = query.Where(expression);
             if (isDisableTracking is true)

@@ -39,6 +39,8 @@ namespace Infrastructures
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+
 
             services.Configure<FirebaseConfiguration>(configuration.GetSection("FirebaseConfiguration"));
             services.AddScoped<IFirebaseService, FirebaseService>();
@@ -63,7 +65,10 @@ namespace Infrastructures
                     options.UseSqlServer(GetConnection(configuration, env),
                         builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
-            services.AddIdentity < ApplicationUser, IdentityRole>().AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
+            services.AddIdentity < ApplicationUser, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            }).AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
             // this configuration just use in-memory for fast develop
             //services.AddDbContext<AppDbContext>(option => option.UseInMemoryDatabase("test"));
 

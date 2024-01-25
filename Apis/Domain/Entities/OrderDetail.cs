@@ -13,9 +13,8 @@ namespace Domain.Entities
         public Guid OrderId { get; set; }
         [ForeignKey("Product")]
         public Guid ProductId { get; set; }
-
         public int Quantity { get; set; }
-        public int UnitPrice { get; set; }
+        public double UnitPrice { get; set; }
         public virtual Order Order { get; set; }
         public virtual Product Product { get; set; }
 

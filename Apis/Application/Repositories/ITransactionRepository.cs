@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Application.Repositories
 {
-    public interface IOrderService
+    public interface ITransactionRepository
     {
-        public Task<IList<string>> CreateOrderAsync(OrderModel model, string userId);
+        public Task CreateOrderByTransaction(OrderModel model, string? userId);
     }
 }
