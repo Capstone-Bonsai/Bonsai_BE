@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Commons;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services;
@@ -26,7 +27,8 @@ namespace Infrastructures
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IOrderTransactionService, OrderTransactionService>();
-
+            services.AddScoped<IProductImageService, ProductImageService>();
+            
 
             services.AddScoped<IGardenerRepository, GardenerRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -36,8 +38,11 @@ namespace Infrastructures
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
+            services.AddScoped<IProductImageRepository, ProductImageRepository>();
 
-
+            services.Configure<FirebaseConfiguration>(configuration.GetSection("FirebaseConfiguration"));
+            services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddSingleton<FirebaseConfiguration>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             

@@ -33,11 +33,6 @@ var configuration = builder.Configuration.Get<AppConfiguration>();
 builder.Services.AddInfrastructuresService(builder.Configuration, builder.Environment);
 builder.Services.AddWebAPIService();
 builder.Services.AddSingleton(configuration);
-/*
-    register with singleton life time
-    now we can use dependency injection for AppConfiguration
-*/
-builder.Services.AddSingleton(configuration);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -126,7 +121,9 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<PerformanceMiddleware>();
 app.MapHealthChecks("/healthchecks");
 app.UseHttpsRedirection();
-// todo authentication
+
+app.UseStaticFiles();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

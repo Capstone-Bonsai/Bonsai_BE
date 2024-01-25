@@ -43,13 +43,14 @@ namespace Application.Services
             return product;
         }
 
-        public async Task AddProduct(ProductModel productModel)
+        public async Task<Guid> AddAsyncGetId(ProductModel productModel)
         {
             var product = _mapper.Map<Product>(productModel);
             try
             {
-                await _unitOfWork.ProductRepository.AddAsync(product);
+                var id = await _unitOfWork.ProductRepository.AddAsyncGetId(product);
                 await _unitOfWork.SaveChangeAsync();
+                return id;
             }
             catch (Exception)
             {

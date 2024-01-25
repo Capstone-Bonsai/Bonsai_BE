@@ -4,16 +4,19 @@ using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Storage;
 using Application.Interfaces;
+using Microsoft.Extensions.Configuration;
 
 namespace Application.Services
 {
     public class FirebaseService : IFirebaseService
     {
         private readonly FirebaseConfiguration _firebaseConfiguration;
+        private readonly IConfiguration _configuration;
 
-        public FirebaseService(FirebaseConfiguration config)
+        public FirebaseService(FirebaseConfiguration config, IConfiguration configuration)
         {
             _firebaseConfiguration = config;
+            _configuration = configuration;
         }
 
         private async Task<string> SignInAndGetAuthToken()
@@ -21,14 +24,14 @@ namespace Application.Services
             //Firebase config
             var config = new FirebaseAuthConfig
             {
-                ApiKey = _firebaseConfiguration.ApiKey,
-                AuthDomain = _firebaseConfiguration.AuthDomain,
+                ApiKey = _configuration["FirebaseConfiguration:ApiKey"],
+                AuthDomain = _configuration["FirebaseConfiguration:AuthDomain"],
                 Providers = new FirebaseAuthProvider[]{
                         new EmailProvider(),
                     }
             };
             var client = new FirebaseAuthClient(config);
-            var authResult = await client.SignInWithEmailAndPasswordAsync(_firebaseConfiguration.AuthEmail, _firebaseConfiguration.AuthPassword);
+            var authResult = await client.SignInWithEmailAndPasswordAsync(_configuration["FirebaseConfiguration:AuthEmail"], _configuration["FirebaseConfiguration:AuthPassword"]);
             return await authResult.User.GetIdTokenAsync();
         }
 
@@ -37,7 +40,7 @@ namespace Application.Services
             if (files.Length > 0)
             {
                 var task = new FirebaseStorage(
-                    _firebaseConfiguration.Bucket,
+                    _configuration["FirebaseConfiguration:Bucket"],
                     new FirebaseStorageOptions
                     {
                         AuthTokenAsyncFactory = SignInAndGetAuthToken,

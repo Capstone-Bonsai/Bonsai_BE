@@ -30,6 +30,13 @@ namespace Infrastructures.Repositories
             // todo should throw exception when not found
             return result;
         }
+        public async Task<Guid> AddAsyncGetId(TEntity entity)
+        {
+            entity.CreationDate = _timeService.GetCurrentTime();
+            entity.CreatedBy = _claimsService.GetCurrentUserId;
+            await _dbSet.AddAsync(entity);
+            return entity.Id;
+        }
 
         public async Task AddAsync(TEntity entity)
         {

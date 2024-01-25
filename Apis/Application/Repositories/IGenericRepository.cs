@@ -8,6 +8,7 @@ namespace Application.Repositories
     {
         Task<List<TEntity>> GetAllAsync();
         Task<TEntity?> GetByIdAsync(Guid id);
+        Task<Guid> AddAsyncGetId(TEntity entity);
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);
         void UpdateRange(List<TEntity> entities);

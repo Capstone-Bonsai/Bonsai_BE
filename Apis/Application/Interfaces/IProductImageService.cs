@@ -1,0 +1,16 @@
+﻿using Application.Commons;
+using Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Interfaces
+{
+    public interface IProductImageService
+    {
+        Task<Pagination<ProductImage>> GetProductImagesByProductId(Guid productId);
+        Task AddProductImages(ProductImage productImage);
+    }
+}

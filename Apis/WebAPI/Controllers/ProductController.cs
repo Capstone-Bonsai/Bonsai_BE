@@ -1,4 +1,6 @@
 ﻿using Application.Interfaces;
+using Application.Services;
+using Application.ViewModels.ProductImageViewModels;
 using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
@@ -18,12 +20,18 @@ namespace WebAPI.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly IProductImageService _productImageService;
+        private readonly IFirebaseService _firebaseService;
         private readonly IClaimsService _claims;
 
         public ProductController(IProductService productService,
+            IProductImageService productImageService,
+            IFirebaseService firebaseService,
             IClaimsService claimsService)
         {
             _productService = productService;
+            _productImageService = productImageService;
+            _firebaseService = firebaseService;
             _claims = claimsService;
         }
         [HttpGet("Pagination")]
@@ -67,11 +75,31 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] ProductModel productModel)
+        public async Task<IActionResult> Post([FromForm] ProductModel productModel)
         {
             try
             {
-                await _productService.AddProduct(productModel);
+                var id = await _productService.AddAsyncGetId(productModel);
+                if (productModel.Image != null)
+                {
+                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index))) {
+                        string newImageName = id + "_i" + singleImage.index;
+                        string folderName = $"product/{id}/Image";
+                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
+
+                        var url = await _firebaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                        ProductImage productImage = new ProductImage()
+                        {
+                            ProductId = id,
+                            ImageUrl = url
+                        };
+
+                        await _productImageService.AddProductImages(productImage);
+                    }
+                }
             }
             catch (Exception ex)
             {
