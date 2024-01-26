@@ -6,6 +6,7 @@ using Application.ViewModels.OrderViewModels;
 
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
@@ -215,6 +216,7 @@ namespace Application.Services
                 await _unitOfWork.OrderTransactionRepository.AddAsync(orderTransaction);
                 //Update Order Status
                 order.OrderStatus = orderStatus;
+                _unitOfWork.OrderRepository.Update(order);
                 await _unitOfWork.SaveChangeAsync();
                 if (momo.resultCode != 0)
                 {
@@ -229,10 +231,10 @@ namespace Application.Services
 
         public async Task UpdateProductQuantityFromOrder(Guid orderId)
         {
-            var order = await _unitOfWork.OrderRepository.GetAsync(expression: x => !x.IsDeleted && x.OrderStatus == OrderStatus.Failed, isDisableTracking: true, isTakeAll: true, expressionInclude: x => x.OrderDetails);
-            if (order == null || order.TotalItemsCount <= 0)
+            var order = await _unitOfWork.OrderRepository.GetAllQueryable().Include(x=>x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
+            if (order == null)
                 throw new Exception("Không tìm thấy đơn hàng.");
-            foreach (var item in order.Items.FirstOrDefault().OrderDetails)
+            foreach (var item in order.OrderDetails)
             {
                 var product = await _unitOfWork.ProductRepository.GetByIdAsync(item.ProductId);
                 if (product == null)
