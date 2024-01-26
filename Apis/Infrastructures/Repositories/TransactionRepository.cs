@@ -23,7 +23,7 @@ namespace Infrastructures.Repositories
             _unit = unitOfWork;
             _userManager = userManager;
         }
-        public async Task CreateOrderByTransaction(OrderModel model, string? userId)
+        public async Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId)
         {
             var customer = await GetCustomerAsync(model, userId);
             var myTransaction = _context.Database.BeginTransaction();
@@ -36,6 +36,7 @@ namespace Infrastructures.Repositories
                 }
                 await UpdateOrder(orderId);
                 myTransaction.Commit();
+                return orderId;
             }
             catch (Exception ex)
             {
@@ -139,7 +140,7 @@ namespace Infrastructures.Repositories
                 if (product == null)
                     throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
                 else if ((product.Quantity - model.Quantity) < 0)
-                    throw new Exception($"Số lượng sản phầm {product.Name} trong kho không đủ số lượng bạn yêu cầu.");
+                    throw new Exception($"Số lượng sản phẩm {product.Name} trong kho không đủ số lượng bạn yêu cầu.");
                 //tạo order đetail
                 var orderDetail = _mapper.Map<OrderDetail>(model);
                 orderDetail.OrderId = orderId;
@@ -162,10 +163,10 @@ namespace Infrastructures.Repositories
         {
             try
             {
-                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.Id == orderId).FirstOrDefaultAsync();
+                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.Id == orderId && !x.IsDeleted).FirstOrDefaultAsync();
                 if (order == null)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
-                var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId, isDisableTracking: true, isTakeAll: true, expressionInclude: x => x.Product);
+                var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId && !x.IsDeleted, isDisableTracking: true, isTakeAll: true, expressionInclude: x => x.Product);
 
                 if (listOrderDetail == null || listOrderDetail.TotalItemsCount == 0)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");

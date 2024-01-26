@@ -4,6 +4,6 @@ namespace Application.Repositories
 {
     public interface ITransactionRepository
     {
-        public Task CreateOrderByTransaction(OrderModel model, string? userId);
+        public Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId);
     }
 }

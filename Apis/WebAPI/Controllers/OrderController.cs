@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services.Momo;
 using Application.ViewModels.OrderViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,20 +23,39 @@ namespace WebAPI.Controllers
             try
             {
                 var userId = _claimsService.GetCurrentUserId.ToString().ToLower();
-                var result = await _orderService.CreateOrderAsync(model, userId);
-                if (result == null)
+                var resultValidate = await _orderService. ValidateOrderModel(model, userId);
+                if (resultValidate == null)
                 {
-                    return Ok();
+                    var result = await _orderService.CreateOrderAsync(model, userId);
+                    if (result!=null)
+                        return Ok(result);
+                    else return BadRequest(result);
                 }
                 else
                 {
-                    return BadRequest(result);
+                    return BadRequest(resultValidate);
                 }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+
+        [HttpPost("IpnHandler")]
+        public async Task<IActionResult> IpnAsync([FromBody] MomoRedirect momo)
+        {
+            try
+            {
+                await _orderService.HandleIpnAsync(momo);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+           
         }
 
 
