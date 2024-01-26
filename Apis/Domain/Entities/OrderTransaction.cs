@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
@@ -34,6 +35,7 @@ namespace Domain.Entities
         public string ExtraData { get; set; }
         public string Signature { get; set; }
 
+        [JsonIgnore]
         public virtual Order Order { get; set; }
     }
 }

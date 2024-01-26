@@ -1,15 +1,17 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
 using Application.Validations.Order;
 using Application.ViewModels.OrderViewModels;
-
+using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
-
+using System.Linq.Expressions;
 
 namespace Application.Services
 {
@@ -18,13 +20,16 @@ namespace Application.Services
         private readonly ITransactionRepository _transactionRepository;
         private readonly IConfiguration _configuration;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMapper _mapper;
 
-        public OrderService(ITransactionRepository transactionRepository, IConfiguration configuration, IUnitOfWork unitOfWork)
+        public OrderService(ITransactionRepository transactionRepository, IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,IMapper mapper)
         {
             _transactionRepository = transactionRepository;
             _configuration = configuration;
             _unitOfWork = unitOfWork;
-
+            _userManager = userManager;
+            _mapper = mapper;
         }
         public async Task<IList<string>> ValidateOrderModel(OrderModel model, string userId)
         {
@@ -231,7 +236,7 @@ namespace Application.Services
 
         public async Task UpdateProductQuantityFromOrder(Guid orderId)
         {
-            var order = await _unitOfWork.OrderRepository.GetAllQueryable().Include(x=>x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
+            var order = await _unitOfWork.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
             if (order == null)
                 throw new Exception("Không tìm thấy đơn hàng.");
             foreach (var item in order.OrderDetails)
@@ -246,6 +251,57 @@ namespace Application.Services
                 await _unitOfWork.SaveChangeAsync();
             }
         }
+
+        public async Task<Pagination<Order>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
+        {
+            Pagination<Order> res;
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new Exception("Không tìm thấy người dùng!");
+            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
+            var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
+            List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
+{
+    x => x.Customer.ApplicationUser
+};
+            if (isCustomer && !isAdmin && !isStaff)
+                res = await _unitOfWork.OrderRepository.GetAsync(expression: x => x.Customer.UserId.ToLower() == userId, isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
+            else if (isAdmin || isStaff)
+                res = await _unitOfWork.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
+            else return null;
+            return res;
+           
+        }
+        public async Task<Order> GetByIdAsync(string userId, Guid orderId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new Exception("Không tìm thấy người dùng!");
+            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+            var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
+            var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
+            /*List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
+{
+    x => x.Customer.ApplicationUser,
+    x=>x.OrderTransaction,
+    x=>x.OrderDetails.Select( y =>y.Product).Where(i=>!i.IsDeleted),
+};
+
+            var orders = await _unitOfWork.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*/
+            var order = await _unitOfWork.OrderRepository.GetAllQueryable().AsNoTracking().
+                Include(x=>x.OrderTransaction).Include(x=>x.Customer.ApplicationUser).Include(x=>x.OrderDetails.Where(i=>!i.IsDeleted)).ThenInclude(x=>x.Product).
+                FirstOrDefaultAsync(x=>x.Id == orderId);
+            if (order ==null )
+                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu");
+            
+            if (order.Customer.UserId.ToLower().Equals(userId.ToLower()))
+                throw new Exception("Bạn không có quyền truy cập vào đơn hàng này!");
+            return order;
+
+
+        }
+
     }
 }
 

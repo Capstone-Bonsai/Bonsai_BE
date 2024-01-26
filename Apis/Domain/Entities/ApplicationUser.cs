@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace Domain.Entities
 {
@@ -9,6 +10,7 @@ namespace Domain.Entities
         public string? AvatarUrl { get; set; }
         public bool IsRegister { get; set; } = false;
 
+        [JsonIgnore]
         public virtual Customer? Customer { get; set; }
         public virtual Gardener? Gardener { get; set; }
         public virtual Manager? Manager { get; set; }

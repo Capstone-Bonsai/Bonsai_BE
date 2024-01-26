@@ -6,6 +6,7 @@ using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Infrastructures.Repositories
 {
@@ -166,7 +167,10 @@ namespace Infrastructures.Repositories
                 var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.Id == orderId && !x.IsDeleted).FirstOrDefaultAsync();
                 if (order == null)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
-                var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId && !x.IsDeleted, isDisableTracking: true, isTakeAll: true, expressionInclude: x => x.Product);
+                List<Expression<Func<OrderDetail, object>>> includes = new List<Expression<Func<OrderDetail, object>>>{
+                                 x => x.Product
+                                    };
+                var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId && !x.IsDeleted, isDisableTracking: true, isTakeAll: true, includes:includes);
 
                 if (listOrderDetail == null || listOrderDetail.TotalItemsCount == 0)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");

@@ -16,6 +16,6 @@ namespace Application.Repositories
         void SoftRemoveRange(List<TEntity> entities);
         IQueryable<TEntity> GetAllQueryable();
 
-        Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, Expression<Func<TEntity, object>> expressionInclude = null);
+        Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, List<Expression<Func<TEntity, object>>> includes = null);
     }
 }

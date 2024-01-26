@@ -25,6 +25,8 @@ namespace Infrastructures.Mappers
 
             CreateMap<OrderModel, Order>().ReverseMap();
             CreateMap<OrderDetailModel, OrderDetail>().ReverseMap();
+            CreateMap<OrderViewModel, Order>().ReverseMap();
+
 
 
         }

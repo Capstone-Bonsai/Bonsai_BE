@@ -77,7 +77,7 @@ namespace Infrastructures.Repositories
             return expression == null ? await _dbSet.CountAsync() : await _dbSet.CountAsync(expression);
         }
 
-        public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, Expression<Func<TEntity, object>> expressionInclude = null)
+        public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, List<Expression<Func<TEntity, object>>> includes = null)
         {
             IQueryable<TEntity> query = _dbSet;
             var paginationResult = new Pagination<TEntity>();
@@ -87,8 +87,13 @@ namespace Infrastructures.Repositories
             else
                 paginationResult.PageSize = pageSize;
             paginationResult.TotalItemsCount = await CountAsync(expression);
-            if (expressionInclude != null)
-                query = query.Include(expressionInclude);
+            if (includes != null && includes.Any())
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
             if (expression != null)
                 query = query.Where(expression);
             if (isDisableTracking is true)
