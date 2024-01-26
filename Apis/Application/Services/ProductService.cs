@@ -37,15 +37,15 @@ namespace Application.Services
             return product;
         }
 
-        public async Task<Guid> AddAsyncGetId(ProductModel productModel)
+        public async Task<Guid> AddAsync(ProductModel productModel)
         {
             if (productModel == null)
                 throw new ArgumentNullException(nameof(productModel), "Vui lòng nhập thêm thông tin sản phẩm!");
             var validationRules = new ProductModelValidator();
-            var resultOrderInfo = await validationRules.ValidateAsync(productModel);
-            if (!resultOrderInfo.IsValid)
+            var resultProductInfo = await validationRules.ValidateAsync(productModel);
+            if (!resultProductInfo.IsValid)
             {
-                var errors = resultOrderInfo.Errors.Select(x => x.ErrorMessage);
+                var errors = resultProductInfo.Errors.Select(x => x.ErrorMessage);
                 throw new ValidationException("Xác thực không thành công cho mẫu sản phẩm.", (Exception?)errors);
             }
             var product = _mapper.Map<Product>(productModel);

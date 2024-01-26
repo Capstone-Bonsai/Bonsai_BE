@@ -23,8 +23,8 @@ namespace Application.Services
         }
         public async Task AddCategory(CategoryModel categoryModel)
         {
-            var checkCategory = _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
-            if (checkCategory != null)
+            var checkCategory = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkCategory.Items.Count > 0)
                 throw new Exception("Phân loại này đã tồn tại!");
             var category = _mapper.Map<Category>(categoryModel);
             try
@@ -45,8 +45,8 @@ namespace Application.Services
         }
         public async Task UpdateCategory(Guid id, CategoryModel categoryModel)
         {
-            var checkCategory = _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
-            if (checkCategory != null)
+            var checkCategory = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkCategory.Items.Count > 0)
                 throw new Exception("Phân loại này đã tồn tại!");
             var category = _mapper.Map<Category>(categoryModel);
             category.Id = id;

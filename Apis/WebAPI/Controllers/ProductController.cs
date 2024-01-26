@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var id = await _productService.AddAsyncGetId(productModel);
+                var id = await _productService.AddAsync(productModel);
                 if (productModel.Image != null)
                 {
                     foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))

@@ -1,9 +1,13 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Validations.Product;
+using Application.Validations.Tag;
 using Application.ViewModels.CategoryViewModels;
+using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.TagViewModels;
 using AutoMapper;
 using Domain.Entities;
+using FluentValidation;
 
 namespace Application.Services
 {
@@ -29,8 +33,17 @@ namespace Application.Services
         }
         public async Task AddTag(TagModel tagModel)
         {
-            var checkTag = _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(tagModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
-            if (checkTag != null)
+            if (tagModel == null)
+                throw new ArgumentNullException(nameof(tagModel), "Vui lòng nhập thêm thông tin phân loại!");
+            var validationRules = new TagModelValidator();
+            var resultTagInfo = await validationRules.ValidateAsync(tagModel);
+            if (!resultTagInfo.IsValid)
+            {
+                var errors = resultTagInfo.Errors;
+                throw new ValidationException("Xác thực không thành công cho phân loại.", errors);
+            }
+            var checkTag = await _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(tagModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkTag.Items.Count > 0)
                 throw new Exception("Phân loại này đã tồn tại!");
             var tag = _mapper.Map<Tag>(tagModel);
             try
@@ -46,8 +59,8 @@ namespace Application.Services
         }
         public async Task UpdateTag(Guid id, TagModel tagModel)
         {
-            var checkTag = _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(tagModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
-            if (checkTag != null)
+            var checkTag = await _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(tagModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkTag.Items.Count > 0)
                 throw new Exception("Phân loại này đã tồn tại!");
             var tag = _mapper.Map<Tag>(tagModel);
             tag.Id = id;

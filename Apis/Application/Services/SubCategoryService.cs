@@ -28,7 +28,9 @@ namespace Application.Services
         }
         public async Task AddSubCategory(SubCategoryModel subCategoryModel)
         {
-            var checkCategory = _unitOfWork.SubCategoryRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == subCategoryModel.CategoryId && x.Name.ToLower().Equals(subCategoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            var checkSubCategory = await _unitOfWork.SubCategoryRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == subCategoryModel.CategoryId && x.Name.ToLower().Equals(subCategoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkSubCategory.Items.Count > 0)
+                throw new Exception("Phân loại phụ này đã tồn tại!");
             var subCategory = _mapper.Map<SubCategory>(subCategoryModel);
             try
             {
@@ -43,6 +45,9 @@ namespace Application.Services
         }
         public async Task UpdateSubCategory(Guid id, SubCategoryModel subCategoryModel)
         {
+            var checkSubCategory = await _unitOfWork.SubCategoryRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == subCategoryModel.CategoryId && x.Name.ToLower().Equals(subCategoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkSubCategory.Items.Count > 0)
+                throw new Exception("Phân loại phụ này đã tồn tại!");
             var subCategory = _mapper.Map<SubCategory>(subCategoryModel);
             subCategory.Id = id;
             var result = await _unitOfWork.SubCategoryRepository.GetByIdAsync(subCategory.Id);
