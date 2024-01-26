@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.CategoryViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,13 +24,33 @@ namespace WebAPI.Controllers
             try
             {
                 var categories = await _categoryService.GetCategories();
-                if (categories == null)
+                if (categories.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
                 }
                 else
                 {
                     return Ok(categories);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid categoryId)
+        {
+            try
+            {
+                var category = await _categoryService.GetCategoryById(categoryId);
+                if (category == null)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(category);
                 }
             }
             catch (Exception ex)

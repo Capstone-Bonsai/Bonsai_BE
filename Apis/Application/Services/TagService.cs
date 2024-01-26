@@ -1,5 +1,6 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.TagViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -21,9 +22,16 @@ namespace Application.Services
             var tags = await _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return tags;
         }
+        public async Task<Tag?> GetTagById(Guid id)
+        {
+            var tag = await _unitOfWork.TagRepository.GetByIdAsync(id);
+            return tag;
+        }
         public async Task AddTag(TagModel tagModel)
         {
             var checkTag = _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(tagModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkTag != null)
+                throw new Exception("Phân loại này đã tồn tại!");
             var tag = _mapper.Map<Tag>(tagModel);
             try
             {
@@ -38,6 +46,9 @@ namespace Application.Services
         }
         public async Task UpdateTag(Guid id, TagModel tagModel)
         {
+            var checkTag = _unitOfWork.TagRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(tagModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkTag != null)
+                throw new Exception("Phân loại này đã tồn tại!");
             var tag = _mapper.Map<Tag>(tagModel);
             tag.Id = id;
             var result = await _unitOfWork.TagRepository.GetByIdAsync(tag.Id);

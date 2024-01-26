@@ -21,6 +21,11 @@ namespace Application.Services
             var subcategories = await _unitOfWork.SubCategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return subcategories;
         }
+        public async Task<SubCategory?> GetSubCategoryById(Guid id)
+        {
+            var subCategory = await _unitOfWork.SubCategoryRepository.GetByIdAsync(id);
+            return subCategory;
+        }
         public async Task AddSubCategory(SubCategoryModel subCategoryModel)
         {
             var checkCategory = _unitOfWork.SubCategoryRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == subCategoryModel.CategoryId && x.Name.ToLower().Equals(subCategoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);

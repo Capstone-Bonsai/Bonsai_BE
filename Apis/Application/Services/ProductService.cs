@@ -1,8 +1,11 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Validations.Order;
+using Application.Validations.Product;
 using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Application.Services
 {
@@ -36,6 +39,15 @@ namespace Application.Services
 
         public async Task<Guid> AddAsyncGetId(ProductModel productModel)
         {
+            if (productModel == null)
+                throw new ArgumentNullException(nameof(productModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+            var validationRules = new ProductModelValidator();
+            var resultOrderInfo = await validationRules.ValidateAsync(productModel);
+            if (!resultOrderInfo.IsValid)
+            {
+                var errors = resultOrderInfo.Errors.Select(x => x.ErrorMessage);
+                throw new ValidationException("Xác thực không thành công cho mẫu sản phẩm.", (Exception?)errors);
+            }
             var product = _mapper.Map<Product>(productModel);
             try
             {
@@ -51,6 +63,15 @@ namespace Application.Services
         }
         public async Task UpdateProduct(Guid id, ProductModel productModel)
         {
+            if (productModel == null)
+                throw new ArgumentNullException(nameof(productModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+            var validationRules = new ProductModelValidator();
+            var resultOrderInfo = await validationRules.ValidateAsync(productModel);
+            if (!resultOrderInfo.IsValid)
+            {
+                var errors = resultOrderInfo.Errors.Select(x => x.ErrorMessage);
+                throw new ValidationException("Xác thực không thành công cho mẫu sản phẩm.", (Exception?)errors);
+            }
             var product = _mapper.Map<Product>(productModel);
             product.Id = id;
             var result = await _unitOfWork.ProductRepository.GetByIdAsync(product.Id);

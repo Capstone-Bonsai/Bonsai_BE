@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.TagViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,13 +24,33 @@ namespace WebAPI.Controllers
             try
             {
                 var tags = await _tagService.GetTags();
-                if (tags == null)
+                if (tags.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
                 }
                 else
                 {
                     return Ok(tags);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid tagId)
+        {
+            try
+            {
+                var tag = await _tagService.GetTagById(tagId);
+                if (tag == null)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(tag);
                 }
             }
             catch (Exception ex)

@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.ViewModels.ProductImageViewModels;
 using Application.ViewModels.ProductViewModels;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _productService.GetPagination(pageIndex, pageSize);
-                if (products == null)
+                if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
                 }
@@ -50,7 +51,7 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _productService.GetProducts();
-                if (products == null)
+                if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
                 }
@@ -120,6 +121,46 @@ namespace WebAPI.Controllers
             try
             {
                 await _productService.UpdateProduct(id, productModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
+        [HttpPut("changeImage/{id}")]
+        public async Task<IActionResult> ChangeImage([FromRoute] Guid id, [FromForm] ProductImageModel productImageModel)
+        {
+            try
+            {
+                if (productImageModel.Image != null)
+                {
+                    await _productImageService.DeleteProductImagesByProductId(id);
+                    foreach (var singleImage in productImageModel.Image.Select((image, index) => (image, index)))
+                    {
+                        string newImageName = id + "_i" + singleImage.index;
+                        string folderName = $"product/{id}/Image";
+                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1)
+                        {
+                            throw new Exception("Invalid image file format");
+                        }
+                        var url = await _firebaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                        ProductImage productImage = new ProductImage()
+                        {
+                            ProductId = id,
+                            ImageUrl = url
+                        };
+
+                        await _productImageService.AddProductImages(productImage);
+                    }
+                }
             }
             catch (Exception ex)
             {

@@ -7,6 +7,7 @@ namespace Application.Interfaces
     public interface ITagService
     {
         Task<Pagination<Tag>> GetTags();
+        Task<Tag?> GetTagById(Guid id);
         Task AddTag(TagModel tagModel);
         Task UpdateTag(Guid id, TagModel tagModel);
         Task DeleteTag(Guid id);

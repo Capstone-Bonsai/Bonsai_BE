@@ -33,5 +33,18 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }
+        public async Task DeleteProductImagesByProductId(Guid productId)
+        {
+            try
+            {
+                var productImages = await _unitOfWork.ProductImageRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.ProductId == productId, isDisableTracking: true);
+                _unitOfWork.ProductImageRepository.SoftRemoveRange(productImages.Items);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Đã xảy ra lỗi trong quá trình xóa ảnh. Vui lòng thử lại!");
+            }
+        }
     }
 }

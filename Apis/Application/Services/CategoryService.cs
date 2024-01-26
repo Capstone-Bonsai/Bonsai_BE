@@ -38,8 +38,16 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }
+        public async Task<Category?> GetCategoryById(Guid id)
+        {
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(id);
+            return category;
+        }
         public async Task UpdateCategory(Guid id, CategoryModel categoryModel)
         {
+            var checkCategory = _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkCategory != null)
+                throw new Exception("Phân loại này đã tồn tại!");
             var category = _mapper.Map<Category>(categoryModel);
             category.Id = id;
             var result = await _unitOfWork.CategoryRepository.GetByIdAsync(category.Id);

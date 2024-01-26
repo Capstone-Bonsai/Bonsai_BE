@@ -7,5 +7,6 @@ namespace Application.Interfaces
     {
         Task<Pagination<ProductImage>> GetProductImagesByProductId(Guid productId);
         Task AddProductImages(ProductImage productImage);
+        Task DeleteProductImagesByProductId(Guid productId);
     }
 }

@@ -23,13 +23,33 @@ namespace WebAPI.Controllers
             try
             {
                 var subCategories = await _subCategoryService.GetSubCategories();
-                if (subCategories == null)
+                if (subCategories.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
                 }
                 else
                 {
                     return Ok(subCategories);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid subCategoryId)
+        {
+            try
+            {
+                var subCategory = await _subCategoryService.GetSubCategoryById(subCategoryId);
+                if (subCategory == null)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(subCategory);
                 }
             }
             catch (Exception ex)
