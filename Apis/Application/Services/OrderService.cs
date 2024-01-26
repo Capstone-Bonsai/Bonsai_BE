@@ -298,8 +298,6 @@ namespace Application.Services
             if (order.Customer.UserId.ToLower().Equals(userId.ToLower()))
                 throw new Exception("Bạn không có quyền truy cập vào đơn hàng này!");
             return order;
-
-
         }
 
     }
