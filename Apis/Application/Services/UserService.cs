@@ -1,13 +1,10 @@
 ﻿using Application;
 using Application.Commons;
 using Application.Interfaces;
-using Application.Utils;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Infrastructures.Services
 {
@@ -20,22 +17,22 @@ namespace Infrastructures.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IClaimsService _claims;
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentTime currentTime, AppConfiguration configuration,UserManager<ApplicationUser> userManager,IClaimsService claims)
+        public UserService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentTime currentTime, AppConfiguration configuration, UserManager<ApplicationUser> userManager, IClaimsService claims)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _currentTime = currentTime;
-            _configuration= configuration;
+            _configuration = configuration;
             _userManager = userManager;
             _claims = claims;
-            
+
         }
-        public async Task<List<string>> ChangePasswordAsync(ChangePassModel model,string userId)
+        public async Task<List<string>> ChangePasswordAsync(ChangePassModel model, string userId)
         {
             if (!model.NewPassword.Equals(model.ConfirmPassword))
             {
                 throw new Exception("Mật khẩu xác nhận không trùng khớp!");
-                
+
             }
             if (model.NewPassword.Equals(model.OldPassword))
             {
@@ -57,7 +54,7 @@ namespace Infrastructures.Services
                     {
                         err.Add(item.Description);
                     }
-                   return err;
+                    return err;
                 }
             }
             catch (Exception ex)

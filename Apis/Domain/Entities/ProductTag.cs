@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
-    public class ProductTag:BaseEntity
+    public class ProductTag : BaseEntity
     {
         [ForeignKey("Product")]
         public Guid ProductId { get; set; }

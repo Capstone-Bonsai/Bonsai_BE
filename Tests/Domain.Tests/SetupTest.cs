@@ -1,6 +1,5 @@
 ﻿using Application;
 using Application.Interfaces;
-using Application.Repositories;
 using AutoFixture;
 using AutoMapper;
 using Infrastructures;

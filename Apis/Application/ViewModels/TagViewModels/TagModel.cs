@@ -1,6 +1,6 @@
-﻿namespace Domain.Entities
+﻿namespace Application.ViewModels.TagViewModels
 {
-    public class Tag : BaseEntity
+    public class TagModel
     {
         public string Name { get; set; }
         public string Description { get; set; }

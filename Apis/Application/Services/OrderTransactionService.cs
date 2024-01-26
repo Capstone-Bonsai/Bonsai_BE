@@ -1,13 +1,8 @@
 ﻿using Application.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class OrderTransactionService: IOrderTransactionService
+    public class OrderTransactionService : IOrderTransactionService
     {
     }
 }

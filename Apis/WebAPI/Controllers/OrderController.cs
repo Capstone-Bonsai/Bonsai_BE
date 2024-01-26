@@ -1,9 +1,6 @@
 ﻿using Application.Interfaces;
-using Application.Services;
 using Application.ViewModels.OrderViewModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
@@ -14,7 +11,7 @@ namespace WebAPI.Controllers
         private readonly IOrderService _orderService;
         private readonly IClaimsService _claimsService;
 
-        public OrderController(IOrderService orderService,IClaimsService claimsService)
+        public OrderController(IOrderService orderService, IClaimsService claimsService)
         {
             _orderService = orderService;
             _claimsService = claimsService;

@@ -1,7 +1,7 @@
-﻿using AutoFixture;
-using FluentAssertions;
+﻿using Application.Commons;
+using AutoFixture;
 using Domain.Tests;
-using Application.Commons;
+using FluentAssertions;
 
 namespace Application.Tests.Commons
 {

@@ -1,9 +1,5 @@
 ﻿using Application;
-using AutoFixture;
-using Domain.Entities;
 using Domain.Tests;
-using FluentAssertions;
-using Moq;
 
 namespace Infrastructures.Tests
 {

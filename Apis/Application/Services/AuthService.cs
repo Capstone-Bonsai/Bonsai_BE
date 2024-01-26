@@ -1,30 +1,19 @@
 ﻿using Application.Commons;
-using Application.Interfaces;
 using Application.Validations.Auth;
-using Application.ViewModels;
 using Application.ViewModels.AuthViewModel;
 using Domain.Entities;
 using Google.Apis.Auth;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq;
 using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Application.Services
 {
@@ -61,7 +50,7 @@ namespace Application.Services
             }
             if (user.EmailConfirmed == false)
             {
-                var result = await SendEmailAsync(email.Trim(), callbackUrl,"EmailConfirm");
+                var result = await SendEmailAsync(email.Trim(), callbackUrl, "EmailConfirm");
                 throw new Exception("Tài khoản này chưa xác thực Email. Vui lòng kiểm tra Email được vừa gửi đến hoặc liên hệ quản trị viên để được hỗ trợ!");
             }
             else
@@ -355,7 +344,7 @@ namespace Application.Services
             );
                     break;
                 case "ResetPassword":
-                    string body = "<h3 style=\" color: #00B214;\">Xác nhận yêu cầu đổi mật khẩu truy cập vào Thạch Sơn Garden</h3>\r\n"+$"<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>,</p>\r\n<p style=\"margin-bottom: 10px;\r\n   " +
+                    string body = "<h3 style=\" color: #00B214;\">Xác nhận yêu cầu đổi mật khẩu truy cập vào Thạch Sơn Garden</h3>\r\n" + $"<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>,</p>\r\n<p style=\"margin-bottom: 10px;\r\n   " +
                     " text-align: left;\"> Bạn đã yêu cầu đổi mật khẩu. Vui lòng nhấp vào liên kết bên dưới để xác nhận yêu cầu. Vui lòng\r\n  lưu ý rằng đường dẫn xác nhận chỉ cs hiệu lực trong vòng 30 phút. Sau thời gian đó, đường đãn sẽ hết hiệu lực và bạn\r\n" +
                     "  sẽ cần yêu cầu xác nhận lại. Nếu bạn không có bất kỳ yêu cầu thay đổi nào vui lòng không nhấn bất kỳ đường dẫn nào. Cảm ơn\r\n</p>" + $"<a href=\"{callbackUrl}\" style=\"display: inline-block;\r\n   " +
                     " background-color: #00B214;\r\n    color: #fff;\r\n    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>";
@@ -411,7 +400,7 @@ namespace Application.Services
                 errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
                 return errors;
             }
-            return null; 
+            return null;
         }
 
     }

@@ -1,9 +1,9 @@
 ﻿using Application.Commons;
-using Microsoft.AspNetCore.Http;
+using Application.Interfaces;
 using Firebase.Auth;
 using Firebase.Auth.Providers;
 using Firebase.Storage;
-using Application.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.Services

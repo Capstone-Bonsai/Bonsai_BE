@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-
-namespace Application.Commons
+﻿namespace Application.Commons
 {
     public class Pagination<T>
     {

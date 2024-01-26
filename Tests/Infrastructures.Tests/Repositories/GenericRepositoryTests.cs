@@ -1,9 +1,4 @@
-﻿using Application.Repositories;
-using AutoFixture;
-using Domain.Entities;
-using Domain.Tests;
-using FluentAssertions;
-using Infrastructures.Repositories;
+﻿using Domain.Tests;
 
 namespace Infrastructures.Tests.Repositories
 {

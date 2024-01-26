@@ -1,8 +1,4 @@
-﻿using AutoFixture;
-using Domain.Entities;
-using Domain.Tests;
-using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
+﻿using Domain.Tests;
 
 namespace Infrastructures.Tests
 {

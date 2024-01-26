@@ -1,6 +1,5 @@
 ﻿using Application;
 using Application.Repositories;
-using Infrastructures.Repositories;
 
 namespace Infrastructures
 {
@@ -16,11 +15,12 @@ namespace Infrastructures
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IOrderTransactionRepository _orderTransactionRepository;
+        private readonly ITagRepository _tagRepository;
 
-        public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository, 
+        public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository,
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
-            IProductImageRepository productImageRepository)
+            IProductImageRepository productImageRepository, ITagRepository tagRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -32,6 +32,7 @@ namespace Infrastructures
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
             _orderTransactionRepository = orderTransactionRepository;
+            _tagRepository = tagRepository;
         }
 
 
@@ -46,11 +47,15 @@ namespace Infrastructures
         public ISubCategoryRepository SubCategoryRepository => _subcategoryRepository;
 
         public IProductImageRepository ProductImageRepository => _productImageRepository;
+
         public IOrderRepository OrderRepository => _orderRepository;
 
-        public IOrderDetailRepository OrderDetailRepository =>_orderDetailRepository;
+        public IOrderDetailRepository OrderDetailRepository => _orderDetailRepository;
 
-        public IOrderTransactionRepository OrderTransactionRepository =>_orderTransactionRepository;
+        public IOrderTransactionRepository OrderTransactionRepository => _orderTransactionRepository;
+
+        public ITagRepository TagRepository => _tagRepository;
+
 
         public async Task<int> SaveChangeAsync()
         {

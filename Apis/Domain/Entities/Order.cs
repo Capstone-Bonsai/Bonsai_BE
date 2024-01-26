@@ -1,10 +1,5 @@
 ﻿using Domain.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
@@ -25,6 +20,6 @@ namespace Domain.Entities
         public OrderType OrderType { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual OrderTransaction OrderTransaction { get; set; }
-        public IList<OrderDetail> OrderDetails { get;}
+        public IList<OrderDetail> OrderDetails { get; }
     }
 }

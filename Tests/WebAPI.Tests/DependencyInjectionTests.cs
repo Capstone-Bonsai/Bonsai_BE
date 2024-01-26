@@ -1,17 +1,4 @@
-﻿using Application.Interfaces;
-using Application.Repositories;
-using Application.Services;
-using FluentAssertions;
-using Infrastructures;
-using Infrastructures.Repositories;
-using Infrastructures.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
-using WebAPI.Middlewares;
-using WebAPI.Services;
-
-namespace WebAPI.Tests
+﻿namespace WebAPI.Tests
 {
     public class DependencyInjectionTests
     {

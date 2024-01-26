@@ -1,24 +1,12 @@
 ﻿using Application;
-using Application.Commons;
-using Application.Interfaces;
 using Application.Services;
-using Application.ViewModels;
 using Application.ViewModels.AuthViewModel;
 using Domain.Entities;
-using Infrastructures;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Plugins;
-using System.Security.Claims;
 using System.Text;
-using System.Text.Encodings.Web;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebAPI.Controllers
 {
@@ -160,7 +148,7 @@ namespace WebAPI.Controllers
             }
             catch (Exception e)
             {
-                return BadRequest( e.Message);
+                return BadRequest(e.Message);
             }
         }
 

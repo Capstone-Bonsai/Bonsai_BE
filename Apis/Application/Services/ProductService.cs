@@ -3,15 +3,6 @@ using Application.Interfaces;
 using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -48,9 +39,9 @@ namespace Application.Services
             var product = _mapper.Map<Product>(productModel);
             try
             {
-                var id = await _unitOfWork.ProductRepository.AddAsyncGetId(product);
+                await _unitOfWork.ProductRepository.AddAsync(product);
                 await _unitOfWork.SaveChangeAsync();
-                return id;
+                return product.Id;
             }
             catch (Exception)
             {

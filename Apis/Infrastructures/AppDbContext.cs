@@ -1,8 +1,6 @@
 ﻿using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.Extensions.Configuration;
 
 namespace Infrastructures
 {
@@ -10,7 +8,7 @@ namespace Infrastructures
     {
         public AppDbContext()
         {
-            
+
         }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
@@ -50,17 +48,17 @@ namespace Infrastructures
             base.OnModelCreating(builder);
         }
 
-/*        private string GetConnectionString()
-        {
-            IConfiguration config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.Development.json", true, true).Build();
-            var strConn = config["ConnectionStrings:Development"];
-            return strConn;
-        }*/
+        /*        private string GetConnectionString()
+                {
+                    IConfiguration config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.Development.json", true, true).Build();
+                    var strConn = config["ConnectionStrings:Development"];
+                    return strConn;
+                }*/
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-               // optionsBuilder.UseSqlServer(GetConnectionString());
+                // optionsBuilder.UseSqlServer(GetConnectionString());
             }
         }
     }

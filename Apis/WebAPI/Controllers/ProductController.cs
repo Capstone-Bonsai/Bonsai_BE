@@ -1,17 +1,7 @@
 ﻿using Application.Interfaces;
-using Application.Services;
-using Application.ViewModels.ProductImageViewModels;
 using Application.ViewModels.ProductViewModels;
-using Application.ViewModels.UserViewModels;
-using AutoMapper;
 using Domain.Entities;
-using Infrastructures.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.Drawing.Printing;
-using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
@@ -82,12 +72,13 @@ namespace WebAPI.Controllers
                 var id = await _productService.AddAsyncGetId(productModel);
                 if (productModel.Image != null)
                 {
-                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index))) {
+                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
+                    {
                         string newImageName = id + "_i" + singleImage.index;
                         string folderName = $"product/{id}/Image";
                         string imageExtension = Path.GetExtension(singleImage.image.FileName);
                         //Kiểm tra xem có phải là file ảnh không.
-                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp"};
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
 
                         if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1)
                         {
@@ -111,7 +102,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return NoContent();
+            return Ok();
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] Guid id)
@@ -134,7 +125,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return NoContent();
+            return Ok();
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
@@ -147,7 +138,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return NoContent();
+            return Ok();
         }
     }
 }

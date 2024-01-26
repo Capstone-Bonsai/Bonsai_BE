@@ -1,9 +1,5 @@
-﻿using Application.Interfaces;
-using FluentAssertions;
-using Infrastructures;
+﻿using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
-using WebAPI.Controllers;
 
 namespace WebAPI.Tests
 {

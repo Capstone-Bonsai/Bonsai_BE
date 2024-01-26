@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities
 {
@@ -14,7 +9,7 @@ namespace Domain.Entities
         public string Name { get; set; }
         public string Image { get; set; }
         public virtual Category Category { get; set; }
-        public IList<Product> Products { get;}
+        public IList<Product> Products { get; }
 
     }
 }

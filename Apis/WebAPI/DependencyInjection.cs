@@ -1,4 +1,6 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.Interfaces;
+using Application.Services;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +23,8 @@ namespace WebAPI
             services.AddSingleton<PerformanceMiddleware>();
             services.AddSingleton<Stopwatch>();
             services.AddScoped<IClaimsService, ClaimsService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddSingleton<FirebaseConfiguration>();
             services.AddHttpContextAccessor();
             services.AddFluentValidationAutoValidation();
             services.AddFluentValidationClientsideAdapters();

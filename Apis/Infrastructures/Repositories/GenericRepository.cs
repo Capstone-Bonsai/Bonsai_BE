@@ -1,10 +1,9 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.Interfaces;
 using Application.Repositories;
-using Application.Commons;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Infrastructures.Repositories
 {
@@ -30,14 +29,6 @@ namespace Infrastructures.Repositories
             // todo should throw exception when not found
             return result;
         }
-        public async Task<Guid> AddAsyncGetId(TEntity entity)
-        {
-            entity.CreationDate = _timeService.GetCurrentTime();
-            entity.CreatedBy = _claimsService.GetCurrentUserId;
-            await _dbSet.AddAsync(entity);
-            return entity.Id;
-        }
-
         public async Task AddAsync(TEntity entity)
         {
             entity.CreationDate = _timeService.GetCurrentTime();
@@ -88,7 +79,7 @@ namespace Infrastructures.Repositories
 
         public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, Expression<Func<TEntity, object>> expressionInclude = null)
         {
-                IQueryable<TEntity> query = _dbSet;
+            IQueryable<TEntity> query = _dbSet;
             var paginationResult = new Pagination<TEntity>();
             paginationResult.PageIndex = pageIndex;
             if (pageSize == 0)

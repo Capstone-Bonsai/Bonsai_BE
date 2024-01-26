@@ -1,17 +1,11 @@
 ﻿using Application;
 using Application.Repositories;
-using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.OrderDetailModels;
 using Application.ViewModels.OrderViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructures.Repositories
 {
@@ -195,7 +189,7 @@ namespace Infrastructures.Repositories
             }
         }
 
-        
+
         public async Task<double> CalculateDeliveryPrice()
         {
             return 100000;

@@ -1,14 +1,8 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
 using Application.ViewModels.CategoryViewModels;
-using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -27,9 +21,11 @@ namespace Application.Services
             var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return categories;
         }
-        public async Task AddCategory(CategoryViewModel categoryModel)
+        public async Task AddCategory(CategoryModel categoryModel)
         {
-            var checkCategory =  _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            var checkCategory = _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
+            if (checkCategory != null)
+                throw new Exception("Phân loại này đã tồn tại!");
             var category = _mapper.Map<Category>(categoryModel);
             try
             {
@@ -42,13 +38,13 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }
-        public async Task UpdateCategory(Guid id, CategoryViewModel categoryModel)
+        public async Task UpdateCategory(Guid id, CategoryModel categoryModel)
         {
             var category = _mapper.Map<Category>(categoryModel);
             category.Id = id;
             var result = await _unitOfWork.CategoryRepository.GetByIdAsync(category.Id);
             if (result == null)
-                throw new Exception("Không tìm thấy sản phẩm!");
+                throw new Exception("Không tìm thấy phân loại!");
             try
             {
                 _unitOfWork.CategoryRepository.Update(category);

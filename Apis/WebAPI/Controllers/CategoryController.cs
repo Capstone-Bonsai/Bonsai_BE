@@ -1,9 +1,5 @@
 ﻿using Application.Interfaces;
-using Application.Repositories;
-using Application.Services;
 using Application.ViewModels.CategoryViewModels;
-using Application.ViewModels.ProductViewModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -42,7 +38,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CategoryViewModel categoryModel)
+        public async Task<IActionResult> Post([FromBody] CategoryModel categoryModel)
         {
             try
             {
@@ -52,10 +48,10 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return NoContent();
+            return Ok();
         }
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] CategoryViewModel categoryModel)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] CategoryModel categoryModel)
         {
             try
             {
@@ -65,7 +61,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return NoContent();
+            return Ok();
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
@@ -78,7 +74,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return NoContent();
+            return Ok();
         }
     }
 }

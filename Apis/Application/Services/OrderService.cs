@@ -2,12 +2,6 @@
 using Application.Repositories;
 using Application.Validations.Order;
 using Application.ViewModels.OrderViewModels;
-using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -26,11 +20,13 @@ namespace Application.Services
             if (model == null)
             {
                 throw new Exception("Vui lòng thêm các thông tin mua hàng.");
-            }else if(userId ==null && model.OrderInfo == null)
+            }
+            else if (userId == null && model.OrderInfo == null)
             {
                 throw new Exception("Vui lòng thêm các thông tin người mua hàng.");
             }
-            else if (model.OrderInfo != null) {
+            else if (model.OrderInfo != null)
+            {
                 var orderInfoValidate = new OrderInfoModelValidator();
                 var resultOrderInfo = await orderInfoValidate.ValidateAsync(model.OrderInfo);
                 if (!resultOrderInfo.IsValid)
@@ -49,7 +45,8 @@ namespace Application.Services
                 return errors;
             }
 
-            if(model.ListProduct == null || model.ListProduct.Count == 0) {
+            if (model.ListProduct == null || model.ListProduct.Count == 0)
+            {
                 throw new Exception("Vui lòng chọn sản phẩm bạn muốn mua.");
             }
             var orderDetailValidate = new OrderDetailModelValidator();
@@ -70,8 +67,8 @@ namespace Application.Services
 
         public async Task<IList<string>> CreateOrderAsync(OrderModel model, string userId)
         {
-            var resultValidate = await ValidateOrderModel(model,userId);
-            if(resultValidate == null)
+            var resultValidate = await ValidateOrderModel(model, userId);
+            if (resultValidate == null)
             {
                 await _transactionRepository.CreateOrderByTransaction(model, userId);
                 return null;

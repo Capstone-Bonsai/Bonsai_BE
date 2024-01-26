@@ -1,22 +1,22 @@
 ﻿using Application.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 using Application.ViewModels.UserViewModels;
+using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Domain.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
-  public class UserController : BaseController
+    public class UserController : BaseController
     {
         private readonly IUserService _userService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IClaimsService _claims;
 
-        public UserController(IUserService userService, 
+        public UserController(IUserService userService,
             UserManager<ApplicationUser> userManager,
-             SignInManager<ApplicationUser> signInManager,IClaimsService claimsService)
+             SignInManager<ApplicationUser> signInManager, IClaimsService claimsService)
         {
             _userService = userService;
             _userManager = userManager;
@@ -31,7 +31,7 @@ namespace WebAPI.Controllers
             try
             {
                 var result = await _userService.ChangePasswordAsync(model, userId);
-                if(result == null)
+                if (result == null)
                 {
                     return Ok("Đổi mật khẩu thành công");
                 }

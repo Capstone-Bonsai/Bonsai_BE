@@ -1,5 +1,4 @@
 ﻿using Application;
-using Application.Commons;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services;
@@ -19,7 +18,7 @@ namespace Infrastructures
     {
         public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
-           
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ICategoryService, CategoryService>();
@@ -28,7 +27,8 @@ namespace Infrastructures
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IOrderTransactionService, OrderTransactionService>();
             services.AddScoped<IProductImageService, ProductImageService>();
-            
+            services.AddScoped<ITagService, TagService>();
+
 
             services.AddScoped<IGardenerRepository, GardenerRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -40,15 +40,11 @@ namespace Infrastructures
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
-
-
-            services.Configure<FirebaseConfiguration>(configuration.GetSection("FirebaseConfiguration"));
-            services.AddScoped<IFirebaseService, FirebaseService>();
-            services.AddSingleton<FirebaseConfiguration>();
+            services.AddScoped<ITagRepository, TagRepository>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            
-            
+
+
             services.AddSingleton<ICurrentTime, CurrentTime>();
 
             // ATTENTION: if you do migration please check file README.md
@@ -65,7 +61,7 @@ namespace Infrastructures
                     options.UseSqlServer(GetConnection(configuration, env),
                         builder => builder.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)));
 
-            services.AddIdentity < ApplicationUser, IdentityRole>(options =>
+            services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.User.RequireUniqueEmail = true;
             }).AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
@@ -91,5 +87,5 @@ namespace Infrastructures
         }
     }
 
-    
+
 }
