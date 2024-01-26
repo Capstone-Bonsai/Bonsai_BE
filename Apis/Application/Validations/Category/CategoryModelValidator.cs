@@ -14,7 +14,7 @@ namespace Application.Validations.Category
         public CategoryModelValidator()
         {
             RuleFor(tag => tag.Name)
-           .NotEmpty().WithMessage("Tên mục không được để trống.");
+           .NotEmpty().WithMessage("Tên danh mục không được để trống.");
         }
     }
 }

@@ -7,7 +7,6 @@ namespace Domain.Entities
         [ForeignKey("Category")]
         public Guid CategoryId { get; set; }
         public string Name { get; set; }
-        public string Image { get; set; }
         public virtual Category Category { get; set; }
         public IList<Product> Products { get; }
 
