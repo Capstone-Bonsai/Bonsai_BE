@@ -70,11 +70,11 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("Filter")]
-        public async Task<IActionResult> Post([FromBody] FilterProductModel? filterProductModel)
+        public async Task<IActionResult> Post([FromQuery] int pageIndex, int pageSize,[FromBody] FilterProductModel? filterProductModel)
         {
             try
             {
-                var products = await _productService.GetProductsByFilter(filterProductModel);
+                var products = await _productService.GetProductsByFilter(pageIndex, pageSize, filterProductModel);
                 if (products.Items.Count == 0)
                 {
                     return NotFound("Không tìm thấy");                   

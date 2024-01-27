@@ -1,20 +1,31 @@
-﻿using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text;
 
 namespace Application.Utils
 {
     public static class ConvertVietnameseString
     {
-        static Regex ConvertToUnsign_rg = null;
-        public static string ConvertToUnsign(string strInput)
+        public static string RemoveDiacritics(string text)
         {
-            if (ReferenceEquals(ConvertToUnsign_rg, null))
-            {
-                ConvertToUnsign_rg = new Regex("p{IsCombiningDiacriticalMarks}+");
-            }
-            var temp = strInput.Normalize(NormalizationForm.FormD);
-            return ConvertToUnsign_rg.Replace(temp, string.Empty).Replace("đ", "d").Replace("Đ", "D").ToLower();
-        }
+            string normalized = text.Normalize(NormalizationForm.FormD);
+            StringBuilder result = new StringBuilder();
 
+            foreach (char c in normalized)
+            {
+                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+
+                // Replace "đ" and "d" with "d"
+                if (c == 'đ' || c == 'Đ')
+                {
+                    result.Append('d');
+                }
+                else if (category != UnicodeCategory.NonSpacingMark)
+                {
+                    result.Append(c);
+                }
+            }
+
+            return result.ToString();
+        }
     }
 }

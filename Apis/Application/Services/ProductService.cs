@@ -5,6 +5,7 @@ using Application.Validations.Product;
 using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
@@ -44,16 +45,19 @@ namespace Application.Services
                 foreach (var subCategoryId in filterProductModel.subCategory)
                 {
 
-                    filter.Add(x => x.SubCategoryId == subCategoryId);
+                    filter.Add(x => filterProductModel.subCategory.Contains(x.SubCategoryId));
                 }
             }
-            /*if (filterProductModel.tag != null)
+            if (filterProductModel.tag != null)
             {
+                var productTags = await _unitOfWork.ProductTagRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && filterProductModel.tag.Contains(x.TagId),
+                isDisableTracking: true);
+                List<Guid> productIdList = productTags.Items.Select(productTags => productTags.ProductId).ToList();
                 foreach (var tagId in filterProductModel.tag)
                 {
-                    filter.Add(x => x.TagId == tagId);
+                    filter.Add(x => productIdList.Contains(x.Id));
                 }
-            }*/
+            }
             if (filterProductModel.keyword != null)
             {     
                 filter.Add(x => x.Name.ToLower().Contains(filterProductModel.keyword.ToLower())); 
