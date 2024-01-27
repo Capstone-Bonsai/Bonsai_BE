@@ -124,5 +124,10 @@ namespace Infrastructures.Repositories
             }
             _dbSet.UpdateRange(entities);
         }
+
+        public void HardDeleteRange(List<TEntity> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
     }
 }
