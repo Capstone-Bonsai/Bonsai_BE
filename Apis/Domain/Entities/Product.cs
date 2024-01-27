@@ -14,6 +14,7 @@ namespace Domain.Entities
         public string Unit { get; set; }
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
+        public bool isDisable { get; set; }
 
         public virtual SubCategory SubCategory { get; set; }
         public IList<ProductImage> ProductImages { get; set; }
