@@ -1,4 +1,5 @@
-﻿using Application.Repositories;
+﻿using Application.Interfaces;
+using Application.Repositories;
 
 namespace Application
 {
@@ -16,6 +17,8 @@ namespace Application
         public IOrderTransactionRepository OrderTransactionRepository { get; }
         public ITagRepository TagRepository { get; }
         public IProductTagRepository ProductTagRepository { get; }
+        public IDeliveryFeeRepository DeliveryFeeRepository { get; }
+
         public Task<int> SaveChangeAsync();
     }
 }

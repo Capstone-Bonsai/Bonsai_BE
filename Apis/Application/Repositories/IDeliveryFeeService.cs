@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Services
+namespace Application.Repositories
 {
-    public class ExcelService
+    public interface IDeliveryFeeService
     {
     }
 }

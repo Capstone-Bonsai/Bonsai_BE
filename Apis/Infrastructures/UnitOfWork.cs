@@ -1,5 +1,7 @@
 ﻿using Application;
+using Application.Interfaces;
 using Application.Repositories;
+using Infrastructures.Repositories;
 
 namespace Infrastructures
 {
@@ -17,11 +19,13 @@ namespace Infrastructures
         private readonly IOrderTransactionRepository _orderTransactionRepository;
         private readonly ITagRepository _tagRepository;
         private readonly IProductTagRepository _productTagRepository;
+        private readonly IDeliveryFeeRepository _deliveryFeeRepository;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository,
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
-            IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository)
+            IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
+            IDeliveryFeeRepository deliveryFeeRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -35,6 +39,7 @@ namespace Infrastructures
             _orderTransactionRepository = orderTransactionRepository;
             _tagRepository = tagRepository;
             _productTagRepository = productTagRepository;
+            _deliveryFeeRepository = deliveryFeeRepository;
         }
 
 
@@ -59,7 +64,7 @@ namespace Infrastructures
         public ITagRepository TagRepository => _tagRepository;
         public IProductTagRepository ProductTagRepository => _productTagRepository;
 
-
+        public IDeliveryFeeRepository DeliveryFeeRepository => _deliveryFeeRepository;
 
         public async Task<int> SaveChangeAsync()
         {

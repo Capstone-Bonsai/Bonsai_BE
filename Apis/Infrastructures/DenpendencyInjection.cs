@@ -29,6 +29,8 @@ namespace Infrastructures
             services.AddScoped<IProductImageService, ProductImageService>();
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IProductTagService, ProductTagService>();
+            services.AddScoped<IDeliveryFeeService, DeliveryFeeService>();
+
 
 
             services.AddScoped<IGardenerRepository, GardenerRepository>();
@@ -43,6 +45,8 @@ namespace Infrastructures
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IProductTagRepository, ProductTagRepository>();
+            services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
+
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
