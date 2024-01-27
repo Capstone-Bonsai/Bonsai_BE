@@ -28,8 +28,11 @@ namespace Application.Services
         }
         public async Task<Pagination<Product>> GetProducts()
         {
+            List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
+                                 x => x.ProductImages
+                                    };
             var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
-                isDisableTracking: true, expressionInclude: x => x.ProductImages);
+                isDisableTracking: true, includes: includes);
             return products;
         }
         public async Task<Pagination<Product>> GetProductsByFilter(FilterProductModel filterProductModel)
@@ -40,6 +43,7 @@ namespace Application.Services
             {
                 foreach (var subCategoryId in filterProductModel.subCategory)
                 {
+
                     filter.Add(x => x.SubCategoryId == subCategoryId);
                 }
             }
@@ -63,8 +67,11 @@ namespace Application.Services
                 filter.Add(x => x.UnitPrice <= filterProductModel.maxPrice);
             }
             var finalFilter = filter.Aggregate((current, next) => current.AndAlso(next));
+            List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
+                                 x => x.ProductImages
+                                    };
             var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: finalFilter, 
-                isDisableTracking: true, expressionInclude: x => x.ProductImages);
+                isDisableTracking: true, includes: includes);
             return products;
         }
 

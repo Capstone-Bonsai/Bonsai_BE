@@ -76,39 +76,44 @@ namespace Infrastructures.Repositories
         {
             return expression == null ? await _dbSet.CountAsync() : await _dbSet.CountAsync(expression);
         }
-
-            public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, Expression<Func<TEntity, object>> expressionInclude = null)
+        public async Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, List<Expression<Func<TEntity, object>>> includes = null)
+        {
+            IQueryable<TEntity> query = _dbSet;
+            var paginationResult = new Pagination<TEntity>();
+            paginationResult.PageIndex = pageIndex;
+            if (pageSize == 0)
+                paginationResult.PageSize = await CountAsync(expression);
+            else
+                paginationResult.PageSize = pageSize;
+            paginationResult.TotalItemsCount = await CountAsync(expression);
+            if (includes != null && includes.Any())
             {
-                IQueryable<TEntity> query = _dbSet;
-                var paginationResult = new Pagination<TEntity>();
-                paginationResult.PageIndex = pageIndex;
-                if (pageSize == 0)
-                    paginationResult.PageSize = await CountAsync(expression);
-                else
-                    paginationResult.PageSize = pageSize;
-                paginationResult.TotalItemsCount = await CountAsync(expression);
-                if (expressionInclude != null)
-                    query = query.Include(expressionInclude);
-                if (expression != null)
-                    query = query.Where(expression);
-                if (isDisableTracking is true)
-                    query = query.AsNoTracking();
-                if (isTakeAll is true)
+                foreach (var include in includes)
                 {
-                    if (orderBy != null)
-                        paginationResult.Items = await orderBy(query).ToListAsync();
-                    else
-                        paginationResult.Items = await query.ToListAsync();
+                    query = query.Include(include);
                 }
-                else
-                {
-                    if (orderBy == null)
-                        paginationResult.Items = await query.Skip(pageSize * pageIndex).Take(pageSize).ToListAsync();
-                    else
-                        paginationResult.Items = await orderBy(query).Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
-                }
-                return paginationResult;
             }
+            if (expression != null)
+                query = query.Where(expression);
+            if (isDisableTracking is true)
+                query = query.AsNoTracking();
+            if (isTakeAll is true)
+
+            {
+                if (orderBy != null)
+                    paginationResult.Items = await orderBy(query).ToListAsync();
+                else
+                    paginationResult.Items = await query.ToListAsync();
+            }
+            else
+            {
+                if (orderBy == null)
+                    paginationResult.Items = await query.Skip(pageSize * pageIndex).Take(pageSize).ToListAsync();
+                else
+                    paginationResult.Items = await orderBy(query).Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
+            }
+            return paginationResult;
+        }
 
         public void UpdateRange(List<TEntity> entities)
         {

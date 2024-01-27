@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Services.Momo;
 using Application.ViewModels.OrderViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -18,7 +19,7 @@ namespace WebAPI.Controllers
             _claimsService = claimsService;
         }
         [HttpPost]
-        public async Task<IActionResult> CreateOrderAsync(OrderModel model)
+        public async Task<IActionResult> CreateOrderAsync([FromBody]OrderModel model)
         {
             try
             {
@@ -57,6 +58,43 @@ namespace WebAPI.Controllers
             }
            
         }
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetAsync([FromQuery] int pageIndex, int pageSize)
+        {
+            try
+            {
+                var userId = _claimsService.GetCurrentUserId.ToString().ToLower();
+                var orders = await _orderService.GetPaginationAsync(userId, pageIndex, pageSize);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+
+        [HttpGet("{orderId}")]
+        [Authorize]
+        public async Task<IActionResult> GetByIdAsync( Guid orderId)
+        {
+            try
+            {
+                var userId = _claimsService.GetCurrentUserId.ToString().ToLower();
+                var orders = await _orderService.GetByIdAsync(userId, orderId);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
 
 
     }

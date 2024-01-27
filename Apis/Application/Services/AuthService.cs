@@ -40,10 +40,10 @@ namespace Application.Services
         public async Task<LoginViewModel> Login(string email, string pass, string callbackUrl)
         {
             var user = await _userManager.FindByNameAsync(email);
-            if (user == null)
+            if (user == null || !user.IsRegister)
             {
                 user = await _userManager.FindByEmailAsync(email);
-                if (user == null)
+                if (user == null || !user.IsRegister)
                 {
                     throw new KeyNotFoundException($"Không tìm thấy tên đăng nhập hoặc địa chỉ email '{email}'");
                 }
@@ -78,31 +78,39 @@ namespace Application.Services
 
         public async Task<List<string>> Register(RegisterModel model)
         {
+            var user = await _userManager.FindByEmailAsync(model.Email);
             var resultData = await CreateUserAsync(model);
             if (resultData.Succeeded)
             {
-                var user = await _userManager.FindByEmailAsync(model.Email);
-                try
+                if(user == null)
                 {
-                    Customer customer = new Customer { UserId = user.Id };
-                    await _unit.CustomerRepository.AddAsync(customer);
-                    await _unit.SaveChangeAsync();
-                }
-                catch (Exception)
-                {
-                    await _userManager.DeleteAsync(user);
-                    throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
-                }
-                var addRoleResult = await _userManager.AddToRoleAsync(user, "Customer");
+                    var temp = await _userManager.FindByEmailAsync(model.Email);
+                    try
+                    {
+                        Customer customer = new Customer { UserId = temp.Id };
+                        await _unit.CustomerRepository.AddAsync(customer);
+                        await _unit.SaveChangeAsync();
+                    }
+                    catch (Exception)
+                    {
+                        await _userManager.DeleteAsync(temp);
+                        throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
+                    }
+                    var addRoleResult = await _userManager.AddToRoleAsync(temp, "Customer");
 
-                if (addRoleResult.Succeeded)
-                {
-                    return null;
+                    if (addRoleResult.Succeeded)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        await _userManager.DeleteAsync(temp);
+                        throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
+                    }
                 }
                 else
                 {
-                    await _userManager.DeleteAsync(user);
-                    throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
+                    return null;
                 }
             }
             else
@@ -114,19 +122,36 @@ namespace Application.Services
         }
 
         public async Task<IdentityResult> CreateUserAsync(RegisterModel model)
-
         {
-            var user = new ApplicationUser
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if(user == null)
             {
-                UserName = model.Username,
-                Email = model.Email,
-                Fullname = model.Fullname,
-                PhoneNumber = model.PhoneNumber,
-                IsRegister = true
-            };
+                var temp = new ApplicationUser
+                {
+                    UserName = model.Username,
+                    Email = model.Email,
+                    Fullname = model.Fullname,
+                    PhoneNumber = model.PhoneNumber,
+                    IsRegister = true
+                };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-            return result;
+                var result = await _userManager.CreateAsync(user, model.Password);
+                return result;
+            }
+            else
+            {
+                user.UserName = model.Username;
+                user.Fullname = model.Fullname;
+                user.PhoneNumber = model.PhoneNumber;
+                user.IsRegister = true;
+                var result =  await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    var temp= await _userManager.AddPasswordAsync(user, model.Password);
+                    return temp;
+                }
+                return result;
+            }
         }
 
         public async Task<bool> IsInRoleAsync(string userId, string role)
@@ -159,6 +184,7 @@ namespace Application.Services
                 var roles = await _userManager.GetRolesAsync(user);
                 List<Claim> authClaims = new List<Claim>();
                 authClaims.Add(new Claim(ClaimTypes.Email, user.Email));
+                authClaims.Add(new Claim("userId", user.Id));
                 authClaims.Add(new Claim(ClaimTypes.Name, user.UserName));
 
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
@@ -184,12 +210,12 @@ namespace Application.Services
         public async Task CheckAccountExist(RegisterModel model)
         {
             var existEmailUser = await _userManager.FindByEmailAsync(model.Email);
-            if (existEmailUser != null)
+            if (existEmailUser != null && existEmailUser.IsRegister)
             {
                 throw new Exception("Email này đã được sử dụng!");
             }
             var existUsernameUser = await _userManager.FindByNameAsync(model.Username);
-            if (existUsernameUser != null)
+            if (existUsernameUser != null && existUsernameUser.IsRegister)
             {
                 throw new Exception("Tên đăng nhập này đã được sử dụng!");
             }
@@ -242,6 +268,12 @@ namespace Application.Services
                     var result = await _userManager.ConfirmEmailAsync(user, code);
                     //Add login infor
                     await _userManager.AddLoginAsync(user, info);
+                }else if (!user.IsRegister)
+                {
+                    user.IsRegister = true;
+                    user.UserName = payload.Email;
+                    user.Fullname = payload.GivenName;
+                    await _userManager.UpdateAsync(user);
                 }
                 else
                 {
