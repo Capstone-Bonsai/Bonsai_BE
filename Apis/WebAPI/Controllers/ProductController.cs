@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.ViewModels.ProductImageViewModels;
+using Application.ViewModels.ProductTagViewModels;
 using Application.ViewModels.ProductViewModels;
 using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -12,16 +13,19 @@ namespace WebAPI.Controllers
     {
         private readonly IProductService _productService;
         private readonly IProductImageService _productImageService;
+        private readonly IProductTagService _productTagService;
         private readonly IFirebaseService _firebaseService;
         private readonly IClaimsService _claims;
 
         public ProductController(IProductService productService,
             IProductImageService productImageService,
+            IProductTagService productTagService,
             IFirebaseService firebaseService,
             IClaimsService claimsService)
         {
             _productService = productService;
             _productImageService = productImageService;
+            _productTagService = productTagService;
             _firebaseService = firebaseService;
             _claims = claimsService;
         }
@@ -65,6 +69,23 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("Filter")]
+        public async Task<IActionResult> Post([FromBody] FilterProductModel? filterProductModel)
+        {
+            try
+            {
+                var products = await _productService.GetProductsByFilter(filterProductModel);
+                if (products.Items.Count == 0)
+                {
+                    return NotFound("Không tìm thấy");                   
+                }
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] ProductModel productModel)
         {
@@ -96,6 +117,16 @@ namespace WebAPI.Controllers
                         };
 
                         await _productImageService.AddProductImages(productImage);
+                    }
+                }
+                if (productModel.Tag != null)
+                {
+                    foreach(var tagid in productModel.Tag)
+                    {
+                        await _productTagService.AddAsync(new ProductTagModel() { 
+                            ProductId = id,
+                            TagId = tagid
+                        });
                     }
                 }
             }

@@ -8,6 +8,7 @@ namespace Application.Interfaces
     {
         Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize);
         Task<Pagination<Product>> GetProducts();
+        Task<Pagination<Product>> GetProductsByFilter(FilterProductModel filterProductModel);
         Task<Product?> GetProductById(Guid id);
         Task<Guid> AddAsync(ProductModel productModel);
         Task UpdateProduct(Guid id, ProductModel productModel);

@@ -16,11 +16,12 @@ namespace Infrastructures
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IOrderTransactionRepository _orderTransactionRepository;
         private readonly ITagRepository _tagRepository;
+        private readonly IProductTagRepository _productTagRepository;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository,
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
-            IProductImageRepository productImageRepository, ITagRepository tagRepository)
+            IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -33,6 +34,7 @@ namespace Infrastructures
             _orderDetailRepository = orderDetailRepository;
             _orderTransactionRepository = orderTransactionRepository;
             _tagRepository = tagRepository;
+            _productTagRepository = productTagRepository;
         }
 
 
@@ -55,6 +57,8 @@ namespace Infrastructures
         public IOrderTransactionRepository OrderTransactionRepository => _orderTransactionRepository;
 
         public ITagRepository TagRepository => _tagRepository;
+        public IProductTagRepository ProductTagRepository => _productTagRepository;
+
 
 
         public async Task<int> SaveChangeAsync()

@@ -15,6 +15,7 @@ namespace Application
         public IOrderDetailRepository OrderDetailRepository { get; }
         public IOrderTransactionRepository OrderTransactionRepository { get; }
         public ITagRepository TagRepository { get; }
+        public IProductTagRepository ProductTagRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

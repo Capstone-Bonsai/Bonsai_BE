@@ -2,6 +2,7 @@
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.OrderDetailModels;
 using Application.ViewModels.OrderViewModels;
+using Application.ViewModels.ProductTagViewModels;
 using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.SubCategoryViewModels;
 using Application.ViewModels.TagViewModels;
@@ -22,6 +23,7 @@ namespace Infrastructures.Mappers
             CreateMap<CategoryModel, Category>();
             CreateMap<SubCategoryModel, SubCategory>();
             CreateMap<TagModel, Tag>();
+            CreateMap<ProductTagModel, ProductTag>();
 
             CreateMap<OrderModel, Order>().ReverseMap();
             CreateMap<OrderDetailModel, OrderDetail>().ReverseMap();

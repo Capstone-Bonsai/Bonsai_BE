@@ -1,11 +1,12 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
-using Application.Validations.Order;
+using Application.Utils;
 using Application.Validations.Product;
 using Application.ViewModels.ProductViewModels;
 using AutoMapper;
 using Domain.Entities;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 
 namespace Application.Services
 {
@@ -27,7 +28,43 @@ namespace Application.Services
         }
         public async Task<Pagination<Product>> GetProducts()
         {
-            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
+            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
+                isDisableTracking: true, expressionInclude: x => x.ProductImages);
+            return products;
+        }
+        public async Task<Pagination<Product>> GetProductsByFilter(FilterProductModel filterProductModel)
+        {
+            var filter = new List<Expression<Func<Product, bool>>>();
+            filter.Add(x => !x.IsDeleted);
+            if (filterProductModel.subCategory != null)
+            {
+                foreach (var subCategoryId in filterProductModel.subCategory)
+                {
+                    filter.Add(x => x.SubCategoryId == subCategoryId);
+                }
+            }
+            /*if (filterProductModel.tag != null)
+            {
+                foreach (var tagId in filterProductModel.tag)
+                {
+                    filter.Add(x => x.TagId == tagId);
+                }
+            }*/
+            if (filterProductModel.keyword != null)
+            {     
+                filter.Add(x => x.Name.ToLower().Contains(filterProductModel.keyword.ToLower())); 
+            }
+            if (filterProductModel.minPrice != null)
+            {
+                filter.Add(x => x.UnitPrice >= filterProductModel.minPrice);
+            }
+            if (filterProductModel.maxPrice != null)
+            {
+                filter.Add(x => x.UnitPrice <= filterProductModel.maxPrice);
+            }
+            var finalFilter = filter.Aggregate((current, next) => current.AndAlso(next));
+            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: finalFilter, 
+                isDisableTracking: true, expressionInclude: x => x.ProductImages);
             return products;
         }
 

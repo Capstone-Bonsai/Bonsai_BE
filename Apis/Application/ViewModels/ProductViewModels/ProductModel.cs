@@ -15,6 +15,8 @@ namespace Application.ViewModels.ProductViewModels
         public int Quantity { get; set; }
         public double UnitPrice { get; set; }
         [NotMapped]
-        public List<IFormFile> Image { get; set; } = default!;
+        public List<IFormFile>? Image { get; set; } = default!;
+        [NotMapped]
+        public List<Guid>? Tag { get; set; } = default!;
     }
 }
