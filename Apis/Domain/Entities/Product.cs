@@ -7,6 +7,7 @@ namespace Domain.Entities
         [ForeignKey("SubCategory")]
         public Guid SubCategoryId { get; set; }
         public string Name { get; set; }
+        public string NameUnsign { get; set; }
         public string Description { get; set; }
         public string? TreeShape { get; set; }
         public int? AgeRange { get; set; }
