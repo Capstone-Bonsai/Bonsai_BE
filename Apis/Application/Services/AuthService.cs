@@ -296,7 +296,7 @@ namespace Application.Services
             userModel.FullName = user.Fullname;
             userModel.Username = user.UserName;
             userModel.Avatar = user.AvatarUrl;
-            userModel.listRoles = roles.ToList();
+            userModel.Role = roles.FirstOrDefault();
             userModel.Token = token;
             return userModel;
         }
