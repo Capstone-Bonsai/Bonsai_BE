@@ -3,5 +3,6 @@
     public interface IClaimsService
     {
         public Guid GetCurrentUserId { get; }
+        public bool GetIsAdmin { get; }
     }
 }
