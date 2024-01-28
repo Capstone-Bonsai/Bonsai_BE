@@ -3,6 +3,8 @@ using Application.ViewModels.ProductImageViewModels;
 using Application.ViewModels.ProductTagViewModels;
 using Application.ViewModels.ProductViewModels;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -34,7 +36,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var products = await _productService.GetPagination(pageIndex, pageSize);
+                //lấy cái bool đó ở đây nha
+                var products = await _productService.GetPagination(pageIndex, pageSize/*nhét thẳng cái bool đó vào đây cũng đc, không cần if else ở đây*/);
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
@@ -70,14 +73,14 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("Filter")]
-        public async Task<IActionResult> Post([FromQuery] int pageIndex, int pageSize,[FromBody] FilterProductModel? filterProductModel)
+        public async Task<IActionResult> Post([FromQuery] int pageIndex, int pageSize, [FromBody] FilterProductModel? filterProductModel)
         {
             try
             {
                 var products = await _productService.GetProductsByFilter(pageIndex, pageSize, filterProductModel);
                 if (products.Items.Count == 0)
                 {
-                    return NotFound("Không tìm thấy");                   
+                    return NotFound("Không tìm thấy");
                 }
                 return Ok(products);
             }
@@ -121,9 +124,10 @@ namespace WebAPI.Controllers
                 }
                 if (productModel.Tag != null)
                 {
-                    foreach(var tagid in productModel.Tag)
+                    foreach (var tagid in productModel.Tag)
                     {
-                        await _productTagService.AddAsync(new ProductTagModel() { 
+                        await _productTagService.AddAsync(new ProductTagModel()
+                        {
                             ProductId = id,
                             TagId = tagid
                         });

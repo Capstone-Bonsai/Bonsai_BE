@@ -23,9 +23,18 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize)
+        public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize, bool? isAdmin = false)
         {
-            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize);
+            Pagination<Product> products;
+
+            if (isAdmin.HasValue && isAdmin.Value)
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted);
+            }
+            else
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted & !x.isDisable);
+            }
             return products;
         }
         public async Task<Pagination<Product>> GetProducts()
@@ -96,7 +105,8 @@ namespace Application.Services
             if (!resultProductInfo.IsValid)
             {
                 var errors = resultProductInfo.Errors.Select(x => x.ErrorMessage);
-                throw new ValidationException("Xác thực không thành công cho mẫu sản phẩm.", (Exception?)errors);
+                string errorMessage = string.Join(Environment.NewLine, errors);
+                throw new Exception(errorMessage);
             }
             var product = _mapper.Map<Product>(productModel);
             try
@@ -135,6 +145,22 @@ namespace Application.Services
             catch (Exception)
             {
                 throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
+            }
+        }
+        public async Task DisableProduct(Guid id)
+        {
+            var result = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+            if (result == null)
+                throw new Exception("Không tìm thấy sản phẩm!");
+            try
+            {
+                result.isDisable = true;
+                _unitOfWork.ProductRepository.Update(result);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
             }
         }
         public async Task DeleteProduct(Guid id)

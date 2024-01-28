@@ -6,7 +6,7 @@ namespace Application.Interfaces
 {
     public interface IProductService
     {
-        Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize);
+        Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize, bool? isAdmin = false);
         Task<Pagination<Product>> GetProducts();
         Task<Pagination<Product>> GetProductsByFilter(int pageIndex, int pageSize, FilterProductModel filterProductModel);
         Task<Product?> GetProductById(Guid id);
