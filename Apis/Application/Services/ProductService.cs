@@ -7,6 +7,7 @@ using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using System.ComponentModel.DataAnnotations;
+using System.Drawing.Printing;
 using System.Linq.Expressions;
 
 namespace Application.Services
@@ -36,7 +37,7 @@ namespace Application.Services
                 isDisableTracking: true, includes: includes);
             return products;
         }
-        public async Task<Pagination<Product>> GetProductsByFilter(FilterProductModel filterProductModel)
+        public async Task<Pagination<Product>> GetProductsByFilter(int pageIndex, int pageSize, FilterProductModel filterProductModel)
         {
             var filter = new List<Expression<Func<Product, bool>>>();
             filter.Add(x => !x.IsDeleted);
@@ -59,8 +60,9 @@ namespace Application.Services
                 }
             }
             if (filterProductModel.keyword != null)
-            {     
-                filter.Add(x => x.Name.ToLower().Contains(filterProductModel.keyword.ToLower())); 
+            {
+                string keywordLower = filterProductModel.keyword.ToLower();
+                filter.Add(x => x.Name.ToLower().Contains(keywordLower) || x.NameUnsign.ToLower().Contains(keywordLower)); 
             }
             if (filterProductModel.minPrice != null)
             {
@@ -74,7 +76,7 @@ namespace Application.Services
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
                                  x => x.ProductImages
                                     };
-            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: finalFilter, 
+            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter, 
                 isDisableTracking: true, includes: includes);
             return products;
         }
