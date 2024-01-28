@@ -43,21 +43,35 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-/*
+
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> CalculateFeeAsync(string destination,double price)
         {
             try
             {
-
-                var list = await _deliveryFeeService.GetAllAsync();
-                return Ok(list);
+                var distance = await _deliveryFeeService.CalculateFee(destination,  price);
+                return Ok(distance);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }*/
+        }
+        /*
+                [HttpGet]
+                public async Task<IActionResult> GetAsync()
+                {
+                    try
+                    {
+
+                        var list = await _deliveryFeeService.GetAllAsync();
+                        return Ok(list);
+                    }
+                    catch (Exception ex)
+                    {
+                        return BadRequest(ex.Message);
+                    }
+                }*/
 
     }
 }
