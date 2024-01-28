@@ -9,6 +9,6 @@
         public string Avatar { get; set; }
 
         public string Token { get; set; }
-        public List<string> listRoles { get; set; }
+        public string Role { get; set; }
     }
 }

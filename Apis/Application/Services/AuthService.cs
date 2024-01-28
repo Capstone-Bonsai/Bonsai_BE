@@ -59,7 +59,6 @@ namespace Application.Services
 
                 if (result != null)
                 {
-
                     var roles = await _userManager.GetRolesAsync(user);
                     var userModel = new LoginViewModel();
                     userModel.Id = user.Id;
@@ -67,7 +66,7 @@ namespace Application.Services
                     userModel.FullName = user.Fullname;
                     userModel.Username = user.UserName;
                     userModel.Avatar = user.AvatarUrl;
-                    userModel.listRoles = roles.ToList();
+                    userModel.Role = roles.FirstOrDefault();
                     userModel.Token = result;
                     return userModel;
                 }
