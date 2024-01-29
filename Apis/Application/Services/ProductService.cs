@@ -23,33 +23,47 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize, bool? isAdmin = false)
+        public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false)
         {
             Pagination<Product> products;
-
-            if (isAdmin.HasValue && isAdmin.Value)
-            {
-                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted);
-            }
-            else
-            {
-                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted & !x.isDisable);
-            }
-            return products;
-        }
-        public async Task<Pagination<Product>> GetProducts()
-        {
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
                                  x => x.ProductImages
                                     };
-            var products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
-                isDisableTracking: true, includes: includes);
+            if (isAdmin)
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
+            }
+            else
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted & !x.isDisable, includes: includes);
+            }
             return products;
         }
-        public async Task<Pagination<Product>> GetProductsByFilter(int pageIndex, int pageSize, FilterProductModel filterProductModel)
+        public async Task<Pagination<Product>> GetProducts(bool isAdmin = false)
+        {
+            Pagination<Product> products;
+            List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
+                                 x => x.ProductImages
+                                    };
+            if (isAdmin)
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
+                isDisableTracking: true, includes: includes);
+            }
+            else
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & !x.isDisable,
+                isDisableTracking: true, includes: includes);
+            }
+            
+            return products;
+        }
+        public async Task<Pagination<Product>> GetProductsByFilter(int pageIndex, int pageSize, FilterProductModel filterProductModel, bool isAdmin = false)
         {
             var filter = new List<Expression<Func<Product, bool>>>();
             filter.Add(x => !x.IsDeleted);
+            if(!isAdmin)
+                filter.Add(x => !x.isDisable);
             if (filterProductModel.subCategory != null)
             {
                 foreach (var subCategoryId in filterProductModel.subCategory)
@@ -90,10 +104,23 @@ namespace Application.Services
             return products;
         }
 
-        public async Task<Product?> GetProductById(Guid id)
+        public async Task<Product?> GetProductById(Guid id, bool isAdmin = false)
         {
-            var product = await _unitOfWork.ProductRepository.GetByIdAsync(id);
-            return product;
+            Pagination<Product> products;
+            List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
+                                 x => x.ProductImages
+                                    };
+            if (isAdmin)
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & x.Id == id,
+                isDisableTracking: true, includes: includes);
+            }
+            else
+            {
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & !x.isDisable & x.Id == id,
+                isDisableTracking: true, includes: includes);
+            }        
+            return products.Items[0];
         }
 
         public async Task<Guid> AddAsync(ProductModel productModel)
@@ -147,22 +174,6 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
             }
         }
-        public async Task DisableProduct(Guid id)
-        {
-            var result = await _unitOfWork.ProductRepository.GetByIdAsync(id);
-            if (result == null)
-                throw new Exception("Không tìm thấy sản phẩm!");
-            try
-            {
-                result.isDisable = true;
-                _unitOfWork.ProductRepository.Update(result);
-                await _unitOfWork.SaveChangeAsync();
-            }
-            catch (Exception)
-            {
-                throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
-            }
-        }
         public async Task DeleteProduct(Guid id)
         {
             var result = await _unitOfWork.ProductRepository.GetByIdAsync(id);
@@ -176,6 +187,22 @@ namespace Application.Services
             catch (Exception)
             {
                 throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
+            }
+        }
+        public async Task UpdateProductAvailability(Guid id)
+        {
+            var result = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+            if (result == null)
+                throw new Exception("Không tìm thấy sản phẩm!");
+            try
+            {
+                result.isDisable = !result.isDisable;
+                _unitOfWork.ProductRepository.Update(result);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
             }
         }
     }

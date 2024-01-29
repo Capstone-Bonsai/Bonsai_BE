@@ -36,8 +36,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                //lấy cái bool đó ở đây nha
-                var products = await _productService.GetPagination(pageIndex, pageSize/*nhét thẳng cái bool đó vào đây cũng đc, không cần if else ở đây*/);
+                var products = await _productService.GetPagination(pageIndex, pageSize, _claims.GetIsAdmin);
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
@@ -57,7 +56,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var products = await _productService.GetProducts();
+                var products = await _productService.GetProducts(_claims.GetIsAdmin);
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
@@ -77,7 +76,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var products = await _productService.GetProductsByFilter(pageIndex, pageSize, filterProductModel);
+                var products = await _productService.GetProductsByFilter(pageIndex, pageSize, filterProductModel, _claims.GetIsAdmin);
                 if (products.Items.Count == 0)
                 {
                     return NotFound("Không tìm thấy");
@@ -90,6 +89,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Post([FromForm] ProductModel productModel)
         {
             try
@@ -143,7 +143,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var product = await _productService.GetProductById(id);
+            var product = await _productService.GetProductById(id, _claims.GetIsAdmin);
             if (product == null)
             {
                 return NotFound();
@@ -151,6 +151,7 @@ namespace WebAPI.Controllers
             return Ok(product);
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] ProductModel productModel)
         {
             try
@@ -163,7 +164,8 @@ namespace WebAPI.Controllers
             }
             return Ok();
         }
-        [HttpPut("changeImage/{id}")]
+        [HttpPut("ChangeImage/{id}")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> ChangeImage([FromRoute] Guid id, [FromForm] ProductImageModel productImageModel)
         {
             try
@@ -203,7 +205,22 @@ namespace WebAPI.Controllers
             }
             return Ok();
         }
+        [HttpPut("UpdateAvalability/{id}")]
+        [Authorize(Roles ="Manager")]
+        public async Task<IActionResult> UpdateProductAvailability([FromRoute] Guid id)
+        {
+            try
+            {
+                await _productService.UpdateProductAvailability(id);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             try

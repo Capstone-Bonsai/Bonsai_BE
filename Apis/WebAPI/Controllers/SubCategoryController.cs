@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.ViewModels.SubCategoryViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -58,6 +59,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Post([FromBody] SubCategoryModel subCategoryModel)
         {
             try
@@ -71,6 +73,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] SubCategoryModel subCategoryModel)
         {
             try
@@ -84,6 +87,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
             try

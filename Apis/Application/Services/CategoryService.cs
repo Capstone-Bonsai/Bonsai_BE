@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.ViewModels.CategoryViewModels;
 using AutoMapper;
 using Domain.Entities;
+using System.Linq.Expressions;
 
 namespace Application.Services
 {
@@ -18,7 +19,10 @@ namespace Application.Services
         }
         public async Task<Pagination<Category>> GetCategories()
         {
-            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
+            List<Expression<Func<Category, object>>> includes = new List<Expression<Func<Category, object>>>{
+                                 x => x.SubCategories
+                                    };
+            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true, includes: includes);
             return categories;
         }
         public async Task AddCategory(CategoryModel categoryModel)
