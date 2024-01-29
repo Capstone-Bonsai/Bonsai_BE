@@ -1,5 +1,7 @@
 ﻿using Application;
 using Application.Repositories;
+using Application.Services;
+using Application.ViewModels.DeliveryFeeViewModels;
 using Application.ViewModels.OrderDetailModels;
 using Application.ViewModels.OrderViewModels;
 using AutoMapper;
@@ -13,16 +15,18 @@ namespace Infrastructures.Repositories
     public class TransactionRepository : ITransactionRepository
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unit;
 
-        public TransactionRepository(UserManager<ApplicationUser> userManager, AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork)
+        public TransactionRepository(UserManager<ApplicationUser> userManager, AppDbContext context, IMapper mapper, IUnitOfWork unitOfWork, IDeliveryFeeService deliveryFeeService)
         {
             _context = context;
             _mapper = mapper;
             _unit = unitOfWork;
             _userManager = userManager;
+            _deliveryFeeService = deliveryFeeService;
         }
         public async Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId)
         {
@@ -180,10 +184,10 @@ namespace Infrastructures.Repositories
                     var temp = item.Quantity * item.Product.UnitPrice;
                     total += temp;
                 }
-                var deliveryPrice = await CalculateDeliveryPrice();
-                order.DeliveryPrice = deliveryPrice;
+                var deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
+                order.DeliveryPrice = deliveryPrice.Price;
                 order.Price = total;
-                order.TotalPrice = total + deliveryPrice;
+                order.TotalPrice = total + deliveryPrice.Price;
                 _context.ChangeTracker.Clear();
                 _unit.OrderRepository.Update(order);
                 await _unit.SaveChangeAsync();
@@ -195,9 +199,10 @@ namespace Infrastructures.Repositories
         }
 
 
-        public async Task<double> CalculateDeliveryPrice()
+        public async Task<FeeViewModel> CalculateDeliveryPrice(string destination, double price)
         {
-            return 100000;
+            var distance = await _deliveryFeeService.CalculateFee(destination, price);
+            return distance;
         }
     }
 }

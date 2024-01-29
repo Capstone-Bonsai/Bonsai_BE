@@ -52,6 +52,7 @@ namespace Infrastructures
 
 
             services.AddSingleton<ICurrentTime, CurrentTime>();
+            services.AddHttpClient<IDeliveryFeeService, DeliveryFeeService>();
 
             // ATTENTION: if you do migration please check file README.md
             /*if (configuration.GetValue<bool>("UseInMemoryDatabase"))
