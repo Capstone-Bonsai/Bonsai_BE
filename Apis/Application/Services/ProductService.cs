@@ -205,5 +205,8 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
             }
         }
+
+        public Task<List<String?>> GetTreeShapeList()
+            => _unitOfWork.ProductRepository.GetTreeShapeList();
     }
 }
