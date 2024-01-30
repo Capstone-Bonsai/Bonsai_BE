@@ -120,6 +120,7 @@ namespace Infrastructures.Repositories
             try
             {
                 var order = _mapper.Map<Order>(model);
+                order.DeliveryType = Domain.Enums.DeliveryType.PickupTruck;
                 order.OrderDate = DateTime.Now;
                 order.CustomerId = customerId;
                 order.Price = 0;
@@ -185,6 +186,7 @@ namespace Infrastructures.Repositories
                     total += temp;
                 }
                 var deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
+                order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
                 order.DeliveryPrice = deliveryPrice.Price;
                 order.Price = total;
                 order.TotalPrice = total + deliveryPrice.Price;
