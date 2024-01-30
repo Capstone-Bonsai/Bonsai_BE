@@ -14,5 +14,6 @@ namespace Application.Interfaces
         Task UpdateProduct(Guid id, ProductModel productModel);
         Task DeleteProduct(Guid id);
         Task UpdateProductAvailability(Guid id);
+        Task<List<String?>> GetTreeShapeList();
     }
 }

@@ -206,7 +206,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
         [HttpPut("UpdateAvalability/{id}")]
-        [Authorize(Roles ="Manager")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> UpdateProductAvailability([FromRoute] Guid id)
         {
             try
@@ -232,6 +232,16 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok();
+        }
+        [HttpGet("TreeShapeList")]
+        public async Task<IActionResult> GetTreeShapeList()
+        {
+            var treeShapes = await _productService.GetTreeShapeList();
+            if (treeShapes == null)
+            {
+                return NotFound();
+            }
+            return Ok(treeShapes);
         }
     }
 }
