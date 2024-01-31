@@ -7,5 +7,6 @@ namespace Domain.Entities
         [ForeignKey("ApplicationUser")]
         public string UserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
+        public IList<AnnualWorkingDay> AnnualWorkingDay { get; set; }
     }
 }

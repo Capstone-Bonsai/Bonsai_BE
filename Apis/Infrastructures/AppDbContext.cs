@@ -23,13 +23,37 @@ namespace Infrastructures
         public DbSet<ProductTag> ProductTag { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<Manager> Manager { get; set; }
-        public DbSet<Staff> Staf { get; set; }
+        public DbSet<Staff> Staff { get; set; }
         public DbSet<Gardener> Gardener { get; set; }
         public DbSet<Address> Address { get; set; }
         public DbSet<Order> Order { get; set; }
         public DbSet<OrderDetail> OrderDetail { get; set; }
         public DbSet<OrderTransaction> OrderTransaction { get; set; }
         public DbSet<DeliveryFee> DeliveryFee { get; set; }
+        public DbSet<ContractImage> ContractImage { get; set; }
+        public DbSet<AnnualWorkingDay> AnnualWorkingDay { get; set; }
+        public DbSet<ServiceOrder> OrderService { get; set; }
+        public DbSet<ServiceImage> ServiceImage { get; set; }
+        public DbSet<Shift> Shift { get; set; }
+        public DbSet<ServiceTransaction> ServiceTransaction { get; set; }
+        public DbSet<Complain> Complain { get; set; }
+        public DbSet<Service> Service { get; set; }
+        public DbSet<Tasks> Task { get; set; }
+        public DbSet<BaseTask> BaseTask { get; set; }
+        public DbSet<OrderServiceTask> OrderServiceTask { get; set; }
+        public DbSet<Holiday> Holiday { get; set; }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -47,6 +71,12 @@ namespace Infrastructures
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            var cascadeFKs = builder.Model.GetEntityTypes()
+        .SelectMany(t => t.GetForeignKeys())
+        .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);
+
+            foreach (var fk in cascadeFKs)
+                fk.DeleteBehavior = DeleteBehavior.Restrict;
             base.OnModelCreating(builder);
         }
 

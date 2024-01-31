@@ -4,6 +4,7 @@ using Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240131063725_addService1")]
+    partial class addService1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1633,7 +1636,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Customer", "Customer")
                         .WithMany("Addresses")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -1644,19 +1647,19 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Gardener", "Gardener")
                         .WithMany("AnnualWorkingDay")
                         .HasForeignKey("GardenerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
                         .WithMany("AnnualWorkingDays")
                         .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Shift", "Shift")
                         .WithMany("Workdays")
                         .HasForeignKey("ShiftId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Gardener");
@@ -1671,13 +1674,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Service", "Service")
                         .WithMany("BaseTasks")
                         .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Tasks", "Task")
                         .WithMany("BaseTasks")
                         .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Service");
@@ -1690,7 +1693,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
                         .WithMany("Complains")
                         .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceOrder");
@@ -1701,7 +1704,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
                         .WithMany("ContractImages")
                         .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceOrder");
@@ -1712,7 +1715,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Customer")
                         .HasForeignKey("Domain.Entities.Customer", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1723,7 +1726,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Gardener")
                         .HasForeignKey("Domain.Entities.Gardener", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1734,7 +1737,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Manager")
                         .HasForeignKey("Domain.Entities.Manager", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1745,7 +1748,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -1756,13 +1759,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -1775,13 +1778,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
                         .WithMany("OrderServiceTasks")
                         .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Tasks", "Task")
                         .WithMany("OrderServiceTasks")
                         .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceOrder");
@@ -1794,7 +1797,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Order", "Order")
                         .WithOne("OrderTransaction")
                         .HasForeignKey("Domain.Entities.OrderTransaction", "OrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -1805,7 +1808,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.SubCategory", "SubCategory")
                         .WithMany("Products")
                         .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("SubCategory");
@@ -1816,7 +1819,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany("ProductImages")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Product");
@@ -1827,13 +1830,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Tag", "Tag")
                         .WithMany()
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Product");
@@ -1846,7 +1849,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
                         .WithMany("ServiceImages")
                         .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceOrder");
@@ -1857,13 +1860,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Service", "Service")
                         .WithMany("ServiceOrders")
                         .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -1876,7 +1879,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
                         .WithMany("ServiceTransactions")
                         .HasForeignKey("ServiceOrderId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ServiceOrder");
@@ -1887,7 +1890,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Staff")
                         .HasForeignKey("Domain.Entities.Staff", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1898,7 +1901,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany("SubCategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
