@@ -32,7 +32,7 @@ namespace Infrastructures
         public DbSet<DeliveryFee> DeliveryFee { get; set; }
         public DbSet<ContractImage> ContractImage { get; set; }
         public DbSet<AnnualWorkingDay> AnnualWorkingDay { get; set; }
-        public DbSet<ServiceOrder> OrderService { get; set; }
+        public DbSet<ServiceOrder> ServiceOrder { get; set; }
         public DbSet<ServiceImage> ServiceImage { get; set; }
         public DbSet<Shift> Shift { get; set; }
         public DbSet<ServiceTransaction> ServiceTransaction { get; set; }
@@ -42,33 +42,6 @@ namespace Infrastructures
         public DbSet<BaseTask> BaseTask { get; set; }
         public DbSet<OrderServiceTask> OrderServiceTask { get; set; }
         public DbSet<Holiday> Holiday { get; set; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             var cascadeFKs = builder.Model.GetEntityTypes()

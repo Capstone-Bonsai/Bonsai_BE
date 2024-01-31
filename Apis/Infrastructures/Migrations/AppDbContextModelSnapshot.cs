@@ -1191,7 +1191,7 @@ namespace Infrastructures.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("OrderService");
+                    b.ToTable("ServiceOrder");
                 });
 
             modelBuilder.Entity("Domain.Entities.ServiceTransaction", b =>

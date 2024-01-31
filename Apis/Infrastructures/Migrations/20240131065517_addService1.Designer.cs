@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240127161022_UpdateDeliveryFee")]
-    partial class UpdateDeliveryFee
+    [Migration("20240131065517_addService1")]
+    partial class addService1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -64,6 +64,56 @@ namespace Infrastructures.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Address");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnnualWorkingDay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("GardenerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ShiftId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GardenerId");
+
+                    b.HasIndex("ServiceOrderId");
+
+                    b.HasIndex("ShiftId");
+
+                    b.ToTable("AnnualWorkingDay");
                 });
 
             modelBuilder.Entity("Domain.Entities.ApplicationUser", b =>
@@ -141,6 +191,48 @@ namespace Infrastructures.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Domain.Entities.BaseTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("BaseTask");
+                });
+
             modelBuilder.Entity("Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -175,6 +267,92 @@ namespace Infrastructures.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Category");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Complain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Detail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceOrderId");
+
+                    b.ToTable("Complain");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ContractImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceOrderId");
+
+                    b.ToTable("ContractImage");
                 });
 
             modelBuilder.Entity("Domain.Entities.Customer", b =>
@@ -299,6 +477,45 @@ namespace Infrastructures.Migrations
                     b.ToTable("Gardener");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Holiday", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Holiday");
+                });
+
             modelBuilder.Entity("Domain.Entities.Manager", b =>
                 {
                     b.Property<Guid>("Id")
@@ -366,6 +583,9 @@ namespace Infrastructures.Migrations
                     b.Property<double>("DeliveryPrice")
                         .HasColumnType("float");
 
+                    b.Property<int>("DeliveryType")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("ExpectedDeliveryDate")
                         .HasColumnType("datetime2");
 
@@ -392,10 +612,6 @@ namespace Infrastructures.Migrations
 
                     b.Property<double>("Price")
                         .HasColumnType("float");
-
-                    b.Property<string>("Province")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("StaffId")
                         .HasColumnType("uniqueidentifier");
@@ -456,6 +672,59 @@ namespace Infrastructures.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderDetail");
+                });
+
+            modelBuilder.Entity("Domain.Entities.OrderServiceTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompletedDate")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ServiceTaskStatus")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceOrderId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("OrderServiceTask");
                 });
 
             modelBuilder.Entity("Domain.Entities.OrderTransaction", b =>
@@ -603,6 +872,10 @@ namespace Infrastructures.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NameUnsign")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -712,6 +985,359 @@ namespace Infrastructures.Migrations
                     b.ToTable("ProductTag");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Service", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float?>("DiscountPercent")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ImplementationTime")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("int");
+
+                    b.Property<double>("StandardPrice")
+                        .HasColumnType("float");
+
+                    b.Property<float>("StandardSqure")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Service");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceOrderId");
+
+                    b.ToTable("ServiceImage");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceOrder", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("DiscountPercent")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float>("ExpectedWorkingUnit")
+                        .HasColumnType("real");
+
+                    b.Property<float>("GardenSquare")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("ImplementationTime")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("NumberGardener")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double?>("OrderPrice")
+                        .HasColumnType("float");
+
+                    b.Property<double?>("ResponseFinalPrice")
+                        .HasColumnType("float");
+
+                    b.Property<float?>("ResponseGardenSquare")
+                        .HasColumnType("real");
+
+                    b.Property<double?>("ResponsePrice")
+                        .HasColumnType("float");
+
+                    b.Property<float?>("ResponseStandardSquare")
+                        .HasColumnType("real");
+
+                    b.Property<double?>("ResponseTotalPrice")
+                        .HasColumnType("float");
+
+                    b.Property<float?>("ResponseWorkingUnit")
+                        .HasColumnType("real");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ServiceStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("StaffId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("StandardPrice")
+                        .HasColumnType("float");
+
+                    b.Property<float>("StandardSquare")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("TemporaryPrice")
+                        .HasColumnType("float");
+
+                    b.Property<double>("TemporaryTotalPrice")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("OrderService");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExtraData")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Information")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpnURL")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("OrderIdFormMomo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrderType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PartnerCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PayType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RedirectUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("ResponseTime")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ResultCode")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ServiceOrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Signature")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("TransId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TransactionStatus")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceOrderId");
+
+                    b.ToTable("ServiceTransaction");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Shift", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Shift");
+                });
+
             modelBuilder.Entity("Domain.Entities.Staff", b =>
                 {
                     b.Property<Guid>("Id")
@@ -748,7 +1374,7 @@ namespace Infrastructures.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Staf");
+                    b.ToTable("Staff");
                 });
 
             modelBuilder.Entity("Domain.Entities.SubCategory", b =>
@@ -834,6 +1460,42 @@ namespace Infrastructures.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tag");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Tasks", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeleteBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModificationBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModificationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Task");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -974,10 +1636,78 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Customer", "Customer")
                         .WithMany("Addresses")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AnnualWorkingDay", b =>
+                {
+                    b.HasOne("Domain.Entities.Gardener", "Gardener")
+                        .WithMany("AnnualWorkingDay")
+                        .HasForeignKey("GardenerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
+                        .WithMany("AnnualWorkingDays")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Shift", "Shift")
+                        .WithMany("Workdays")
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Gardener");
+
+                    b.Navigation("ServiceOrder");
+
+                    b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("Domain.Entities.BaseTask", b =>
+                {
+                    b.HasOne("Domain.Entities.Service", "Service")
+                        .WithMany("BaseTasks")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Tasks", "Task")
+                        .WithMany("BaseTasks")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Service");
+
+                    b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Complain", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
+                        .WithMany("Complains")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ServiceOrder");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ContractImage", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
+                        .WithMany("ContractImages")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ServiceOrder");
                 });
 
             modelBuilder.Entity("Domain.Entities.Customer", b =>
@@ -985,7 +1715,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Customer")
                         .HasForeignKey("Domain.Entities.Customer", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -996,7 +1726,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Gardener")
                         .HasForeignKey("Domain.Entities.Gardener", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1007,7 +1737,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Manager")
                         .HasForeignKey("Domain.Entities.Manager", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1018,7 +1748,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Customer");
@@ -1029,13 +1759,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -1043,12 +1773,31 @@ namespace Infrastructures.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Domain.Entities.OrderServiceTask", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
+                        .WithMany("OrderServiceTasks")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Tasks", "Task")
+                        .WithMany("OrderServiceTasks")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ServiceOrder");
+
+                    b.Navigation("Task");
+                });
+
             modelBuilder.Entity("Domain.Entities.OrderTransaction", b =>
                 {
                     b.HasOne("Domain.Entities.Order", "Order")
                         .WithOne("OrderTransaction")
                         .HasForeignKey("Domain.Entities.OrderTransaction", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -1059,7 +1808,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.SubCategory", "SubCategory")
                         .WithMany("Products")
                         .HasForeignKey("SubCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("SubCategory");
@@ -1070,7 +1819,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany("ProductImages")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Product");
@@ -1081,13 +1830,13 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Product", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Tag", "Tag")
                         .WithMany()
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Product");
@@ -1095,12 +1844,53 @@ namespace Infrastructures.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("Domain.Entities.ServiceImage", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
+                        .WithMany("ServiceImages")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ServiceOrder");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceOrder", b =>
+                {
+                    b.HasOne("Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Service", "Service")
+                        .WithMany("ServiceOrders")
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceTransaction", b =>
+                {
+                    b.HasOne("Domain.Entities.ServiceOrder", "ServiceOrder")
+                        .WithMany("ServiceTransactions")
+                        .HasForeignKey("ServiceOrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ServiceOrder");
+                });
+
             modelBuilder.Entity("Domain.Entities.Staff", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "ApplicationUser")
                         .WithOne("Staff")
                         .HasForeignKey("Domain.Entities.Staff", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("ApplicationUser");
@@ -1111,7 +1901,7 @@ namespace Infrastructures.Migrations
                     b.HasOne("Domain.Entities.Category", "Category")
                         .WithMany("SubCategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -1189,6 +1979,11 @@ namespace Infrastructures.Migrations
                     b.Navigation("Addresses");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Gardener", b =>
+                {
+                    b.Navigation("AnnualWorkingDay");
+                });
+
             modelBuilder.Entity("Domain.Entities.Order", b =>
                 {
                     b.Navigation("OrderDetails");
@@ -1202,9 +1997,43 @@ namespace Infrastructures.Migrations
                     b.Navigation("ProductImages");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Service", b =>
+                {
+                    b.Navigation("BaseTasks");
+
+                    b.Navigation("ServiceOrders");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ServiceOrder", b =>
+                {
+                    b.Navigation("AnnualWorkingDays");
+
+                    b.Navigation("Complains");
+
+                    b.Navigation("ContractImages");
+
+                    b.Navigation("OrderServiceTasks");
+
+                    b.Navigation("ServiceImages");
+
+                    b.Navigation("ServiceTransactions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Shift", b =>
+                {
+                    b.Navigation("Workdays");
+                });
+
             modelBuilder.Entity("Domain.Entities.SubCategory", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Tasks", b =>
+                {
+                    b.Navigation("BaseTasks");
+
+                    b.Navigation("OrderServiceTasks");
                 });
 #pragma warning restore 612, 618
         }
