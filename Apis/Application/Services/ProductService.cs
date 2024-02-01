@@ -15,12 +15,14 @@ namespace Application.Services
     public class ProductService : IProductService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly FirebaseService _fireBaseService;
         private readonly IMapper _mapper;
 
-        public ProductService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ProductService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _fireBaseService = fireBaseService;
         }
 
         public async Task<Pagination<Product>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false)
@@ -125,8 +127,11 @@ namespace Application.Services
 
         public async Task<Guid> AddAsync(ProductModel productModel)
         {
+            bool operationSuccessful = false;
+
             if (productModel == null)
                 throw new ArgumentNullException(nameof(productModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+
             var validationRules = new ProductModelValidator();
             var resultProductInfo = await validationRules.ValidateAsync(productModel);
             if (!resultProductInfo.IsValid)
@@ -138,14 +143,53 @@ namespace Application.Services
             var product = _mapper.Map<Product>(productModel);
             try
             {
+                _unitOfWork.ProductRepository.BeginTransaction();
                 await _unitOfWork.ProductRepository.AddAsync(product);
-                await _unitOfWork.SaveChangeAsync();
+                if (productModel.Image != null)
+                {
+                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
+                    {
+                        string newImageName = product.Id + "_i" + singleImage.index;
+                        string folderName = $"product/{product.Id}/Image";
+                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                        const long maxFileSize = 20 * 1024 * 1024;
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                        {
+                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                        }
+                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                        ProductImage productImage = new ProductImage()
+                        {
+                            ProductId = product.Id,
+                            ImageUrl = url
+                        };
+
+                        await _unitOfWork.ProductImageRepository.AddAsync(productImage);
+                        
+                    }
+                }
+                await _unitOfWork.ProductRepository.CommitTransactionAsync();
+
                 return product.Id;
             }
             catch (Exception)
             {
-                _unitOfWork.ProductRepository.SoftRemove(product);
-                throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
+                _unitOfWork.ProductRepository.RollbackTransaction();
+                if (operationSuccessful)
+                {
+                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
+                    {
+                        string newImageName = product.Id + "_i" + singleImage.index;
+                        string folderName = $"product/{product.Id}/Image";
+                        await _fireBaseService.DeleteFileInFirebaseStorage(newImageName, folderName);
+                    }
+                }
+                throw;
             }
         }
         public async Task UpdateProduct(Guid id, ProductModel productModel)

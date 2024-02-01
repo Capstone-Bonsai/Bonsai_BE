@@ -20,12 +20,15 @@ namespace Infrastructures
         private readonly ITagRepository _tagRepository;
         private readonly IProductTagRepository _productTagRepository;
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly ITasksRepository _tasksRepository;
+        private readonly IServiceOrderRepository _serviceOrderRepository;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository,
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
             IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
-            IDeliveryFeeRepository deliveryFeeRepository)
+            IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository, IServiceOrderRepository serviceOrderRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -40,6 +43,9 @@ namespace Infrastructures
             _tagRepository = tagRepository;
             _productTagRepository = productTagRepository;
             _deliveryFeeRepository = deliveryFeeRepository;
+            _serviceRepository = serviceRepository;
+            _tasksRepository = tasksRepository;
+            _serviceOrderRepository = serviceOrderRepository;
         }
 
 
@@ -62,9 +68,16 @@ namespace Infrastructures
         public IOrderTransactionRepository OrderTransactionRepository => _orderTransactionRepository;
 
         public ITagRepository TagRepository => _tagRepository;
+
         public IProductTagRepository ProductTagRepository => _productTagRepository;
 
         public IDeliveryFeeRepository DeliveryFeeRepository => _deliveryFeeRepository;
+
+        public IServiceRepository ServiceRepository => _serviceRepository;
+
+        public ITasksRepository TasksRepository => _tasksRepository;
+
+        public IServiceOrderRepository ServiceOrderRepository => _serviceOrderRepository;
 
         public async Task<int> SaveChangeAsync()
         {

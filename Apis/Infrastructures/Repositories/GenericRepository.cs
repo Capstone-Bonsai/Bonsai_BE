@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Repositories;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 
 namespace Infrastructures.Repositories
@@ -12,9 +13,12 @@ namespace Infrastructures.Repositories
         protected DbSet<TEntity> _dbSet;
         private readonly ICurrentTime _timeService;
         private readonly IClaimsService _claimsService;
+        private readonly AppDbContext _context;
+        private IDbContextTransaction _transaction;
 
         public GenericRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService)
         {
+            _context = context;
             _dbSet = context.Set<TEntity>();
             _timeService = timeService;
             _claimsService = claimsService;
@@ -128,6 +132,29 @@ namespace Infrastructures.Repositories
         public void HardDeleteRange(List<TEntity> entities)
         {
             _dbSet.RemoveRange(entities);
+        }
+        public void BeginTransaction()
+        {
+            _transaction = _context.Database.BeginTransaction();
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            try
+            {
+                await _context.SaveChangesAsync();
+                _transaction.Commit();
+            }
+            catch
+            {
+                _transaction.Rollback();
+                throw;
+            }
+        }
+
+        public void RollbackTransaction()
+        {
+            _transaction.Rollback();
         }
     }
 }

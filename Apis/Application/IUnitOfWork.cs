@@ -18,7 +18,9 @@ namespace Application
         public ITagRepository TagRepository { get; }
         public IProductTagRepository ProductTagRepository { get; }
         public IDeliveryFeeRepository DeliveryFeeRepository { get; }
-
+        public IServiceRepository ServiceRepository { get; }
+        public ITasksRepository TasksRepository { get; }
+        public IServiceOrderRepository ServiceOrderRepository { get; }
         public Task<int> SaveChangeAsync();
     }
 }

@@ -30,7 +30,8 @@ namespace Infrastructures
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<IProductTagService, ProductTagService>();
             services.AddScoped<IDeliveryFeeService, DeliveryFeeService>();
-
+            services.AddScoped<IServiceService, ServiceService>();
+            services.AddScoped<ITasksService, TasksService>();
 
 
             services.AddScoped<IGardenerRepository, GardenerRepository>();
@@ -46,7 +47,12 @@ namespace Infrastructures
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IProductTagRepository, ProductTagRepository>();
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
+            services.AddScoped<IServiceRepository, ServiceRepository>();
+            services.AddScoped<ITasksRepository, TasksRepository>();
+            services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
 
+            services.AddSingleton<IFirebaseService, FirebaseService>();
+            services.AddScoped<FirebaseService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

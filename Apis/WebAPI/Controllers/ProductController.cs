@@ -95,33 +95,6 @@ namespace WebAPI.Controllers
             try
             {
                 var id = await _productService.AddAsync(productModel);
-                if (productModel.Image != null)
-                {
-                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
-                    {
-                        string newImageName = id + "_i" + singleImage.index;
-                        string folderName = $"product/{id}/Image";
-                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
-                        //Kiểm tra xem có phải là file ảnh không.
-                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-
-                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1)
-                        {
-                            throw new Exception("Invalid image file format");
-                        }
-                        var url = await _firebaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
-                        if (url == null)
-                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
-
-                        ProductImage productImage = new ProductImage()
-                        {
-                            ProductId = id,
-                            ImageUrl = url
-                        };
-
-                        await _productImageService.AddProductImages(productImage);
-                    }
-                }
                 if (productModel.Tag != null)
                 {
                     foreach (var tagid in productModel.Tag)

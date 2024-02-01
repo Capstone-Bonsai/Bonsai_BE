@@ -62,5 +62,27 @@ namespace Application.Services
             return null;
 
         }
+
+        public async Task DeleteFileInFirebaseStorage(string fileName, string folderName)
+        {
+            var task = new FirebaseStorage(
+               _configuration["FirebaseConfiguration:Bucket"],
+                new FirebaseStorageOptions
+                {
+                    AuthTokenAsyncFactory = SignInAndGetAuthToken,
+                    ThrowOnCancel = true
+                })
+                .Child(folderName)
+                .Child(fileName)
+                .DeleteAsync();
+            try
+            {
+                await task;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
