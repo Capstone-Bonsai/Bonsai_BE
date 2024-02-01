@@ -7,9 +7,9 @@ namespace Application.Validations.User
     {
         public UserModelValidator()
         {
-            RuleFor(x => x.Email).NotEmpty().WithMessage("Email không được để trống.")
+            RuleFor(x => x.Username).NotEmpty().WithMessage("Tên đăng nhập không được để trống.")
                 .MaximumLength(50)
-                .WithMessage("Email không quá 50 ký tự.");
+                .WithMessage("Tên đăng nhập không quá 50 ký tự.").MustAsync(IsLetterOrDigitOnly).WithMessage("Tên đăng nhập chỉ được chứa chữ hoặc số."); ;
             RuleFor(x => x.PhoneNumber).NotEmpty().WithMessage("Số điện thoại không được để trống.")
                .MaximumLength(10)
                 .WithMessage("Số điện thoại phải có 10 ký tự.").MinimumLength(10)
@@ -42,6 +42,27 @@ namespace Application.Validations.User
             {
                 return false;
             }
+        }
+        public async Task<bool> ContainsDigit(string input, CancellationToken cancellationToken)
+        {
+            return input.Any(char.IsDigit);
+        }
+
+        public async Task<bool> ContainsLowercase(string input, CancellationToken cancellationToken)
+        {
+            return input.Any(char.IsLower);
+        }
+        public async Task<bool> ContainsUppercase(string input, CancellationToken cancellationToken)
+        {
+            return input.Any(char.IsUpper);
+        }
+        public async Task<bool> ContainsSpecialCharacter(string input, CancellationToken cancellationToken)
+        {
+            return input.Any(c => !char.IsLetterOrDigit(c) && !char.IsWhiteSpace(c));
+        }
+        public async Task<bool> IsLetterOrDigitOnly(string input, CancellationToken cancellationToken)
+        {
+            return input.All(char.IsLetterOrDigit);
         }
     }
 }

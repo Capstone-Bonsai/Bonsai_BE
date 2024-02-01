@@ -143,7 +143,7 @@ namespace Application.Services
             var product = _mapper.Map<Product>(productModel);
             try
             {
-                _unitOfWork.ProductRepository.BeginTransaction();
+                _unitOfWork.BeginTransaction();
                 await _unitOfWork.ProductRepository.AddAsync(product);
                 if (productModel.Image != null)
                 {
@@ -173,13 +173,13 @@ namespace Application.Services
                         
                     }
                 }
-                await _unitOfWork.ProductRepository.CommitTransactionAsync();
+                await _unitOfWork.CommitTransactionAsync();
 
                 return product.Id;
             }
             catch (Exception)
             {
-                _unitOfWork.ProductRepository.RollbackTransaction();
+                _unitOfWork.RollbackTransaction();
                 if (operationSuccessful)
                 {
                     foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))

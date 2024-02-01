@@ -7,7 +7,7 @@ namespace Application.Validations.Auth
     {
         public RegisterModelValidator()
         {
-            RuleFor(x => x.Username).NotEmpty().WithMessage("Tên đăng nhập không được để trống.")
+            RuleFor(x => x.Username).NotEmpty().WithMessage("Tên đăng nhập không được để trống.").MaximumLength(50)
                 .WithMessage("Tên đăng nhập không quá 50 ký tự.").MustAsync(IsLetterOrDigitOnly).WithMessage("Tên đăng nhập chỉ được chứa chữ hoặc số.");
             RuleFor(x => x.Email).NotEmpty().WithMessage("Email không được để trống.")
                 .MaximumLength(50)

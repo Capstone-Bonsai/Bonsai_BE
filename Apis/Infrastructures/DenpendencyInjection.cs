@@ -43,7 +43,6 @@ namespace Infrastructures
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
             services.AddScoped<IProductImageRepository, ProductImageRepository>();
-            services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IProductTagRepository, ProductTagRepository>();
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();

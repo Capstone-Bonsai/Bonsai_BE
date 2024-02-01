@@ -14,7 +14,6 @@ namespace Infrastructures.Repositories
         private readonly ICurrentTime _timeService;
         private readonly IClaimsService _claimsService;
         private readonly AppDbContext _context;
-        private IDbContextTransaction _transaction;
 
         public GenericRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService)
         {
@@ -132,29 +131,6 @@ namespace Infrastructures.Repositories
         public void HardDeleteRange(List<TEntity> entities)
         {
             _dbSet.RemoveRange(entities);
-        }
-        public void BeginTransaction()
-        {
-            _transaction = _context.Database.BeginTransaction();
-        }
-
-        public async Task CommitTransactionAsync()
-        {
-            try
-            {
-                await _context.SaveChangesAsync();
-                _transaction.Commit();
-            }
-            catch
-            {
-                _transaction.Rollback();
-                throw;
-            }
-        }
-
-        public void RollbackTransaction()
-        {
-            _transaction.Rollback();
         }
     }
 }

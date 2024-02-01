@@ -22,5 +22,9 @@ namespace Application
         public ITasksRepository TasksRepository { get; }
         public IServiceOrderRepository ServiceOrderRepository { get; }
         public Task<int> SaveChangeAsync();
+        void BeginTransaction();
+        Task CommitTransactionAsync();
+        void RollbackTransaction();
+        public void ClearTrack();
     }
 }

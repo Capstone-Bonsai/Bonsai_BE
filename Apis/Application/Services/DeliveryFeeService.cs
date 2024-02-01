@@ -158,7 +158,15 @@ namespace Application.Services
             {
                 string content = await response.Content.ReadAsStringAsync();
                 var res = JsonConvert.DeserializeObject<DistanceResponse>(content);
-                distance = res.rows.FirstOrDefault().elements.FirstOrDefault().distance.value / 1000;
+                if(res != null && res.rows != null && res.rows.Count > 0)
+                {
+                    distance = res.rows.FirstOrDefault().elements.FirstOrDefault().distance.value / 1000;
+
+                }
+                else
+                {
+                    throw new Exception("Địa điểm giao hàng không hợp lệ.");
+                }
 
                 finalFee.Origin_addresses = res.origin_addresses.FirstOrDefault();
                 finalFee.Destination_addresses = res.destination_addresses.FirstOrDefault();

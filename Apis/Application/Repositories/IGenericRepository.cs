@@ -18,10 +18,7 @@ namespace Application.Repositories
 
         Task<Pagination<TEntity>> GetAsync(Expression<Func<TEntity, bool>> expression = null, Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null, bool isDisableTracking = true, bool isTakeAll = false, int pageSize = 0, int pageIndex = 0, List<Expression<Func<TEntity, object>>> includes = null);
          void HardDeleteRange(List<TEntity> entities);
-        void BeginTransaction();
-        Task CommitTransactionAsync();
-        void RollbackTransaction();
-
+        
 
     }
 }

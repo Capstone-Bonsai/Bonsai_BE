@@ -48,12 +48,12 @@ namespace WebAPI.Controllers
 
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> UpdateUser([FromBody] ChangePassModel model)
+        public async Task<IActionResult> ChangeProfileAsync([FromForm] UserRequestModel model)
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
             try
             {
-                var result = await _userService.ChangePasswordAsync(model, userId);
+                var result = await _userService.UpdateUserAsync(model, userId);
                 if (result == null)
                 {
                     return Ok("Đổi mật khẩu thành công");

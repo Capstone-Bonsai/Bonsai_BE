@@ -2,6 +2,8 @@
 using Application.Interfaces;
 using Application.Repositories;
 using Infrastructures.Repositories;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Infrastructures
 {
@@ -23,6 +25,8 @@ namespace Infrastructures
         private readonly IServiceRepository _serviceRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IServiceOrderRepository _serviceOrderRepository;
+
+        private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository,
@@ -82,6 +86,32 @@ namespace Infrastructures
         public async Task<int> SaveChangeAsync()
         {
             return await _dbContext.SaveChangesAsync();
+        }
+        public void BeginTransaction()
+        {
+            _transaction = _dbContext.Database.BeginTransaction();
+        }
+        public async Task CommitTransactionAsync()
+        {
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                _transaction.Commit();
+            }
+            catch
+            {
+                _transaction.Rollback();
+                throw;
+            }
+        }
+
+        public void RollbackTransaction()
+        {
+            _transaction.Rollback();
+        }
+        public void ClearTrack()
+        {
+            _dbContext.ChangeTracker.Clear();
         }
     }
 }

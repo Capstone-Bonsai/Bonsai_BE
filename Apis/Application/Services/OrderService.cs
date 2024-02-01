@@ -3,6 +3,8 @@ using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
 using Application.Validations.Order;
+using Application.ViewModels.DeliveryFeeViewModels;
+using Application.ViewModels.OrderDetailModels;
 using Application.ViewModels.OrderViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -17,19 +19,19 @@ namespace Application.Services
 {
     public class OrderService : IOrderService
     {
-        private readonly ITransactionRepository _transactionRepository;
         private readonly IConfiguration _configuration;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unit;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly IDeliveryFeeService _deliveryFeeService;
 
-        public OrderService(ITransactionRepository transactionRepository, IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,IMapper mapper)
+        public OrderService( IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,IMapper mapper, IDeliveryFeeService deliveryFeeService)
         {
-            _transactionRepository = transactionRepository;
             _configuration = configuration;
-            _unitOfWork = unitOfWork;
+            _unit = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
+            _deliveryFeeService = deliveryFeeService;
         }
         public async Task<IList<string>> ValidateOrderModel(OrderModel model, string userId)
         {
@@ -83,13 +85,13 @@ namespace Application.Services
 
         public async Task<string> CreateOrderAsync(OrderModel model, string userId)
         {
-            var orderId = await _transactionRepository.CreateOrderByTransaction(model, userId);
+            var orderId = await CreateOrderByTransaction(model, userId);
             var momoUrl = await PaymentAsync(orderId);
             return momoUrl;
         }
         public async Task<string> PaymentAsync(Guid tempId)
         {
-            var order = await _unitOfWork.OrderRepository.GetByIdAsync(tempId);
+            var order = await _unit.OrderRepository.GetByIdAsync(tempId);
             if (order == null)
                 throw new Exception("Đã xảy ra lối trong qua trình thanh toán. Vui lòng thanh toán lại sau!");
 
@@ -194,7 +196,7 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     orderStatus = OrderStatus.Paid;
                 }
-                var order = await _unitOfWork.OrderRepository.GetByIdAsync(orderId);
+                var order = await _unit.OrderRepository.GetByIdAsync(orderId);
                 if (order == null)
                     throw new Exception("Không tìm thấy đơn hàng.");
                 var orderTransaction = new OrderTransaction();
@@ -218,11 +220,11 @@ namespace Application.Services
                 orderTransaction.ExtraData = momo.extraData;
                 // Tạo transaction
                 orderTransaction.Signature = momo.signature;
-                await _unitOfWork.OrderTransactionRepository.AddAsync(orderTransaction);
+                await _unit.OrderTransactionRepository.AddAsync(orderTransaction);
                 //Update Order Status
                 order.OrderStatus = orderStatus;
-                _unitOfWork.OrderRepository.Update(order);
-                await _unitOfWork.SaveChangeAsync();
+                _unit.OrderRepository.Update(order);
+                await _unit.SaveChangeAsync();
                 if (momo.resultCode != 0)
                 {
                     await UpdateProductQuantityFromOrder(orderId);
@@ -236,19 +238,19 @@ namespace Application.Services
 
         public async Task UpdateProductQuantityFromOrder(Guid orderId)
         {
-            var order = await _unitOfWork.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
+            var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
             if (order == null)
                 throw new Exception("Không tìm thấy đơn hàng.");
             foreach (var item in order.OrderDetails)
             {
-                var product = await _unitOfWork.ProductRepository.GetByIdAsync(item.ProductId);
+                var product = await _unit.ProductRepository.GetByIdAsync(item.ProductId);
                 if (product == null)
                     throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
 
                 //cộng quantity của product
                 product.Quantity += item.Quantity;
-                _unitOfWork.ProductRepository.Update(product);
-                await _unitOfWork.SaveChangeAsync();
+                _unit.ProductRepository.Update(product);
+                await _unit.SaveChangeAsync();
             }
         }
 
@@ -266,9 +268,9 @@ namespace Application.Services
     x => x.Customer.ApplicationUser
 };
             if (isCustomer && !isAdmin && !isStaff)
-                res = await _unitOfWork.OrderRepository.GetAsync(expression: x => x.Customer.UserId.ToLower() == userId, isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
+                res = await _unit.OrderRepository.GetAsync(expression: x => x.Customer.UserId.ToLower() == userId, isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
             else if (isAdmin || isStaff)
-                res = await _unitOfWork.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
+                res = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
             else return null;
             return res;
            
@@ -288,8 +290,8 @@ namespace Application.Services
     x=>x.OrderDetails.Select( y =>y.Product).Where(i=>!i.IsDeleted),
 };
 
-            var orders = await _unitOfWork.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*/
-            var order = await _unitOfWork.OrderRepository.GetAllQueryable().AsNoTracking().
+            var orders = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*/
+            var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().
                 Include(x=>x.OrderTransaction).Include(x=>x.Customer.ApplicationUser).Include(x=>x.OrderDetails.Where(i=>!i.IsDeleted)).ThenInclude(x=>x.Product).
                 FirstOrDefaultAsync(x=>x.Id == orderId);
             if (order ==null )
@@ -300,6 +302,185 @@ namespace Application.Services
             return order;
         }
 
+        public async Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId)
+        {
+            var customer = await GetCustomerAsync(model, userId);
+            _unit.BeginTransaction();
+            try
+            {
+                Guid orderId = await CreateOrder(model, customer.Id);
+                foreach (var item in model.ListProduct)
+                {
+                    await CreateOrderDetail(item, orderId);
+                }
+                await UpdateOrder(orderId);
+                await _unit.CommitTransactionAsync();
+                return orderId;
+            }
+            catch (Exception ex)
+            {
+                _unit.RollbackTransaction();
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<IdentityResult> CreateUserAsync(OrderInfoModel model)
+        {
+            var user = new ApplicationUser
+            {
+                Email = model.Email,
+                Fullname = model.Fullname,
+                PhoneNumber = model.PhoneNumber,
+                UserName = model.Email,
+                IsRegister = false
+            };
+
+            var result = await _userManager.CreateAsync(user);
+
+            return result;
+        }
+
+        public async Task<Customer> GetCustomerAsync(OrderModel model, string? userId)
+        {
+            ApplicationUser? user = null;
+            if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"))
+            {
+                if (model.OrderInfo == null)
+                    throw new Exception("Vui lòng thêm các thông tin người mua hàng.");
+                user = await _userManager.FindByEmailAsync(model.OrderInfo.Email);
+                if (user == null)
+                {
+                    var result = await CreateUserAsync(model.OrderInfo);
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                    }
+                    else
+                    {
+                        user = await _userManager.FindByEmailAsync(model.OrderInfo.Email);
+                        //tạo account customer.
+                        try
+                        {
+                            await _userManager.AddToRoleAsync(user, "Customer");
+                            Customer cus = new Customer { UserId = user.Id };
+                            await _unit.CustomerRepository.AddAsync(cus);
+                            await _unit.SaveChangeAsync();
+                        }
+                        catch (Exception)
+                        {
+                            await _userManager.DeleteAsync(user);
+                            throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                user = await _userManager.FindByIdAsync(userId);
+            }
+            if (user == null)
+                throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+            if (!isCustomer)
+                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
+            var customer = await _unit.CustomerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
+            if (customer == null)
+                throw new Exception("Không tìm thấy thông tin người dùng");
+            return customer;
+        }
+
+        public async Task<Guid> CreateOrder(OrderModel model, Guid customerId)
+        {
+            try
+            {
+                var order = _mapper.Map<Order>(model);
+                order.DeliveryType = Domain.Enums.DeliveryType.PickupTruck;
+                order.OrderDate = DateTime.Now;
+                order.CustomerId = customerId;
+                order.Price = 0;
+                order.DeliveryPrice = 0;
+                order.TotalPrice = 0;
+                order.OrderStatus = Domain.Enums.OrderStatus.Waiting;
+                order.OrderType = Domain.Enums.OrderType.Nomial;
+                await _unit.OrderRepository.AddAsync(order);
+                await _unit.SaveChangeAsync();
+                return order.Id;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task CreateOrderDetail(OrderDetailModel model, Guid orderId)
+        {
+            try
+            {
+                var product = await _unit.ProductRepository.GetByIdAsync(model.ProductId);
+                if (product == null)
+                    throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
+                else if ((product.Quantity - model.Quantity) < 0)
+                    throw new Exception($"Số lượng sản phẩm {product.Name} trong kho không đủ số lượng bạn yêu cầu.");
+                //tạo order đetail
+                var orderDetail = _mapper.Map<OrderDetail>(model);
+                orderDetail.OrderId = orderId;
+                orderDetail.UnitPrice = product.UnitPrice;
+                await _unit.OrderDetailRepository.AddAsync(orderDetail);
+
+                //trừ quantity của product
+                product.Quantity -= model.Quantity;
+                _unit.ProductRepository.Update(product);
+                await _unit.SaveChangeAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        public async Task UpdateOrder(Guid orderId)
+        {
+            try
+            {
+                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.Id == orderId && !x.IsDeleted).FirstOrDefaultAsync();
+                if (order == null)
+                    throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                List<Expression<Func<OrderDetail, object>>> includes = new List<Expression<Func<OrderDetail, object>>>{
+                                 x => x.Product
+                                    };
+                var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId && !x.IsDeleted, isDisableTracking: true, isTakeAll: true, includes: includes);
+
+                if (listOrderDetail == null || listOrderDetail.TotalItemsCount == 0)
+                    throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                double total = 0;
+                foreach (var item in listOrderDetail.Items)
+                {
+                    var temp = item.Quantity * item.Product.UnitPrice;
+                    total += temp;
+                }
+                var deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
+                order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
+                order.DeliveryPrice = deliveryPrice.Price;
+                order.Price = total;
+                order.TotalPrice = total + deliveryPrice.Price;
+                _unit.ClearTrack();
+                _unit.OrderRepository.Update(order);
+                await _unit.SaveChangeAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+
+        public async Task<FeeViewModel> CalculateDeliveryPrice(string destination, double price)
+        {
+            var distance = await _deliveryFeeService.CalculateFee(destination, price);
+            return distance;
+        }
     }
 }
+
 
