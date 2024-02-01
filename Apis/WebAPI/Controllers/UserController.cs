@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
             _claims = claimsService;
         }
         [Authorize]
-        [HttpPost("ChangePassword")]
+        [HttpPost]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassModel model)
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
 
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> ChangeProfileAsync([FromForm] UserRequestModel model)
+        public async Task<IActionResult> ChangeProfile([FromForm] UserRequestModel model)
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
             try
@@ -56,12 +56,28 @@ namespace WebAPI.Controllers
                 var result = await _userService.UpdateUserAsync(model, userId);
                 if (result == null)
                 {
-                    return Ok("Đổi mật khẩu thành công");
+                    return Ok("Thay đổi thông tin cá nhân thành công!");
                 }
                 else
                 {
                     return BadRequest(result);
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<IActionResult> GetProfile()
+        {
+            string userId = _claims.GetCurrentUserId.ToString().ToLower();
+            try
+            {
+                var user = await _userService.GetUserByIdAsync( userId);
+                return Ok(user);
             }
             catch (Exception ex)
             {

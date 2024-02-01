@@ -56,10 +56,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-           
         }
-
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> GetAsync([FromQuery] int pageIndex, int pageSize)

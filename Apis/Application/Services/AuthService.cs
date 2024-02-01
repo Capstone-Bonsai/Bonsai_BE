@@ -134,7 +134,7 @@ namespace Application.Services
                     IsRegister = true
                 };
 
-                var result = await _userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(temp, model.Password);
                 return result;
             }
             else

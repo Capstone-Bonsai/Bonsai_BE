@@ -1,10 +1,15 @@
 ﻿using Application;
 using Application.Commons;
 using Application.Interfaces;
+using Application.Services;
+using Application.Validations.Auth;
+using Application.Validations.User;
+using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructures.Services
 {
@@ -16,8 +21,15 @@ namespace Infrastructures.Services
         private readonly AppConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IClaimsService _claims;
+        private readonly FirebaseService _fireBaseService;
 
-        public UserService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentTime currentTime, AppConfiguration configuration, UserManager<ApplicationUser> userManager, IClaimsService claims)
+        public UserService(IUnitOfWork unitOfWork,
+            IMapper mapper,
+            ICurrentTime currentTime,
+            AppConfiguration configuration,
+            UserManager<ApplicationUser> userManager,
+            IClaimsService claims,
+            FirebaseService fireBaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -25,7 +37,7 @@ namespace Infrastructures.Services
             _configuration = configuration;
             _userManager = userManager;
             _claims = claims;
-
+            _fireBaseService = fireBaseService;
         }
         public async Task<List<string>> ChangePasswordAsync(ChangePassModel model, string userId)
         {
@@ -63,9 +75,77 @@ namespace Infrastructures.Services
             }
         }
 
-        public Task<List<string>> UpdateUserAsync(UserRequestModel model, string userId)
+        public async Task<IList<string>> UpdateUserAsync(UserRequestModel model, string userId)
         {
+            var validateResult = await ValidateUserUpdateModelAsync(model);
+            if (validateResult != null)
+            {
+                return validateResult;
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("Không tìm thấy người dùng!");
+            }
+            else
+            {
+                var temp = await _userManager.Users.Where(x => !x.Id.ToLower().Equals(user.Id.ToLower()) && x.UserName.ToLower().Equals(model.Username.ToLower())).FirstOrDefaultAsync();
+                if (temp != null)
+                    throw new Exception("Tên đăng nhập này đã được sử dụng!");
+                try
+                {
+                    Random random = new Random();
+                    string newImageName = user.Id + "_i" + model.Avatar.Name.Trim() + random.Next(1,10000).ToString();
+                    string folderName = $"user/{user.Id}/Image";
+                    string imageExtension = Path.GetExtension(model.Avatar.FileName);
+                    //Kiểm tra xem có phải là file ảnh không.
+                    string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                    const long maxFileSize = 20 * 1024 * 1024;
+                    if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || model.Avatar.Length > maxFileSize)
+                    {
+                        throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                    }
+                    var url = await _fireBaseService.UploadFileToFirebaseStorage(model.Avatar, newImageName, folderName);
+                    if (url == null)
+                        throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+                    user.AvatarUrl = url;
+                    user.UserName = model.Username;
+                    user.NormalizedUserName = model.Username.ToUpper();
+                    user.Fullname = model.Fullname;
+                    user.PhoneNumber = model.PhoneNumber;
+                    var result = await _userManager.UpdateAsync(user);
+                    if (result.Succeeded)
+                        return null;
+
+                    var errors = new List<string>();
+                    errors.AddRange(result.Errors.Select(x => x.Description));
+                    return errors;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
+        }
+
+        public async Task<IList<string>> ValidateUserUpdateModelAsync(UserRequestModel model)
+        {
+            var validator = new UserModelValidator();
+            var result = await validator.ValidateAsync(model);
+            if (!result.IsValid)
+            {
+                var errors = new List<string>();
+                errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
+                return errors;
+            }
             return null;
+        }
+        public async Task<ApplicationUser> GetUserByIdAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if(user == null)
+                throw new Exception("Không tìm thấy người dùng.");
+            return user;
         }
     }
 }
