@@ -198,7 +198,6 @@ namespace WebAPI.Controllers
                     action = "ResetPassword";
                     break;
             }
-
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             if (!referer.Equals("") && Uri.TryCreate(referer, UriKind.Absolute, out var uri))
             {

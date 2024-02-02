@@ -115,8 +115,36 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
+        [Authorize(Roles = "Manager")]
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromForm]UserCreateModel model)
+        {
+            try
+            {
+                var result = await _userService.CreateUserAccount(model);
+                if(result == null)
+                    return Ok("Tạo tài khoản thành công");
+                else return BadRequest(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> GetListRole()
+        {
+            try
+            {
+                var roles = await _userService.GetListRoleAsync();
+                return Ok(roles);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

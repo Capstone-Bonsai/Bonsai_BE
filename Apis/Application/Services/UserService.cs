@@ -8,6 +8,7 @@ using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
@@ -23,6 +24,7 @@ namespace Infrastructures.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IClaimsService _claims;
         private readonly FirebaseService _fireBaseService;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserService(IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -30,7 +32,8 @@ namespace Infrastructures.Services
             AppConfiguration configuration,
             UserManager<ApplicationUser> userManager,
             IClaimsService claims,
-            FirebaseService fireBaseService)
+            FirebaseService fireBaseService,
+            RoleManager<IdentityRole> roleManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -39,6 +42,7 @@ namespace Infrastructures.Services
             _userManager = userManager;
             _claims = claims;
             _fireBaseService = fireBaseService;
+            _roleManager = roleManager;
         }
         public async Task<List<string>> ChangePasswordAsync(ChangePassModel model, string userId)
         {
@@ -75,7 +79,6 @@ namespace Infrastructures.Services
                 throw new Exception($"Đã xảy ra lỗi: {ex.Message}");
             }
         }
-
         public async Task<IList<string>> UpdateUserAsync(UserRequestModel model, string userId)
         {
             var validateResult = await ValidateUserUpdateModelAsync(model);
@@ -95,21 +98,24 @@ namespace Infrastructures.Services
                     throw new Exception("Tên đăng nhập này đã được sử dụng!");
                 try
                 {
-                    Random random = new Random();
-                    string newImageName = user.Id + "_i" + model.Avatar.Name.Trim() + random.Next(1,10000).ToString();
-                    string folderName = $"user/{user.Id}/Image";
-                    string imageExtension = Path.GetExtension(model.Avatar.FileName);
-                    //Kiểm tra xem có phải là file ảnh không.
-                    string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-                    const long maxFileSize = 20 * 1024 * 1024;
-                    if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || model.Avatar.Length > maxFileSize)
+                    string url = null;
+                    if (model.Avatar != null)
                     {
-                        throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
-                    }
-                    var url = await _fireBaseService.UploadFileToFirebaseStorage(model.Avatar, newImageName, folderName);
-                    if (url == null)
-                        throw new Exception("Lỗi khi đăng ảnh lên firebase!");
-                    user.AvatarUrl = url;
+                        Random random = new Random();
+                        string newImageName = user.Id + "_i" + model.Avatar.Name.Trim() + random.Next(1, 10000).ToString();
+                        string folderName = $"user/{user.Id}/Image";
+                        string imageExtension = Path.GetExtension(model.Avatar.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                        const long maxFileSize = 20 * 1024 * 1024;
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || model.Avatar.Length > maxFileSize)
+                        {
+                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                        }
+                        url = await _fireBaseService.UploadFileToFirebaseStorage(model.Avatar, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+                    }                    user.AvatarUrl = url;
                     user.UserName = model.Username;
                     user.NormalizedUserName = model.Username.ToUpper();
                     user.Fullname = model.Fullname;
@@ -128,7 +134,6 @@ namespace Infrastructures.Services
                 }
             }
         }
-
         public async Task<IList<string>> ValidateUserUpdateModelAsync(UserRequestModel model)
         {
             var validator = new UserModelValidator();
@@ -196,5 +201,132 @@ namespace Infrastructures.Services
 
             }
         }
+        public async Task<IList<string>> CreateUserAccount(UserCreateModel model)
+        {
+            var validateResult = await ValidateUserCreateModelAsync(model);
+            if (validateResult != null)
+            {
+                return validateResult;
+            }
+            var user = await _userManager.FindByEmailAsync(model.Email.Trim());
+            if (user != null)
+            {
+                throw new Exception("Địa chỉ email này đã được sử dụng!");
+            }
+            else
+            {
+                var temp = await _userManager.Users.Where(x => x.UserName.ToLower().Equals(model.Email.ToLower())).FirstOrDefaultAsync();
+                if (temp != null)
+                    throw new Exception("Tên đăng nhập này đã được sử dụng!");
+                try
+                {
+                    string url = null;
+                    ApplicationUser newUser = new ApplicationUser()
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        Fullname = model.Fullname,
+                        PhoneNumber = model.PhoneNumber,
+                        IsRegister = true
+                    };
+                    if (model.Avatar != null)
+                    {
+                        Random random = new Random();
+                        string newImageName = newUser.Id + "_i" + model.Avatar.Name.Trim() + random.Next(1, 10000).ToString();
+                        string folderName = $"user/{user.Id}/Image";
+                        string imageExtension = Path.GetExtension(model.Avatar.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                        const long maxFileSize = 20 * 1024 * 1024;
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || model.Avatar.Length > maxFileSize)
+                        {
+                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                        }
+                        url = await _fireBaseService.UploadFileToFirebaseStorage(model.Avatar, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+                    }
+                    newUser.AvatarUrl = url;
+                    var result = await _userManager.CreateAsync(newUser, "NewAccount1!");
+                    if (result.Succeeded)
+                    {
+                        var tempUser = await _userManager.FindByIdAsync(newUser.Id);
+                        try
+                        {
+                            await CreateAccountAsync(tempUser, model.Role);
+                            return null;
+                        }
+                        catch (Exception ex)
+                        {
+                            await _userManager.DeleteAsync(tempUser);
+                            throw new Exception("Đã xảy ra lỗi trong quá trình tạo tài khoản: "+ ex.Message);
+                        }
+                    }    
+                    var errors = new List<string>();
+                    errors.AddRange(result.Errors.Select(x => x.Description));
+                    return errors;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
+        }
+        public async Task<IList<string>> ValidateUserCreateModelAsync(UserCreateModel model)
+        {
+            var validator = new UserCreateModelValidator();
+            var result = await validator.ValidateAsync(model);
+            if (!result.IsValid)
+            {
+                var errors = new List<string>();
+                errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
+                return errors;
+            }
+            return null;
+        }
+        public async Task CreateAccountAsync(ApplicationUser user, string role)
+        {
+            switch (role)
+            {
+                case "Customer":
+                    Customer customer = new Customer { UserId = user.Id };
+                    await _unitOfWork.CustomerRepository.AddAsync(customer);
+                    await _unitOfWork.SaveChangeAsync();
+                    var cusResult = await _userManager.AddToRoleAsync(user, "Customer");
+                    if (!cusResult.Succeeded)
+                    {
+                        throw new Exception("Thêm vai trò bị lỗi");
+                    }
+                    break;
+                case "Staff":
+                    Staff staff = new Staff { UserId = user.Id };
+                    await _unitOfWork.StaffRepository.AddAsync(staff);
+                    await _unitOfWork.SaveChangeAsync();
+                    var staffRole = await _userManager.AddToRoleAsync(user, "Staff");
+                    if (!staffRole.Succeeded)
+                    {
+                        throw new Exception("Thêm vai trò bị lỗi");
+                    }
+                    break;
+                case "Gardener":
+                    Gardener gardener = new Gardener { UserId = user.Id };
+                    await _unitOfWork.GardenerRepository.AddAsync(gardener);
+                    await _unitOfWork.SaveChangeAsync();
+                    var gardenerRole = await _userManager.AddToRoleAsync(user, "Gardener");
+                    if (!gardenerRole.Succeeded)
+                    {
+                        throw new Exception("Thêm vai trò bị lỗi");
+                    }
+                    break;
+                default: throw new Exception("Vai trò không hợp lệ");
+            }
+        }
+        public async Task<List<string>> GetListRoleAsync()
+        {
+            var roles = await _roleManager.Roles.Where(x=>!x.Name.Equals("Manager")).Select(x=>x.Name).ToListAsync();
+            return roles;
+        }
+
+
     }
 }

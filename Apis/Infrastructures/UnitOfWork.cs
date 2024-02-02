@@ -25,14 +25,15 @@ namespace Infrastructures
         private readonly IServiceRepository _serviceRepository;
         private readonly ITasksRepository _tasksRepository;
         private readonly IServiceOrderRepository _serviceOrderRepository;
-
+        private readonly IStaffRepository _staffRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IProductRepository productRepository, ICategoryRepository categoryRepository, ISubCategoryRepository subcategoryRepository,
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
             IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
-            IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository, IServiceOrderRepository serviceOrderRepository)
+            IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository,
+            IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -50,6 +51,7 @@ namespace Infrastructures
             _serviceRepository = serviceRepository;
             _tasksRepository = tasksRepository;
             _serviceOrderRepository = serviceOrderRepository;
+            _staffRepository = staffRepository;
         }
 
 
@@ -83,6 +85,8 @@ namespace Infrastructures
 
         public IServiceOrderRepository ServiceOrderRepository => _serviceOrderRepository;
 
+        public IStaffRepository StaffRepository => _staffRepository;
+
         public async Task<int> SaveChangeAsync()
         {
             return await _dbContext.SaveChangesAsync();
@@ -104,7 +108,6 @@ namespace Infrastructures
                 throw;
             }
         }
-
         public void RollbackTransaction()
         {
             _transaction.Rollback();

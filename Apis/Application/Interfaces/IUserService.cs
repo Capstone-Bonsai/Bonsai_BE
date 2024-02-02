@@ -1,6 +1,7 @@
 ﻿using Application.Commons;
 using Application.ViewModels.UserViewModels;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.Interfaces
 {
@@ -11,5 +12,7 @@ namespace Application.Interfaces
         public Task<ApplicationUser> GetUserByIdAsync(string userId);
         public Task<Pagination<UserViewModel>> GetListUserAsync(int pageIndex = 0, int pageSize = 20);
         public Task<string> LockOrUnlockUser(string userId);
+        public Task<IList<string>> CreateUserAccount(UserCreateModel model);
+        public Task<List<string>> GetListRoleAsync();
     }
 }

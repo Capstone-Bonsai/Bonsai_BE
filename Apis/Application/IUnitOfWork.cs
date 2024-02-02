@@ -5,7 +5,6 @@ namespace Application
 {
     public interface IUnitOfWork
     {
-
         public IGardenerRepository GardenerRepository { get; }
         public ICustomerRepository CustomerRepository { get; }
         public IProductRepository ProductRepository { get; }
@@ -21,6 +20,8 @@ namespace Application
         public IServiceRepository ServiceRepository { get; }
         public ITasksRepository TasksRepository { get; }
         public IServiceOrderRepository ServiceOrderRepository { get; }
+        public IStaffRepository StaffRepository { get; }
+
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

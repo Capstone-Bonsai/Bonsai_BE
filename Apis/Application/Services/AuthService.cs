@@ -119,7 +119,6 @@ namespace Application.Services
                 return errors;
             }
         }
-
         public async Task<IdentityResult> CreateUserAsync(RegisterModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -207,7 +206,6 @@ namespace Application.Services
             }
             throw new InvalidOperationException("Sai mật khẩu. Vui lòng đăng nhập lại!");
         }
-
         public async Task CheckAccountExist(RegisterModel model)
         {
             var existEmailUser = await _userManager.FindByEmailAsync(model.Email);
@@ -222,7 +220,6 @@ namespace Application.Services
             }
             return;
         }
-
         public async Task ConfirmEmailAsync(string? code, string? userId)
         {
 
