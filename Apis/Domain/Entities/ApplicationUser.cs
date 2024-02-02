@@ -9,6 +9,7 @@ namespace Domain.Entities
         public string Fullname { get; set; }
         public string? AvatarUrl { get; set; }
         public bool IsRegister { get; set; } = false;
+       
 
         [JsonIgnore]
         public virtual Customer? Customer { get; set; }

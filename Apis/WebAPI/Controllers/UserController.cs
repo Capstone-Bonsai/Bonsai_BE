@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Repositories;
 using Application.ViewModels.UserViewModels;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
@@ -84,6 +85,38 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> GetListUser(int pageIndex= 0, int pageSize = 20)
+        {
+            try
+            {
+                var users = await _userService.GetListUserAsync(pageIndex, pageSize);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpPut]
+        public async Task<IActionResult> LockOutAsync(string userId)
+        {
+            try
+            {
+               var result = await _userService.LockOrUnlockUser(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
 
     }
 }

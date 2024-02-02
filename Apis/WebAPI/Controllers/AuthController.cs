@@ -179,6 +179,8 @@ namespace WebAPI.Controllers
         public async Task<string> GetCallbackUrlAsync(string email, string referer, string type)
         {
             var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+                user = await _userManager.FindByNameAsync(email);
             string callbackUrl = "";
             string schema;
             string host;

@@ -1,4 +1,5 @@
 ﻿
+using Application.Commons;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.OrderDetailModels;
 using Application.ViewModels.OrderViewModels;
@@ -8,6 +9,7 @@ using Application.ViewModels.ServiceModels;
 using Application.ViewModels.SubCategoryViewModels;
 using Application.ViewModels.TagViewModels;
 using Application.ViewModels.TasksViewModels;
+using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
 
@@ -17,6 +19,7 @@ namespace Infrastructures.Mappers
     {
         public MapperConfigurationsProfile()
         {
+            CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             /*CreateMap<CreateChemicalViewModel, Chemical>();
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             CreateMap<Chemical, ChemicalViewModel>()
@@ -31,6 +34,8 @@ namespace Infrastructures.Mappers
             CreateMap<OrderDetailModel, OrderDetail>().ReverseMap();
             CreateMap<OrderViewModel, Order>().ReverseMap();
             CreateMap<TasksModel, Tasks>().ReverseMap();
+            CreateMap<UserViewModel, ApplicationUser>().ReverseMap();
+
 
 
         }

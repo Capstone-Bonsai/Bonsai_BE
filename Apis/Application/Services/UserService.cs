@@ -10,6 +10,7 @@ using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Printing;
 
 namespace Infrastructures.Services
 {
@@ -146,6 +147,54 @@ namespace Infrastructures.Services
             if(user == null)
                 throw new Exception("Không tìm thấy người dùng.");
             return user;
+        }
+        public async Task<Pagination<UserViewModel>> GetListUserAsync(int pageIndex = 0, int pageSize=20)
+        {
+            var listUser = await _userManager.Users.AsNoTracking().OrderBy(x=>x.Email).ToListAsync();
+            var itemCount = listUser.Count();
+            var items = listUser.Skip(pageIndex* pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+            var result = new Pagination<ApplicationUser>()
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItemsCount = itemCount,
+                Items = items,
+            };
+            var paginationList = _mapper.Map<Pagination<UserViewModel>>(result);
+            foreach (var item in paginationList.Items)
+            {
+                var user = await _userManager.FindByIdAsync(item.Id);
+                var isLockout = await _userManager.IsLockedOutAsync(user);
+                var roles = await _userManager.GetRolesAsync(user);
+                string role = "";
+                if (roles != null && roles.Count > 0)
+                {
+                    role = roles[0];
+                }
+                item.IsLockout = isLockout;
+                item.Role = role;
+            }
+            return paginationList;
+        }
+        public async Task<string> LockOrUnlockUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToLower());
+            if (user == null)
+                throw new Exception("Không tìm thấy người dùng.");
+            var isLockout = await _userManager.IsLockedOutAsync(user);
+            if (!isLockout)
+            {
+                await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+                return "Khóa tài khoản thành công!";
+            }
+            else
+            {
+                await _userManager.SetLockoutEndDateAsync(user, null);
+                return "Mở khóa tài khoản thành công!";
+
+            }
         }
     }
 }
