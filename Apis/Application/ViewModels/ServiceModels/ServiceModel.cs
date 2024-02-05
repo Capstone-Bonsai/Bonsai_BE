@@ -1,6 +1,7 @@
 ﻿using Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,5 +18,7 @@ namespace Application.ViewModels.ServiceModels
         public float? DiscountPercent { get; set; }
         public int? ImplementationTime { get; set; }
         public ServiceType ServiceType { get; set; }
+        [NotMapped]
+        public List<Guid> TaskId { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 using Firebase.Auth;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,9 +31,9 @@ namespace Application.Services
             var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, isDisableTracking: true);
             return serviceOrders;
         }
-        public async Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize)
+        public async Task<Pagination<ServiceOrder>> GetServiceOrders()
         {
-            var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, isDisableTracking: true);
+            var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return serviceOrders;
         }
         public async Task AddServiceOrder(ServiceOrderModel serviceOrderModel, Guid customerId)
@@ -66,7 +67,8 @@ namespace Application.Services
                 ExpectedWorkingUnit = serviceOrderModel.GardenSquare / service.StandardSqure,
                 TemporaryPrice = (serviceOrderModel.GardenSquare / service.StandardSqure) * service.StandardPrice,
                 TemporaryTotalPrice = ((serviceOrderModel.GardenSquare / service.StandardSqure) * service.StandardPrice) *
-                          (100 - (service.DiscountPercent ?? 0)) / 100
+                          (100 - (service.DiscountPercent ?? 0)) / 100,
+                ServiceStatus = ServiceStatus.Waiting
             };
             try
             {
@@ -77,6 +79,49 @@ namespace Application.Services
             {
                 _unitOfWork.ServiceOrderRepository.SoftRemove(serviceOrder);
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
+            }
+        }
+        public async Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel)
+        {
+            if (responseServiceOrderModel == null)
+                throw new ArgumentNullException(nameof(responseServiceOrderModel), "Vui lòng nhập thêm thông tin phân loại!");
+            var validationRules = new ResponseServiceOrderModelValidator();
+            var resultServiceOrderInfo = await validationRules.ValidateAsync(responseServiceOrderModel);
+            if (!resultServiceOrderInfo.IsValid)
+            {
+                var errors = resultServiceOrderInfo.Errors.Select(x => x.ErrorMessage);
+                string errorMessage = string.Join(Environment.NewLine, errors);
+                throw new Exception(errorMessage);
+            }
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(id);
+            if (serviceOrder == null)
+                throw new Exception("Không tìm thấy đơn đặt dịch vụ");
+            Order? order = null;
+            if (responseServiceOrderModel.OrderId != null)
+            {
+                order = await _unitOfWork.OrderRepository.GetByIdAsync(responseServiceOrderModel.OrderId.Value);
+            }
+            try
+            {
+                if (order != null)
+                {
+                    serviceOrder.OrderId = order.Id;
+                    serviceOrder.OrderPrice = order.Price;
+                }
+                serviceOrder.ResponseGardenSquare = responseServiceOrderModel.ResponseGardenSquare;
+                serviceOrder.ResponseStandardSquare = responseServiceOrderModel.ResponseStandardSquare;
+                serviceOrder.ResponsePrice = responseServiceOrderModel.ResponsePrice;
+                serviceOrder.ResponseWorkingUnit = responseServiceOrderModel.ResponseWorkingUnit;
+                serviceOrder.ResponseTotalPrice = responseServiceOrderModel.ResponseTotalPrice;
+                serviceOrder.ResponseFinalPrice = responseServiceOrderModel.ResponseFinalPrice;
+                serviceOrder.NumberGardener = responseServiceOrderModel.NumberGardener;
+                serviceOrder.ServiceStatus = ServiceStatus.Applied;
+                _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            catch (Exception)
+            {
+                throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
             }
         }
     }

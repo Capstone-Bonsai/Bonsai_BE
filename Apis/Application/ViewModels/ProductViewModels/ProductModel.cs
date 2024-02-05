@@ -17,6 +17,6 @@ namespace Application.ViewModels.ProductViewModels
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
         [NotMapped]
-        public List<Guid>? Tag { get; set; } = default!;
+        public List<Guid>? TagId { get; set; } = default!;
     }
 }

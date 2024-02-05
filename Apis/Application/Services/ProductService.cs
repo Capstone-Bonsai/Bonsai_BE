@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Utils;
 using Application.Validations.Product;
 using Application.ViewModels.ProductViewModels;
+using Application.ViewModels.ServiceModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
@@ -57,14 +58,14 @@ namespace Application.Services
                 products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & !x.isDisable,
                 isDisableTracking: true, includes: includes);
             }
-            
+
             return products;
         }
         public async Task<Pagination<Product>> GetProductsByFilter(int pageIndex, int pageSize, FilterProductModel filterProductModel, bool isAdmin = false)
         {
             var filter = new List<Expression<Func<Product, bool>>>();
             filter.Add(x => !x.IsDeleted);
-            if(!isAdmin)
+            if (!isAdmin)
                 filter.Add(x => !x.isDisable);
             if (filterProductModel.subCategory != null)
             {
@@ -87,7 +88,7 @@ namespace Application.Services
             if (filterProductModel.keyword != null)
             {
                 string keywordLower = filterProductModel.keyword.ToLower();
-                filter.Add(x => x.Name.ToLower().Contains(keywordLower) || x.NameUnsign.ToLower().Contains(keywordLower)); 
+                filter.Add(x => x.Name.ToLower().Contains(keywordLower) || x.NameUnsign.ToLower().Contains(keywordLower));
             }
             if (filterProductModel.minPrice != null)
             {
@@ -101,7 +102,7 @@ namespace Application.Services
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
                                  x => x.ProductImages
                                     };
-            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter, 
+            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
                 isDisableTracking: true, includes: includes);
             return products;
         }
@@ -121,11 +122,11 @@ namespace Application.Services
             {
                 products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & !x.isDisable & x.Id == id,
                 isDisableTracking: true, includes: includes);
-            }        
+            }
             return products.Items[0];
         }
 
-        public async Task<Guid> AddAsync(ProductModel productModel)
+        public async Task AddAsync(ProductModel productModel)
         {
             bool operationSuccessful = false;
 
@@ -170,12 +171,26 @@ namespace Application.Services
                         };
 
                         await _unitOfWork.ProductImageRepository.AddAsync(productImage);
-                        
                     }
                 }
-                await _unitOfWork.CommitTransactionAsync();
 
-                return product.Id;
+                if (productModel.TagId != null && productModel.TagId.Count > 0)
+                {
+                    foreach (Guid id in productModel.TagId)
+                    {
+                        if (await _unitOfWork.TagRepository.GetByIdAsync(id) == null)
+                        {
+                            throw new Exception();
+                        }
+                        await _unitOfWork.ProductTagRepository.AddAsync(new ProductTag()
+                        {
+                            ProductId = product.Id,
+                            TagId = id
+                        });
+                    }
+
+                }
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {

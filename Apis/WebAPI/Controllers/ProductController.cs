@@ -94,18 +94,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var id = await _productService.AddAsync(productModel);
-                if (productModel.Tag != null)
-                {
-                    foreach (var tagid in productModel.Tag)
-                    {
-                        await _productTagService.AddAsync(new ProductTagModel()
-                        {
-                            ProductId = id,
-                            TagId = tagid
-                        });
-                    }
-                }
+                await _productService.AddAsync(productModel);
             }
             catch (Exception ex)
             {

@@ -10,7 +10,7 @@ namespace Application.Interfaces
         Task<Pagination<Product>> GetProducts(bool isAdmin = false);
         Task<Pagination<Product>> GetProductsByFilter(int pageIndex, int pageSize, FilterProductModel filterProductModel, bool isAdmin = false);
         Task<Product?> GetProductById(Guid id, bool isAdmin = false);
-        Task<Guid> AddAsync(ProductModel productModel);
+        Task AddAsync(ProductModel productModel);
         Task UpdateProduct(Guid id, ProductModel productModel);
         Task DeleteProduct(Guid id);
         Task UpdateProductAvailability(Guid id);

@@ -51,9 +51,5 @@ namespace Domain.Entities
         public IList<OrderServiceTask> OrderServiceTasks { get; set; }
 
         public IList<ContractImage> ContractImages { get; set; }
-
-
-
-
     }
 }

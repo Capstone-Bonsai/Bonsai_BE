@@ -12,7 +12,8 @@ namespace Application.Interfaces
     public interface IServiceOrderService
     {
         Task<Pagination<ServiceOrder>> GetServiceOrdersPagination(int pageIndex, int pageSize);
-        Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize);
+        Task<Pagination<ServiceOrder>> GetServiceOrders();
         Task AddServiceOrder(ServiceOrderModel serviceOrderModel);
+        Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel);
     }
 }

@@ -26,6 +26,7 @@ namespace Infrastructures
         private readonly ITasksRepository _tasksRepository;
         private readonly IServiceOrderRepository _serviceOrderRepository;
         private readonly IStaffRepository _staffRepository;
+        private readonly IBaseTaskRepository _baseTaskRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -33,7 +34,7 @@ namespace Infrastructures
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
             IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository,
-            IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository)
+            IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository, IBaseTaskRepository baseTaskRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -52,6 +53,7 @@ namespace Infrastructures
             _tasksRepository = tasksRepository;
             _serviceOrderRepository = serviceOrderRepository;
             _staffRepository = staffRepository;
+            _baseTaskRepository = baseTaskRepository;
         }
 
 
@@ -86,6 +88,8 @@ namespace Infrastructures
         public IServiceOrderRepository ServiceOrderRepository => _serviceOrderRepository;
 
         public IStaffRepository StaffRepository => _staffRepository;
+
+        public IBaseTaskRepository BaseTaskRepository => _baseTaskRepository;
 
         public async Task<int> SaveChangeAsync()
         {

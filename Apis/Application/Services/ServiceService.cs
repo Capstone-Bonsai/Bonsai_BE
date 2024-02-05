@@ -36,12 +36,25 @@ namespace Application.Services
             var service = _mapper.Map<Service>(serviceModel);
             try
             {
+                _unitOfWork.BeginTransaction();
                 await _unitOfWork.ServiceRepository.AddAsync(service);
-                await _unitOfWork.SaveChangeAsync();
+                foreach (Guid id in serviceModel.TaskId)
+                {
+                    if (await _unitOfWork.TasksRepository.GetByIdAsync(id) == null)
+                    {
+                        throw new Exception();
+                    }
+                    await _unitOfWork.BaseTaskRepository.AddAsync(new BaseTask()
+                    {
+                        ServiceId = service.Id,
+                        TaskId = id
+                    });
+                }
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
-                _unitOfWork.ServiceRepository.SoftRemove(service);
+                _unitOfWork.RollbackTransaction();
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }

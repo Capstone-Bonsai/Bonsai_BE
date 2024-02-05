@@ -50,7 +50,7 @@ namespace Infrastructures
             services.AddScoped<ITasksRepository, TasksRepository>();
             services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
-
+            services.AddScoped<IBaseTaskRepository, BaseTaskRepository>();
 
             services.AddSingleton<IFirebaseService, FirebaseService>();
             services.AddScoped<FirebaseService>();

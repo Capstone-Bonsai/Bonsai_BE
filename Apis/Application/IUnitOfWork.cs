@@ -21,6 +21,7 @@ namespace Application
         public ITasksRepository TasksRepository { get; }
         public IServiceOrderRepository ServiceOrderRepository { get; }
         public IStaffRepository StaffRepository { get; }
+        public IBaseTaskRepository BaseTaskRepository { get; }
 
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
