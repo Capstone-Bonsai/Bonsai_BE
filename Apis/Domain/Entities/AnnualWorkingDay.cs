@@ -11,8 +11,6 @@ namespace Domain.Entities
     {
         [ForeignKey("ServiceOrder")]
         public Guid ServiceOrderId { get; set; }
-        [ForeignKey("Shift")]
-        public Guid ShiftId { get; set; }
         [ForeignKey("Gardener")]
 
         public Guid GardenerId { get; set; }
@@ -21,7 +19,6 @@ namespace Domain.Entities
 
 
         public virtual ServiceOrder ServiceOrder { get; set; }
-        public virtual Shift Shift { get; set; }
         public virtual Gardener Gardener { get; set; }
 
 

@@ -34,7 +34,6 @@ namespace Infrastructures
         public DbSet<AnnualWorkingDay> AnnualWorkingDay { get; set; }
         public DbSet<ServiceOrder> ServiceOrder { get; set; }
         public DbSet<ServiceImage> ServiceImage { get; set; }
-        public DbSet<Shift> Shift { get; set; }
         public DbSet<ServiceTransaction> ServiceTransaction { get; set; }
         public DbSet<Complain> Complain { get; set; }
         public DbSet<Service> Service { get; set; }
