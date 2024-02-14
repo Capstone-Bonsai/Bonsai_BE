@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class UserController : BaseController
     {
         private readonly IUserService _userService;
@@ -17,7 +19,8 @@ namespace WebAPI.Controllers
 
         public UserController(IUserService userService,
             UserManager<ApplicationUser> userManager,
-             SignInManager<ApplicationUser> signInManager, IClaimsService claimsService)
+             SignInManager<ApplicationUser> signInManager, 
+             IClaimsService claimsService)
         {
             _userService = userService;
             _userManager = userManager;
@@ -25,7 +28,7 @@ namespace WebAPI.Controllers
             _claims = claimsService;
         }
         [Authorize]
-        [HttpPost]
+        [HttpPost("Profile")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassModel model)
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
@@ -48,7 +51,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpPut]
+        [HttpPut("Profile")]
         public async Task<IActionResult> ChangeProfile([FromForm] UserRequestModel model)
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
@@ -71,7 +74,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()
         {
             string userId = _claims.GetCurrentUserId.ToString().ToLower();
@@ -86,7 +89,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpGet]
         public async Task<IActionResult> GetListUser(int pageIndex= 0, int pageSize = 20)
         {
@@ -100,9 +103,23 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        //[Authorize(Roles = "Manager")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserId(string id)
+        {
+            try
+            {
+                var user = await _userService.GetUserById(id);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        [Authorize(Roles = "Manager")]
-        [HttpPut]
+        //[Authorize(Roles = "Manager")]
+        [HttpPut("Lockout")]
         public async Task<IActionResult> LockOutAsync(string userId)
         {
             try
@@ -115,7 +132,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Roles = "Manager")]
+        //[Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromForm]UserCreateModel model)
         {
@@ -131,8 +148,8 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Roles = "Manager")]
-        [HttpGet]
+        //[Authorize(Roles = "Manager")]
+        [HttpGet("ListRole")]
         public async Task<IActionResult> GetListRole()
         {
             try
