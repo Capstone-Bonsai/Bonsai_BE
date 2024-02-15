@@ -39,7 +39,6 @@ namespace Domain.Entities
         public double? ResponseTotalPrice { get; set; }
         public double? ResponseFinalPrice { get; set; }                                                                                                                                                          
         public int? NumberGardener { get; set; }
-        public DayType? DateType { get; set; }
 
         public ServiceStatus ServiceStatus { get; set; }
 
@@ -53,5 +52,7 @@ namespace Domain.Entities
         public IList<OrderServiceTask> OrderServiceTasks { get; set; }
 
         public IList<ContractImage> ContractImages { get; set; }
+        public IList<ServiceDay> ServiceDays { get; set; }
+
     }
 }

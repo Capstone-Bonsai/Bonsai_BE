@@ -41,6 +41,8 @@ namespace Infrastructures
         public DbSet<BaseTask> BaseTask { get; set; }
         public DbSet<OrderServiceTask> OrderServiceTask { get; set; }
         public DbSet<Holiday> Holiday { get; set; }
+        public DbSet<ServiceDay> ServiceDay { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             var cascadeFKs = builder.Model.GetEntityTypes()
