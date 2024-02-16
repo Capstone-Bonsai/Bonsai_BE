@@ -27,6 +27,7 @@ namespace Infrastructures
         private readonly IServiceOrderRepository _serviceOrderRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IBaseTaskRepository _baseTaskRepository;
+        private readonly IAnnualWorkingDayRepository _annualWorkingDayRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -34,7 +35,8 @@ namespace Infrastructures
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
             IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository,
-            IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository, IBaseTaskRepository baseTaskRepository)
+            IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository, IBaseTaskRepository baseTaskRepository,
+            IAnnualWorkingDayRepository annualWorkingDayRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -54,6 +56,7 @@ namespace Infrastructures
             _serviceOrderRepository = serviceOrderRepository;
             _staffRepository = staffRepository;
             _baseTaskRepository = baseTaskRepository;
+            _annualWorkingDayRepository = annualWorkingDayRepository;
         }
 
 
@@ -91,6 +94,7 @@ namespace Infrastructures
 
         public IBaseTaskRepository BaseTaskRepository => _baseTaskRepository;
 
+        public IAnnualWorkingDayRepository AnnualWorkingDayRepository => _annualWorkingDayRepository;
         public async Task<int> SaveChangeAsync()
         {
             return await _dbContext.SaveChangesAsync();
