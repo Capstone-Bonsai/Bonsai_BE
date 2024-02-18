@@ -1,4 +1,5 @@
 ﻿using Application.Commons;
+using Application.Interfaces;
 using Application.Validations.ServiceOrder;
 using Application.Validations.Tag;
 using Application.ViewModels.ServiceOrderViewModels;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ServiceOrderService
+    public class ServiceOrderService : IServiceOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;

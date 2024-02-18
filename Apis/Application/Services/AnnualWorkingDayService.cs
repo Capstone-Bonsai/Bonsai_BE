@@ -1,4 +1,5 @@
-﻿using Application.ViewModels.AnnualWorkingDayModel;
+﻿using Application.Interfaces;
+using Application.ViewModels.AnnualWorkingDayModel;
 using Application.ViewModels.CategoryViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class AnnualWorkingDayService
+    public class AnnualWorkingDayService : IAnnualWorkingDayService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -41,11 +42,13 @@ namespace Application.Services
             {
                 if (!orderService.ImplementationTime.HasValue)
                     throw new Exception("Chưa có số tháng làm việc");
-                if (orderService.DateType == null || !orderService.DateType.HasValue)
-                    throw new Exception("Chưa có số tháng làm việc");
+                var serviceDay = await _unitOfWork.ServiceDayRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrderId && !x.IsDeleted);
+                if (serviceDay == null || serviceDay.TotalItemsCount == 0)
+                    throw new Exception("Chưa có ngày làm việc");
+                List<DayType> dayTypes = GetDayTypesFromServiceDays(serviceDay.Items);
                 for (DateTime date = orderService.StartDate; date.Date <= orderService.StartDate.AddMonths(orderService.ImplementationTime.Value); date = date.AddDays(1))
                 {
-                    if (IsDesiredDayOfWeek(date, orderService.DateType.Value))
+                    if (IsDesiredDayOfWeek(date, dayTypes))
                     {
                         foreach (Guid id in gardernerListModel.GardenerIds)
                         {
@@ -68,10 +71,36 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }
-        private bool IsDesiredDayOfWeek(DateTime date, DayType desiredDay)
+        private List<DayType> GetDayTypesFromServiceDays(List<ServiceDay> serviceDays)
         {
-            DayOfWeek desiredDayOfWeek = (DayOfWeek)desiredDay;
-            return date.DayOfWeek == desiredDayOfWeek;
+            List<DayType> dayTypes = new List<DayType>();
+            foreach (var serviceDay in serviceDays)
+            {
+                if (serviceDay.DayInWeek != null)
+                {
+                    dayTypes.Add(serviceDay.DayInWeek.DayType);
+                }
+            }
+            return dayTypes;
+        }
+        private bool IsDesiredDayOfWeek(DateTime date, List<DayType> desiredDays)
+        {
+            foreach (DayType desiredDay in desiredDays)
+            {
+                DayOfWeek desiredDayOfWeek = (DayOfWeek)desiredDay;
+                if (date.DayOfWeek == desiredDayOfWeek)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        public async Task<List<AnnualWorkingDay>> GetWorkingCalencar(Guid gardenerId, int month, int year)
+        {
+            DateTime startDate = new DateTime(year, month, 1);
+            DateTime endDate = startDate.AddMonths(1).AddDays(-1);
+            var annualWorkingDays = await _unitOfWork.AnnualWorkingDayRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == gardenerId && x.Date >= startDate && x.Date <= endDate && !x.IsDeleted);
+            return annualWorkingDays.Items;
         }
     } 
 }

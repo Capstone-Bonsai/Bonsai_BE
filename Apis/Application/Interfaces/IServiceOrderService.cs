@@ -13,7 +13,7 @@ namespace Application.Interfaces
     {
         Task<Pagination<ServiceOrder>> GetServiceOrdersPagination(int pageIndex, int pageSize);
         Task<Pagination<ServiceOrder>> GetServiceOrders();
-        Task AddServiceOrder(ServiceOrderModel serviceOrderModel);
+        Task AddServiceOrder(ServiceOrderModel serviceOrderModel, Guid customerId);
         Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel);
     }
 }

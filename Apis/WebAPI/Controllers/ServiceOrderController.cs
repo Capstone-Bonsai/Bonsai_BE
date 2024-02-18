@@ -46,7 +46,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _serviceOrderService.AddServiceOrder(serviceOrderModel);
+                await _serviceOrderService.AddServiceOrder(serviceOrderModel, _claims.GetCurrentUserId);
             }
             catch (Exception ex)
             {

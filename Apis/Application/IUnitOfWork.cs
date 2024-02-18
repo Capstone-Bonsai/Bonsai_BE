@@ -23,6 +23,7 @@ namespace Application
         public IStaffRepository StaffRepository { get; }
         public IBaseTaskRepository BaseTaskRepository { get; }
         public IAnnualWorkingDayRepository AnnualWorkingDayRepository { get; }
+        public IServiceDayRepository ServiceDayRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();
