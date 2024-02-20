@@ -29,6 +29,7 @@ namespace Infrastructures
         private readonly IBaseTaskRepository _baseTaskRepository;
         private readonly IAnnualWorkingDayRepository _annualWorkingDayRepository;
         private readonly IServiceDayRepository _serviceDayRepository;
+        private readonly IServiceImageRepository _serviceImageRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -37,7 +38,7 @@ namespace Infrastructures
             IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository,
             IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository, IBaseTaskRepository baseTaskRepository,
-            IAnnualWorkingDayRepository annualWorkingDayRepository, IServiceDayRepository serviceDayRepository)
+            IAnnualWorkingDayRepository annualWorkingDayRepository, IServiceDayRepository serviceDayRepository, IServiceImageRepository serviceImageRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -59,6 +60,7 @@ namespace Infrastructures
             _baseTaskRepository = baseTaskRepository;
             _annualWorkingDayRepository = annualWorkingDayRepository;
             _serviceDayRepository = serviceDayRepository;
+            _serviceImageRepository = serviceImageRepository;
         }
 
 
@@ -99,6 +101,8 @@ namespace Infrastructures
         public IAnnualWorkingDayRepository AnnualWorkingDayRepository => _annualWorkingDayRepository;
 
         public IServiceDayRepository ServiceDayRepository => _serviceDayRepository;
+
+        public IServiceImageRepository ServiceImageRepository => _serviceImageRepository;
         public async Task<int> SaveChangeAsync()
         {
             return await _dbContext.SaveChangesAsync();

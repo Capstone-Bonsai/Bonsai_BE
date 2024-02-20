@@ -1,12 +1,16 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.Interfaces;
 using Application.ViewModels.AnnualWorkingDayModel;
 using Application.ViewModels.CategoryViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,11 +20,13 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AnnualWorkingDayService(IUnitOfWork unitOfWork, IMapper mapper)
+        public AnnualWorkingDayService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _userManager = userManager;
         }
         public async Task AddWorkingday(Guid serviceOrderId,GardernerListModel gardernerListModel)
         {
@@ -34,7 +40,8 @@ namespace Application.Services
                 {
                     foreach (Guid id in gardernerListModel.GardenerIds) 
                     {
-                        workingDays.Add(new AnnualWorkingDay { ServiceOrderId = serviceOrderId, GardenerId = serviceOrderId, Date = date });
+                        var gardener = await GetGardenerAsync(id.ToString().ToLower());
+                        workingDays.Add(new AnnualWorkingDay { ServiceOrderId = serviceOrderId, GardenerId = gardener.Id, Date = date });
                     }            
                 }
             }
@@ -52,7 +59,8 @@ namespace Application.Services
                     {
                         foreach (Guid id in gardernerListModel.GardenerIds)
                         {
-                            workingDays.Add(new AnnualWorkingDay { ServiceOrderId = serviceOrderId, GardenerId = id, Date = date });
+                            var gardener = await GetGardenerAsync(id.ToString().ToLower());
+                            workingDays.Add(new AnnualWorkingDay { ServiceOrderId = serviceOrderId, GardenerId = gardener.Id, Date = date });
                         }
                     }
                 }
@@ -70,6 +78,21 @@ namespace Application.Services
                 _unitOfWork.AnnualWorkingDayRepository.SoftRemoveRange(workingDays);
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
+        }
+        private async Task<Gardener> GetGardenerAsync(string userId)
+        {
+            ApplicationUser? user = null;
+            /*if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"){ }*/
+            user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
+            if (!isGardener)
+                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
+            var gardener = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
+            if (gardener == null)
+                throw new Exception("Không tìm thấy thông tin người dùng");
+            return gardener;
         }
         private List<DayType> GetDayTypesFromServiceDays(List<ServiceDay> serviceDays)
         {
@@ -99,8 +122,18 @@ namespace Application.Services
         {
             DateTime startDate = new DateTime(year, month, 1);
             DateTime endDate = startDate.AddMonths(1).AddDays(-1);
-            var annualWorkingDays = await _unitOfWork.AnnualWorkingDayRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == gardenerId && x.Date >= startDate && x.Date <= endDate && !x.IsDeleted);
+            var gardener = await GetGardenerAsync(gardenerId.ToString().ToLower());
+            List<Expression<Func<AnnualWorkingDay, object>>> includes = new List<Expression<Func<AnnualWorkingDay, object>>>{
+                                 x => x.ServiceOrder
+                                    };
+            var annualWorkingDays = await _unitOfWork.AnnualWorkingDayRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == gardener.Id && x.Date >= startDate && x.Date <= endDate && !x.IsDeleted, includes: includes);
             return annualWorkingDays.Items;
+        }
+        public async Task<Pagination<AnnualWorkingDay>> GetAnnualWorkingDays()
+        {
+            var annualWorkingDay = await _unitOfWork.AnnualWorkingDayRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
+                isDisableTracking: true);
+            return annualWorkingDay;
         }
     } 
 }

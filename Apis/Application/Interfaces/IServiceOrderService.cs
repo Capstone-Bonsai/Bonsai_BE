@@ -15,5 +15,6 @@ namespace Application.Interfaces
         Task<Pagination<ServiceOrder>> GetServiceOrders();
         Task AddServiceOrder(ServiceOrderModel serviceOrderModel, Guid customerId);
         Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel);
+        Task<ServiceOrder?> GetOrderServiceById(Guid id);
     }
 }

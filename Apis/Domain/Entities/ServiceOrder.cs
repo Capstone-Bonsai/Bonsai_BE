@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
@@ -47,6 +48,7 @@ namespace Domain.Entities
 
         public IList<Complain> Complains { get; set; }
         public IList<ServiceTransaction> ServiceTransactions { get; set; }
+        [JsonIgnore]
         public IList<AnnualWorkingDay> AnnualWorkingDays { get; set; }
         public IList<ServiceImage> ServiceImages { get; set; }
         public IList<OrderServiceTask> OrderServiceTasks { get; set; }

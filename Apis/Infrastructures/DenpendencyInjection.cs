@@ -54,7 +54,7 @@ namespace Infrastructures
             services.AddScoped<IBaseTaskRepository, BaseTaskRepository>();
             services.AddScoped<IAnnualWorkingDayRepository, AnnualWorkingDayRepository>();
             services.AddScoped<IServiceDayRepository, ServiceDayRepository>();
-
+            services.AddScoped<IServiceImageRepository, ServiceImageRepository>();
 
             services.AddSingleton<IFirebaseService, FirebaseService>();
             services.AddScoped<FirebaseService>();

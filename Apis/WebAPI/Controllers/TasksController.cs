@@ -62,7 +62,6 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Post([FromBody] TasksModel tasksModel)
         {
             try

@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.ServiceModels;
 using Application.ViewModels.ServiceOrderViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -40,9 +41,29 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get([FromRoute] Guid id)
+        {
+            try
+            {
+                var serviceOrder = await _serviceOrderService.GetOrderServiceById(id);
+                if (serviceOrder == null)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(serviceOrder);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPost]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> Post([FromBody] ServiceOrderModel serviceOrderModel)
+        public async Task<IActionResult> Post([FromForm] ServiceOrderModel serviceOrderModel)
         {
             try
             {

@@ -24,6 +24,7 @@ namespace Application
         public IBaseTaskRepository BaseTaskRepository { get; }
         public IAnnualWorkingDayRepository AnnualWorkingDayRepository { get; }
         public IServiceDayRepository ServiceDayRepository { get; }
+        public IServiceImageRepository ServiceImageRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

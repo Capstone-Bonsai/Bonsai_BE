@@ -1,4 +1,5 @@
-﻿using Application.ViewModels.AnnualWorkingDayModel;
+﻿using Application.Commons;
+using Application.ViewModels.AnnualWorkingDayModel;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace Application.Interfaces
     {
         Task AddWorkingday(Guid serviceOrderId, GardernerListModel gardernerListModel);
         Task<List<AnnualWorkingDay>> GetWorkingCalencar(Guid gardenerId, int month, int year);
+        Task<Pagination<AnnualWorkingDay>> GetAnnualWorkingDays();
     }
 }

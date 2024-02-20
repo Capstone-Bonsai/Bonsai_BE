@@ -8,7 +8,6 @@ namespace Application.ViewModels.AnnualWorkingDayModel
 {
     public class GardernerListModel
     {
-        public Guid ServiceOrderId { get; set; }
         public List<Guid> GardenerIds { get; set; } = default!;
     }
 }
