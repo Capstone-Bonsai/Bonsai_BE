@@ -16,7 +16,7 @@ namespace Domain.Entities
         public Guid TaskId { get; set; }
         public ServiceTaskStatus  ServiceTaskStatus { get; set; }
         public string Note { get; set; }
-        public string CompletedDate { get; set; }
+        public DateTime? CompletedDate { get; set; }
         public virtual ServiceOrder ServiceOrder { get; set; }
         public virtual Tasks Task { get; set; }
 

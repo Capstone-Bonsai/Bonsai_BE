@@ -161,10 +161,10 @@ namespace Application.Services
                 if(res != null && res.rows != null && res.rows.Count > 0)
                 {
                     distance = res.rows.FirstOrDefault().elements.FirstOrDefault().distance.value / 1000;
-
                 }
                 else
                 {
+                    //var temp = response;
                     throw new Exception("Địa điểm giao hàng không hợp lệ.");
                 }
 
@@ -173,6 +173,8 @@ namespace Application.Services
             }
             else
             {
+                //Console.WriteLine(response);
+
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
             }
             DeliveryType deliveryType;
