@@ -30,6 +30,7 @@ namespace Infrastructures
         private readonly IAnnualWorkingDayRepository _annualWorkingDayRepository;
         private readonly IServiceDayRepository _serviceDayRepository;
         private readonly IServiceImageRepository _serviceImageRepository;
+        private readonly IOrderServiceTaskRepository _orderServiceTaskRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -38,7 +39,8 @@ namespace Infrastructures
             IProductImageRepository productImageRepository, ITagRepository tagRepository, IProductTagRepository productTagRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository,
             IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository, IBaseTaskRepository baseTaskRepository,
-            IAnnualWorkingDayRepository annualWorkingDayRepository, IServiceDayRepository serviceDayRepository, IServiceImageRepository serviceImageRepository)
+            IAnnualWorkingDayRepository annualWorkingDayRepository, IServiceDayRepository serviceDayRepository, IServiceImageRepository serviceImageRepository,
+            IOrderServiceTaskRepository orderServiceTaskRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -61,6 +63,7 @@ namespace Infrastructures
             _annualWorkingDayRepository = annualWorkingDayRepository;
             _serviceDayRepository = serviceDayRepository;
             _serviceImageRepository = serviceImageRepository;
+            _orderServiceTaskRepository = orderServiceTaskRepository;
         }
 
 
@@ -103,6 +106,8 @@ namespace Infrastructures
         public IServiceDayRepository ServiceDayRepository => _serviceDayRepository;
 
         public IServiceImageRepository ServiceImageRepository => _serviceImageRepository;
+
+        public IOrderServiceTaskRepository OrderServiceTaskRepository => _orderServiceTaskRepository;
         public async Task<int> SaveChangeAsync()
         {
             return await _dbContext.SaveChangesAsync();
