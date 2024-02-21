@@ -16,5 +16,6 @@ namespace Application.Interfaces
         public Task<string> LockOrUnlockUser(string userId);
         public Task<IList<string>> CreateUserAccount(UserCreateModel model);
         public Task<List<string>> GetListRoleAsync();
+        public Task Delete(string role, ApplicationUser user);
     }
 }
