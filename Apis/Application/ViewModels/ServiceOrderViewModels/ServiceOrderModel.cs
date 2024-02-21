@@ -21,5 +21,7 @@ namespace Application.ViewModels.ServiceOrderViewModels
         public double TemporaryTotalPrice { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
+        [NotMapped]
+        public List<Guid> TaskId { get; set; } = default!;
     }
 }

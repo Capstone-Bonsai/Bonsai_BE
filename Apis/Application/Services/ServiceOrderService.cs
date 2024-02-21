@@ -53,6 +53,8 @@ namespace Application.Services
 
             if (serviceOrderModel == null)
                 throw new ArgumentNullException(nameof(serviceOrderModel), "Vui lòng nhập thêm thông tin phân loại!");
+            if (serviceOrderModel.TaskId == null || serviceOrderModel.TaskId.Count == 0)
+                throw new Exception("Không có công việc nào");
             var validationRules = new ServiceOrderModelValidator();
             var resultServiceOrderInfo = await validationRules.ValidateAsync(serviceOrderModel);
             if (!resultServiceOrderInfo.IsValid)
@@ -117,6 +119,16 @@ namespace Application.Services
                         await _unitOfWork.ServiceImageRepository.AddAsync(serviceImage);
                     }
                 }
+                List<OrderServiceTask> serviceTasks = new List<OrderServiceTask>();
+                    foreach(Guid id in serviceOrderModel.TaskId)
+                {
+                    serviceTasks.Add(new OrderServiceTask()
+                    {
+                        ServiceOrderId = serviceOrder.Id,
+                        TaskId = id
+                    });
+                }
+                await _unitOfWork.OrderServiceTaskRepository.AddRangeAsync(serviceTasks);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)

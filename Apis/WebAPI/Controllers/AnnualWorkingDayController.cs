@@ -55,8 +55,8 @@ namespace WebAPI.Controllers
             }
             return Ok();
         }
-        [HttpGet("{month}/{year}")]
-        public async Task<IActionResult> Get(int month, int year)
+        [HttpGet("WorkingCalendar")]
+        public async Task<IActionResult> Get([FromQuery] int month, [FromQuery] int year)
         {
             try
             {
