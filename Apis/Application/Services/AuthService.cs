@@ -74,7 +74,6 @@ namespace Application.Services
                 throw new AuthenticationException("Đăng nhập không thành công!");
             }
         }
-
         public async Task<List<string>> Register(RegisterModel model)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -130,7 +129,8 @@ namespace Application.Services
                     Email = model.Email,
                     Fullname = model.Fullname,
                     PhoneNumber = model.PhoneNumber,
-                    IsRegister = true
+                    IsRegister = true,
+                    TwoFactorEnabled = true
                 };
 
                 var result = await _userManager.CreateAsync(temp, model.Password);
@@ -151,14 +151,12 @@ namespace Application.Services
                 return result;
             }
         }
-
         public async Task<bool> IsInRoleAsync(string userId, string role)
         {
             var user = _userManager.Users.SingleOrDefault(u => u.Id == userId);
 
             return user != null && await _userManager.IsInRoleAsync(user, role);
         }
-
         public async Task<string> AuthenticateAsync(string username, string password)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -251,7 +249,7 @@ namespace Application.Services
                 user = await _userManager.FindByEmailAsync(payload.Email);
                 if (user == null)
                 {
-                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email, Fullname = payload.GivenName, IsRegister = true };
+                    user = new ApplicationUser { Email = payload.Email, UserName = payload.Email, Fullname = payload.GivenName, IsRegister = true,TwoFactorEnabled = true };
                     await _userManager.CreateAsync(user);
                     //prepare and send an email for the email confirmation
                     //Create customer account
@@ -297,7 +295,6 @@ namespace Application.Services
             userModel.Token = token;
             return userModel;
         }
-
         public async Task<GoogleJsonWebSignature.Payload> VerifyGoogleToken(ExternalLoginModel model)
         {
             try
@@ -315,7 +312,6 @@ namespace Application.Services
                 throw new Exception($"Lỗi đăng nhâp Google: {ex.Message}");
             }
         }
-
         public async Task<string> CreateJwtToken(ApplicationUser user)
         {
             //tạo token
@@ -342,7 +338,6 @@ namespace Application.Services
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
         public async Task<bool> SendEmailAsync(string username, string callbackUrl, string type)
         {
             var user = await _userManager.FindByNameAsync(username);
@@ -375,10 +370,16 @@ namespace Application.Services
                     break;
                 case "ResetPassword":
                     string body = "<h3 style=\" color: #00B214;\">Xác nhận yêu cầu đổi mật khẩu truy cập vào Thạch Sơn Garden</h3>\r\n" + $"<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>,</p>\r\n<p style=\"margin-bottom: 10px;\r\n   " +
-                    " text-align: left;\"> Bạn đã yêu cầu đổi mật khẩu. Vui lòng nhấp vào liên kết bên dưới để xác nhận yêu cầu. Vui lòng\r\n  lưu ý rằng đường dẫn xác nhận chỉ cs hiệu lực trong vòng 30 phút. Sau thời gian đó, đường đãn sẽ hết hiệu lực và bạn\r\n" +
+                    " text-align: left;\"> Bạn đã yêu cầu đổi mật khẩu. Vui lòng nhấp vào liên kết bên dưới để xác nhận yêu cầu. Vui lòng\r\n  lưu ý rằng đường dẫn xác nhận chỉ có hiệu lực trong vòng 30 phút. Sau thời gian đó, đường đãn sẽ hết hiệu lực và bạn\r\n" +
                     "  sẽ cần yêu cầu xác nhận lại. Nếu bạn không có bất kỳ yêu cầu thay đổi nào vui lòng không nhấn bất kỳ đường dẫn nào. Cảm ơn\r\n</p>" + $"<a href=\"{callbackUrl}\" style=\"display: inline-block;\r\n   " +
                     " background-color: #00B214;\r\n    color: #fff;\r\n    padding: 10px 20px;\r\n    border: none;\r\n    border-radius: 5px;\r\n    cursor: pointer;\r\n    text-decoration: none;\">Xác thực ngay</a>";
                     temp = mail.SendEmail(user.Email, "Xác thực yêu cầu đổi mật khẩu tài khoản từ Thanh Sơn Garden", body);
+                    break;
+                case "ResetPasswordForMobile":
+                    string body1 = "<h3 style=\" color: #00B214;\">Mã xác thực yêu cầu đổi mật khẩu truy cập vào Thạch Sơn Garden</h3>\r\n" + $"<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{user.Fullname}</strong>,</p>\r\n<p style=\"margin-bottom: 10px;\r\n   " +
+                    " text-align: left;\"> Bạn đã yêu cầu đổi mật khẩu. Vui lòng sử dụng OTP bên dưới để thực hiện xác thực tài khoản. Vui lòng\r\n  lưu ý rằng mã OTP chỉ có hiệu lực trong vòng 30 phút. Sau thời gian đó, đường đãn sẽ hết hiệu lực và bạn\r\n" +
+                    "  sẽ cần yêu cầu xác nhận lại. Nếu bạn không có bất kỳ yêu cầu thay đổi nào vui lòng không nhấn bất kỳ đường dẫn nào. Cảm ơn\r\n</p>" + $"Mã xác thực: "+ callbackUrl;
+                    temp = mail.SendEmail(user.Email, "Mã xác thực yêu cầu đổi mật khẩu tài khoản từ Thanh Sơn Garden", body1);
                     break;
             }
 
@@ -387,7 +388,6 @@ namespace Application.Services
             return result;
 
         }
-
         public async Task<string> ResetPasswordAsync(ResetPassModel model)
         {
             if (model.UserId == null || model.Code == null)
@@ -419,7 +419,40 @@ namespace Application.Services
             }
         }
 
-
+        public async Task<string> ResetPasswordForMobileAsync(ResetPassModel model)
+        {
+            if (model.UserId == null || model.Code == null)
+            {
+                throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
+            }
+            if (!model.NewPassword.Equals(model.ConfirmPassword))
+            {
+                throw new Exception("Mật khẩu với và mật khẩu xác nhận không khớp!");
+            }
+            // Kiểm tra xác thực người dùng và tạo mã đặt lại mật khẩu (reset token)
+            var user = await _userManager.FindByIdAsync(model.UserId);
+            if (user == null)
+            {
+                throw new Exception("Không tìm thấy tài khoản bạn yêu cầu!");
+            }
+            var isValid = await _userManager.VerifyTwoFactorTokenAsync(user,"Email", model.Code);
+            if(!isValid)
+            {
+                throw new Exception("Mã OTP không chính xác.");
+            }
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                // Mật khẩu đã được đặt lại thành công
+                return "Mật khẩu đã được đặt lại thành công! Vui lòng tiến hành đăng nhập!";
+            }
+            else
+            {
+                // Đặt lại mật khẩu không thành công
+                throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
+            }
+        }
         public async Task<IList<string>> ValidateAsync(RegisterModel model)
         {
             var validator = new RegisterModelValidator();

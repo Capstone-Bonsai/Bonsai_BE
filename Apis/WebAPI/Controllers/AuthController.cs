@@ -175,6 +175,42 @@ namespace WebAPI.Controllers
             }
         }
 
+        [HttpPost("ForgotPasswordForMobile")]
+        public async Task<IActionResult> ForgotPasswordForMobile(string email)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return BadRequest("Không tìm thấy địa chỉ emal");
+                }
+                //lấy host để redirect về
+                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                var token = await _userManager.GenerateTwoFactorTokenAsync(user,"Email");
+                await _auth.SendEmailAsync(email.Trim(), token, "ResetPasswordForMobile");
+                return Ok("Yêu cầu đổi mật khẩu đã được gửi thành công đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư đến của bạn và xác thực email để tiến hành đổi mật khẩu.");
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Xác nhận email không thành công: " + e.Message);
+            }
+        }
+        [HttpPost("ResetPasswordForMobile")]
+        public async Task<IActionResult> ResetPasswordForMobile([FromBody] ResetPassModel model)
+        {
+            try
+            {
+                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                var result = await _auth.ResetPasswordForMobileAsync(model);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [NonAction]
         public async Task<string> GetCallbackUrlAsync(string email, string referer, string type)
         {

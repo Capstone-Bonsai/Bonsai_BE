@@ -249,7 +249,8 @@ namespace Infrastructures.Services
                     Email = model.Email,
                     Fullname = model.Fullname,
                     PhoneNumber = model.PhoneNumber,
-                    IsRegister = true
+                    IsRegister = true,
+                    TwoFactorEnabled = true
                 };
                 if (model.Avatar != null)
                 {
