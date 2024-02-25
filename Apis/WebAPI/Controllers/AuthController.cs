@@ -142,6 +142,10 @@ namespace WebAPI.Controllers
         {
             try
             {
+                if(model.UserId == null)
+                {
+                    return BadRequest("Vui lòng không để trống id của người dùng.");
+                }
                 var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
                 var result = await _auth.ResetPasswordAsync(model);
                 return Ok(result);
@@ -180,6 +184,7 @@ namespace WebAPI.Controllers
         {
             try
             {
+
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user == null)
                 {
@@ -201,6 +206,10 @@ namespace WebAPI.Controllers
         {
             try
             {
+                if (model.Email == null)
+                {
+                    return BadRequest("Vui lòng không để trống Email của người dùng.");
+                }
                 var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
                 var result = await _auth.ResetPasswordForMobileAsync(model);
                 return Ok(result);

@@ -421,16 +421,16 @@ namespace Application.Services
 
         public async Task<string> ResetPasswordForMobileAsync(ResetPassModel model)
         {
-            if (model.UserId == null || model.Code == null)
+            if (model.Email == null || model.Code == null)
             {
-                throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
+                throw new Exception("Không thể đặt lại mật khẩu. Vui lòng điền đầy đủ thông tin!");
             }
             if (!model.NewPassword.Equals(model.ConfirmPassword))
             {
                 throw new Exception("Mật khẩu với và mật khẩu xác nhận không khớp!");
             }
             // Kiểm tra xác thực người dùng và tạo mã đặt lại mật khẩu (reset token)
-            var user = await _userManager.FindByIdAsync(model.UserId);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 throw new Exception("Không tìm thấy tài khoản bạn yêu cầu!");
