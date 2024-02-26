@@ -332,7 +332,8 @@ namespace Application.Services
                 Fullname = model.Fullname,
                 PhoneNumber = model.PhoneNumber,
                 UserName = model.Email,
-                IsRegister = false
+                IsRegister = false,
+                TwoFactorEnabled = true
             };
 
             var result = await _userManager.CreateAsync(user);
@@ -459,7 +460,17 @@ namespace Application.Services
                     var temp = item.Quantity * item.Product.UnitPrice;
                     total += temp;
                 }
-                var deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
+                FeeViewModel deliveryPrice = new FeeViewModel();
+                try
+                {
+                    deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
+
+                }
+                catch (Exception)
+                {
+                    deliveryPrice.DeliveryType = DeliveryType.PickupTruck.ToString();
+                    deliveryPrice.Price = 0;
+                }
                 order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
                 order.DeliveryPrice = deliveryPrice.Price;
                 order.Price = total;

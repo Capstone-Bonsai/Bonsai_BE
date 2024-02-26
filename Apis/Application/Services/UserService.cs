@@ -33,7 +33,9 @@ namespace Infrastructures.Services
             UserManager<ApplicationUser> userManager,
             IClaimsService claims,
             FirebaseService fireBaseService,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager
+            
+            )
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -247,7 +249,8 @@ namespace Infrastructures.Services
                     Email = model.Email,
                     Fullname = model.Fullname,
                     PhoneNumber = model.PhoneNumber,
-                    IsRegister = true
+                    IsRegister = true,
+                    TwoFactorEnabled = true
                 };
                 if (model.Avatar != null)
                 {
@@ -346,6 +349,32 @@ namespace Infrastructures.Services
         var roles = await _roleManager.Roles.Where(x => !x.Name.Equals("Manager")).Select(x => x.Name).ToListAsync();
         return roles;
     }
+
+        public async Task Delete(string role, ApplicationUser user)
+        {
+            switch (role)
+            {
+                case "Gardener":
+                    var gardener = await _unitOfWork.GardenerRepository.GetAllAsync();
+                    var temp = gardener.Where(x=>x.UserId.ToLower().Equals(user.Id.ToLower())).ToList();
+
+                     _unitOfWork.GardenerRepository.HardDeleteRange(temp);
+                    break;
+                case "Staff":
+                    var staff = await _unitOfWork.StaffRepository.GetAllAsync();
+                    var temp1 = staff.Where(x => x.UserId.ToLower().Equals(user.Id.ToLower())).ToList();
+
+                    _unitOfWork.StaffRepository.HardDeleteRange(temp1);
+                    break;
+                case "Customer":
+                    var Customer = await _unitOfWork.CustomerRepository.GetAllAsync();
+                    var temp3 = Customer.Where(x => x.UserId.ToLower().Equals(user.Id.ToLower())).ToList();
+
+                    _unitOfWork.CustomerRepository.HardDeleteRange(temp3);
+                    break;
+            }
+            await _unitOfWork.SaveChangeAsync();
+        }
 
 
 }

@@ -84,6 +84,7 @@ namespace Infrastructures
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.User.RequireUniqueEmail = true;
+                
             }).AddDefaultTokenProviders().AddEntityFrameworkStores<AppDbContext>();
             // this configuration just use in-memory for fast develop
             //services.AddDbContext<AppDbContext>(option => option.UseInMemoryDatabase("test"));

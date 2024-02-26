@@ -162,6 +162,31 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        //[Authorize(Roles = "Manager")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(id);
+                var role = await _userManager.GetRolesAsync(user);
+                if (role == null)
+                {
+                    return NotFound();
+                }
+                await _userService.Delete(role[0], user);
+                if(user == null)
+                {
+                    return NotFound("Khoong tim thay user");
+                }
+                await _userManager.DeleteAsync(user);
+                return Ok("Xoa thanh cong");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }
