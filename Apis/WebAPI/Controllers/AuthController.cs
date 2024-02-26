@@ -37,6 +37,32 @@ namespace WebAPI.Controllers
             _environment = environment;
             _unit = unit;
         }
+        [HttpGet("OtpHandler")]
+        public async Task<IActionResult> OtpHandler(string Email, string Otp)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(Email);
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy người dùng.");
+                }
+                var result = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", Otp);
+                if (result)
+                {
+                    return Ok("Mã OTP chính xác");
+                }
+                else
+                {
+                    return BadRequest("Mã OTP không chính xác");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
@@ -220,6 +246,7 @@ namespace WebAPI.Controllers
             }
         }
 
+        
         [NonAction]
         public async Task<string> GetCallbackUrlAsync(string email, string referer, string type)
         {
@@ -253,6 +280,10 @@ namespace WebAPI.Controllers
             if (referer.Equals("https://localhost:5001/swagger/index.html"))
             {
                 callbackUrl = "https://localhost:5001" + Url.Action(action, "Auth", new { userId = user.Id, code = code });
+            }
+            else if(referer.Contains("http://localhost:5173"))
+            {
+                callbackUrl = "http://localhost:5173" + Url.Action(action, "Auth", new { userId = user.Id, code = code });
             }
             return callbackUrl;
         }
