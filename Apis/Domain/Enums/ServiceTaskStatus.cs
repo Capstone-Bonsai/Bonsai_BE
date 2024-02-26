@@ -8,5 +8,6 @@ namespace Domain.Enums
 {
     public enum ServiceTaskStatus
     {
+        NotYet = 1, Working = 2, Finished = 3, Cancle = 4
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Commons;
+using Application.ViewModels.OrderServiceTaskModels;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,7 @@ namespace Application.Interfaces
     public interface IOrderServiceTaskService
     {
         Task<Pagination<OrderServiceTask>> GetTasks();
+        Task<Pagination<OrderServiceTask>> GetDailyTasksForGarndener(Guid id);
+        Task UpdateTaskProgess(OrderServiceTasksModels orderServiceTasksModels);
     }
 }

@@ -125,8 +125,10 @@ namespace Application.Services
                     serviceTasks.Add(new OrderServiceTask()
                     {
                         ServiceOrderId = serviceOrder.Id,
-                        TaskId = id
-                    });
+                        TaskId = id,
+                        ServiceTaskStatus = ServiceTaskStatus.NotYet,
+                        Note = ""
+                    }); ;
                 }
                 await _unitOfWork.OrderServiceTaskRepository.AddRangeAsync(serviceTasks);
                 await _unitOfWork.CommitTransactionAsync();
