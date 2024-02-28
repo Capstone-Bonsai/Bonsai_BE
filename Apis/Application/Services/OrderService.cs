@@ -254,7 +254,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<Pagination<Order>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
+        public async Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
         {
             Pagination<Order> res;
             var user = await _userManager.FindByIdAsync(userId);
@@ -272,8 +272,8 @@ namespace Application.Services
             else if (isAdmin || isStaff)
                 res = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
             else return null;
-            return res;
-           
+            var result = _mapper.Map<Pagination<OrderViewModel>>(res);
+            return result;
         }
         public async Task<Order> GetByIdAsync(string userId, Guid orderId)
         {
@@ -463,12 +463,13 @@ namespace Application.Services
                 try
                 {
                     deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
-
+                   
                 }
                 catch (Exception)
                 {
                     deliveryPrice.DeliveryType = DeliveryType.PickupTruck.ToString();
                     deliveryPrice.Price = 0;
+                    deliveryPrice.deliveryFee.DeliveryType = DeliveryType.PickupTruck;
                 }
                 order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
                 order.DeliveryPrice = deliveryPrice.Price;

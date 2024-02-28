@@ -249,8 +249,7 @@ namespace Infrastructures.Services
                         Email = model.Email,
                         Fullname = model.Fullname,
                         PhoneNumber = model.PhoneNumber,
-                        IsRegister = true,
-                        TwoFactorEnabled = true
+                        IsRegister = true
                     };
                     if (model.Role.Equals("Gardener"))
                     {
