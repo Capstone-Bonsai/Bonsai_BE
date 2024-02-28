@@ -18,6 +18,8 @@ using System.Net.Http;
 using AutoMapper.Execution;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Ocsp;
+using Microsoft.Extensions.Configuration;
+using System.Configuration;
 
 namespace Application.Services
 {
@@ -25,11 +27,13 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _unit;
         private readonly HttpClient _httpClient;
+        private readonly IConfiguration _configuration;
 
-        public DeliveryFeeService(IUnitOfWork unit, HttpClient httpClient)
+        public DeliveryFeeService(IUnitOfWork unit, HttpClient httpClient,IConfiguration configuration)
         {
             _unit = unit;
             _httpClient = httpClient;
+            _configuration = configuration;
         }
         public async Task CreateAsync(IFormFile file)
         {
@@ -146,14 +150,37 @@ namespace Application.Services
             return deliveryModel;
         }
 
+        public async Task<AddressModel> GetGeocoding(string address)
+        {
+            string codeKey = _configuration["GoongAPI"];
+            HttpResponseMessage response = await _httpClient.GetAsync($"https://rsapi.goong.io/geocode?address={address}&api_key={codeKey}");
+            if (response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                var res = JsonConvert.DeserializeObject<GeoCodingModel>(content);
+                if (res.status.Equals("OK"))
+                {
+                    var addressModel = new AddressModel();
+                    addressModel.Address = res.results[0].formatted_address;
+                    addressModel.Geocoding = res.results[0].geometry.location.lat.ToString()+"," + res.results[0].geometry.location.lng.ToString();
+                    return addressModel;
+                }
+                else
+                    throw new Exception("Địa điểm giao hàng không hợp lệ.");
+            }
+            else
+                throw new Exception("Địa điểm giao hàng không hợp lệ.");
+        }
+
         public async Task<FeeViewModel> CalculateFee(string destination, double price)
         {
-            string origin = "372b QL20, Liên Nghĩa, Đức Trọng, Lâm Đồng, Vietnam";
+            string origin = "11.7341038,108.3735893";
             double finalPrice = 0;
             int distance = 0;
             var finalFee = new FeeViewModel();
-            HttpResponseMessage response = await _httpClient.GetAsync($"https://maps.googleapis.com/maps/api/distancematrix/json?origins={origin}&destinations={destination}&key=AIzaSyD-mpcsm8z3RzVow60KPO4rSNRvuozFmt0");
-
+            var addressModel = await GetGeocoding(destination);
+            string codeKey = _configuration["GoongAPI"];
+            HttpResponseMessage response = await _httpClient.GetAsync($"https://rsapi.goong.io/DistanceMatrix?origins={origin}&destinations={addressModel.Geocoding}&vehicle=car&api_key={codeKey}");
             if (response.IsSuccessStatusCode)
             {
                 string content = await response.Content.ReadAsStringAsync();
@@ -168,13 +195,11 @@ namespace Application.Services
                     throw new Exception("Địa điểm giao hàng không hợp lệ.");
                 }
 
-                finalFee.Origin_addresses = res.origin_addresses.FirstOrDefault();
-                finalFee.Destination_addresses = res.destination_addresses.FirstOrDefault();
+                finalFee.Origin_addresses = "372b QL20, Liên Nghĩa, Đức Trọng, Lâm Đồng, Vietnam";
+                finalFee.Destination_addresses = addressModel.Address;
             }
             else
             {
-                //Console.WriteLine(response);
-
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
             }
             DeliveryType deliveryType;
