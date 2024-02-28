@@ -89,5 +89,18 @@ namespace WebAPI.Controllers
             }
             return Ok();
         }
+        [HttpGet("ServicePayment")]
+        public async Task<IActionResult> PaymentAsync(Guid serviceOrderId)
+        {
+            try
+            {
+                var serviceOrders = await _serviceOrderService.PaymentAsync(serviceOrderId);
+                return Ok(serviceOrders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

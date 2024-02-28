@@ -16,5 +16,6 @@ namespace Application.Interfaces
         Task AddServiceOrder(ServiceOrderModel serviceOrderModel, Guid customerId);
         Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel);
         Task<ServiceOrder?> GetOrderServiceById(Guid id);
+        Task<string> PaymentAsync(Guid tempId);
     }
 }

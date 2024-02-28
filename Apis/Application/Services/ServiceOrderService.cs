@@ -1,26 +1,17 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Services.Momo;
 using Application.Validations.ServiceOrder;
-using Application.Validations.Tag;
-using Application.ViewModels.OrderViewModels;
-using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.ServiceOrderViewModels;
-using Application.ViewModels.TagViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
-using Firebase.Auth;
-using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
+using System.Configuration;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Application.Services
 {
     public class ServiceOrderService : IServiceOrderService
@@ -29,13 +20,20 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly FirebaseService _fireBaseService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public ServiceOrderService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
+        public ServiceOrderService(
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            FirebaseService fireBaseService,
+            UserManager<ApplicationUser> userManager,
+            IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fireBaseService = fireBaseService;
             _userManager = userManager;
+            _configuration = configuration;
         }
         public async Task<Pagination<ServiceOrder>> GetServiceOrdersPagination(int pageIndex, int pageSize)
         {
@@ -218,5 +216,153 @@ namespace Application.Services
                 isDisableTracking: true, includes: includes);
             return orderService.Items[0];
         }
+
+        public async Task<string> PaymentAsync(Guid tempId)
+        {
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(tempId);
+            if (serviceOrder == null)
+                throw new Exception("Không tìm thấy dịch vụ bạn muốn thanh toán!");
+            else if(serviceOrder.ResponseFinalPrice == null)
+                throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");
+            double totalPrice = Math.Round(serviceOrder.ResponseFinalPrice.Value);
+            string endpoint = _configuration["MomoServices:endpoint"];
+            string partnerCode = _configuration["MomoServices:partnerCode"];
+            string accessKey = _configuration["MomoServices:accessKey"];
+            string serectkey = _configuration["MomoServices:secretKey"];
+            string orderInfo = "Thanh toán hóa đơn hàng tại Thanh Sơn Garden.";
+            string redirectUrl = _configuration["MomoServices:redirectUrl"];
+            string ipnUrl = _configuration["MomoServices:serviceIpnUrl"];
+            string requestType = "captureWallet";
+            string amount = totalPrice.ToString();
+            string orderId = Guid.NewGuid().ToString();
+            string requestId = Guid.NewGuid().ToString();
+            string extraData = serviceOrder.Id.ToString();
+            //captureWallet
+            //Before sign HMAC SHA256 signature
+            string rawHash = "accessKey=" + accessKey +
+                "&amount=" + amount +
+                "&extraData=" + extraData +
+                "&ipnUrl=" + ipnUrl +
+                "&orderId=" + orderId +
+                "&orderInfo=" + orderInfo +
+                "&partnerCode=" + partnerCode +
+                "&redirectUrl=" + redirectUrl +
+                "&requestId=" + requestId +
+                "&requestType=" + requestType
+            ;
+            MoMoSecurity crypto = new MoMoSecurity();
+            //sign signature SHA256
+            string signature = crypto.signSHA256(rawHash, serectkey);
+            //build body json request
+            JObject message = new JObject
+                 {
+                { "partnerCode", partnerCode },
+                { "partnerName", "Test" },
+                { "storeId", "MomoTestStore1" },
+                { "requestId", requestId },
+                { "amount", amount },
+                { "orderId", orderId },
+                { "orderInfo", orderInfo },
+                { "redirectUrl", redirectUrl },
+                { "ipnUrl", ipnUrl },
+                { "lang", "en" },
+                { "extraData", extraData },
+                { "requestType", requestType },
+                { "signature", signature }
+
+                };
+            try
+            {
+                string responseFromMomo = PaymentRequest.sendPaymentRequest(endpoint, message.ToString());
+
+                JObject jmessage = JObject.Parse(responseFromMomo);
+
+                return jmessage.GetValue("payUrl").ToString();
+            }
+            catch
+            {
+                throw new Exception("Đã xảy ra lối trong qua trình thanh toán. Vui lòng thanh toán lại sau!");
+            }
+        }
+
+        /*public async Task HandleIpnAsync(MomoRedirect momo)
+        {
+            string accessKey = _configuration["MomoServices:accessKey"];
+            string IpnUrl = _configuration["MomoServices:ipnUrl"];
+            string redirectUrl = _configuration["MomoServices:redirectUrl"];
+            string partnerCode = _configuration["MomoServices:partnerCode"];
+            string endpoint = _configuration["MomoServices:endpoint"];
+
+            string rawHash = "accessKey=" + accessKey +
+                    "&amount=" + momo.amount +
+                    "&extraData=" + momo.extraData +
+                    "&message=" + momo.message +
+                    "&orderId=" + momo.orderId +
+                    "&orderInfo=" + momo.orderInfo +
+                    "&orderType=" + momo.orderType +
+                    "&partnerCode=" + partnerCode +
+                    "&payType=" + momo.payType +
+                    "&requestId=" + momo.requestId +
+                    "&responseTime=" + momo.responseTime +
+                    "&resultCode=" + momo.resultCode +
+                    "&transId=" + momo.transId;
+
+            //hash rawData
+            MoMoSecurity crypto = new MoMoSecurity();
+            string secretKey = _configuration["MomoServices:secretKey"];
+            string temp = crypto.signSHA256(rawHash, secretKey);
+            TransactionStatus transactionStatus = TransactionStatus.Failed;
+            OrderStatus orderStatus = OrderStatus.Failed;
+            //check chữ ký
+            if (temp != momo.signature)
+                throw new Exception("Sai chữ ký");
+            //lấy orderid
+            Guid orderId = Guid.Parse(momo.extraData);
+            try
+            {
+                if (momo.resultCode == 0)
+                {
+                    transactionStatus = TransactionStatus.Success;
+                    orderStatus = OrderStatus.Paid;
+                }
+                var order = await _unit.OrderRepository.GetByIdAsync(orderId);
+                if (order == null)
+                    throw new Exception("Không tìm thấy đơn hàng.");
+                var orderTransaction = new OrderTransaction();
+                orderTransaction.OrderId = orderId;
+                orderTransaction.Amount = momo.amount;
+                orderTransaction.IpnURL = IpnUrl;
+                orderTransaction.Information = momo.orderInfo;
+                orderTransaction.PartnerCode = partnerCode;
+                orderTransaction.RedirectUrl = redirectUrl;
+                orderTransaction.RequestId = momo.requestId;
+                orderTransaction.RequestType = "captureWallet";
+                orderTransaction.TransactionStatus = transactionStatus;
+                orderTransaction.PaymentMethod = "MOMO Payment";
+                orderTransaction.OrderIdFormMomo = momo.orderId;
+                orderTransaction.OrderType = momo.orderType;
+                orderTransaction.TransId = momo.transId;
+                orderTransaction.ResultCode = momo.resultCode;
+                orderTransaction.Message = momo.message;
+                orderTransaction.PayType = momo.payType;
+                orderTransaction.ResponseTime = momo.responseTime;
+                orderTransaction.ExtraData = momo.extraData;
+                // Tạo transaction
+                orderTransaction.Signature = momo.signature;
+                await _unit.OrderTransactionRepository.AddAsync(orderTransaction);
+                //Update Order Status
+                order.OrderStatus = orderStatus;
+                _unit.OrderRepository.Update(order);
+                await _unit.SaveChangeAsync();
+                if (momo.resultCode != 0)
+                {
+                    await UpdateProductQuantityFromOrder(orderId);
+                }
+            }
+            catch (Exception exx)
+            {
+                throw new Exception($"tạo Transaction lỗi: {exx.Message}");
+            }
+        }*/
     }
 }
