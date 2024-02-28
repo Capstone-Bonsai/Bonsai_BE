@@ -120,14 +120,14 @@ namespace Application.Services
                     List<DayInWeek> dayInWeeks = new List<DayInWeek>();
                     foreach (ServiceDay date in serviceOrderModel.ServiceDays)
                     {
-                        var dayInWeek = _unitOfWork.DayInWeekRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceDays == date);
+                        /*var dayInWeek = _unitOfWork.DayInWeekRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceDays == date);
                         dayInWeeks.Add(new OrderServiceTask()
                         {
                             ServiceOrderId = serviceOrder.Id,
                             TaskId = id,
                             ServiceTaskStatus = ServiceTaskStatus.NotYet,
                             Note = ""
-                        }); ;
+                        }); ;*/
                     }
                     List<OrderServiceTask> serviceTasks = new List<OrderServiceTask>();
                     foreach (Guid id in serviceOrderModel.TaskId)
@@ -143,6 +143,7 @@ namespace Application.Services
                     await _unitOfWork.OrderServiceTaskRepository.AddRangeAsync(serviceTasks);
                     await _unitOfWork.CommitTransactionAsync();
                 }
+            }
             catch (Exception)
             {
                 _unitOfWork.RollbackTransaction();
