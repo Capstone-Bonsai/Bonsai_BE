@@ -190,7 +190,7 @@ namespace Application.Services
                 }
                 serviceOrder.ResponseGardenSquare = responseServiceOrderModel.ResponseGardenSquare;
                 serviceOrder.ResponseStandardSquare = responseServiceOrderModel.ResponseStandardSquare;
-                serviceOrder.ResponseWorkingUnit = serviceOrder.ResponseGardenSquare / serviceOrder.ResponseStandardSquare;
+                serviceOrder.ResponseWorkingUnit = 0;
                 serviceOrder.NumberGardener = 0;
                 serviceOrder.ResponsePrice = order.Price;
                 serviceOrder.ResponseWorkingUnit = 0;
