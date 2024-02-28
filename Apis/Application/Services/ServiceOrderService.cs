@@ -190,11 +190,13 @@ namespace Application.Services
                 }
                 serviceOrder.ResponseGardenSquare = responseServiceOrderModel.ResponseGardenSquare;
                 serviceOrder.ResponseStandardSquare = responseServiceOrderModel.ResponseStandardSquare;
-                serviceOrder.ResponsePrice = responseServiceOrderModel.ResponsePrice;
-                serviceOrder.ResponseWorkingUnit = responseServiceOrderModel.ResponseWorkingUnit;
-                serviceOrder.ResponseTotalPrice = responseServiceOrderModel.ResponseTotalPrice;
-                serviceOrder.ResponseFinalPrice = responseServiceOrderModel.ResponseFinalPrice;
-                serviceOrder.NumberGardener = responseServiceOrderModel.NumberGardener;
+                serviceOrder.ResponseWorkingUnit = serviceOrder.ResponseGardenSquare / serviceOrder.ResponseStandardSquare;
+                serviceOrder.NumberGardener = 0;
+                serviceOrder.ResponsePrice = order.Price;
+                serviceOrder.ResponseWorkingUnit = 0;
+                serviceOrder.ResponseTotalPrice = 0;
+                serviceOrder.ResponseFinalPrice = 0;
+                serviceOrder.NumberGardener = 0;
                 serviceOrder.ServiceStatus = ServiceStatus.Applied;
                 _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                 await _unitOfWork.SaveChangeAsync();
