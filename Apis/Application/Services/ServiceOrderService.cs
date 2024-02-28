@@ -190,18 +190,20 @@ namespace Application.Services
                 }
                 serviceOrder.ResponseGardenSquare = responseServiceOrderModel.ResponseGardenSquare;
                 serviceOrder.ResponseStandardSquare = responseServiceOrderModel.ResponseStandardSquare;
-                serviceOrder.ResponseWorkingUnit = serviceOrder.ResponseGardenSquare / serviceOrder.ResponseStandardSquare;
+                serviceOrder.ResponseWorkingUnit = 0;
                 if (serviceOrder.ServiceType == ServiceType.OneTime)
                 {
                     TimeSpan difference = serviceOrder.StartDate - serviceOrder.StartDate;
                     int numberOfDays = (int)difference.TotalDays;
-                    int numberGardeners = serviceOrder.ResponseWorkingUnit / numberOfDays;
+                    int numberGardeners = 0;
                     serviceOrder.NumberGardener = (serviceOrder.ResponseWorkingUnit / numberOfDays).Value;
                 }
                 else
                 {
 
                 }
+                serviceOrder.ResponseWorkingUnit = 0;
+                serviceOrder.NumberGardener = 0;
                 serviceOrder.ResponsePrice = order.Price;
                 serviceOrder.ResponseWorkingUnit = 0;
                 serviceOrder.ResponseTotalPrice = 0;
@@ -234,7 +236,9 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(tempId);
             if (serviceOrder == null)
                 throw new Exception("Không tìm thấy dịch vụ bạn muốn thanh toán!");
-            else if(serviceOrder.ResponseFinalPrice == null)
+            else if(serviceOrder.ServiceStatus != ServiceStatus.Applied || serviceOrder.ServiceStatus != ServiceStatus.Failed)
+                throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");  
+            else if (serviceOrder.ResponseFinalPrice == null)
                 throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");
             double totalPrice = Math.Round(serviceOrder.ResponseFinalPrice.Value);
             string endpoint = _configuration["MomoServices:endpoint"];

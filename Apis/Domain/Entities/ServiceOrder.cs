@@ -36,7 +36,7 @@ namespace Domain.Entities
         public float? ResponseGardenSquare { get; set; }
         public float? ResponseStandardSquare { get; set; }
         public double? ResponsePrice { get; set; }
-        public float? ResponseWorkingUnit { get; set; }
+        public int? ResponseWorkingUnit { get; set; }
         public double? ResponseTotalPrice { get; set; }
         public double? ResponseFinalPrice { get; set; }                                                                                                                                                          
         public int? NumberGardener { get; set; }

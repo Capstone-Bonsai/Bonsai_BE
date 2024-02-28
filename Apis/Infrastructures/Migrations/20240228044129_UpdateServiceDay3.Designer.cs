@@ -4,6 +4,7 @@ using Infrastructures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructures.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240228044129_UpdateServiceDay3")]
+    partial class UpdateServiceDay3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1229,8 +1232,8 @@ namespace Infrastructures.Migrations
                     b.Property<double?>("ResponseTotalPrice")
                         .HasColumnType("float");
 
-                    b.Property<int?>("ResponseWorkingUnit")
-                        .HasColumnType("int");
+                    b.Property<float?>("ResponseWorkingUnit")
+                        .HasColumnType("real");
 
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uniqueidentifier");
