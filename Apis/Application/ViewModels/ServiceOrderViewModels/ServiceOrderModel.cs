@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -23,5 +24,7 @@ namespace Application.ViewModels.ServiceOrderViewModels
         public List<IFormFile>? Image { get; set; } = default!;
         [NotMapped]
         public List<Guid> TaskId { get; set; } = default!;
+        [NotMapped]
+        public List<ServiceDay> ServiceDays { get; set; } = default!;
     }
 }

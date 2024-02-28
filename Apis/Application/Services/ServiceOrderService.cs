@@ -6,6 +6,7 @@ using Application.ViewModels.ServiceOrderViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -116,21 +117,32 @@ namespace Application.Services
 
                         await _unitOfWork.ServiceImageRepository.AddAsync(serviceImage);
                     }
-                }
-                List<OrderServiceTask> serviceTasks = new List<OrderServiceTask>();
-                    foreach(Guid id in serviceOrderModel.TaskId)
-                {
-                    serviceTasks.Add(new OrderServiceTask()
+                    List<DayInWeek> dayInWeeks = new List<DayInWeek>();
+                    foreach (ServiceDay date in serviceOrderModel.ServiceDays)
                     {
-                        ServiceOrderId = serviceOrder.Id,
-                        TaskId = id,
-                        ServiceTaskStatus = ServiceTaskStatus.NotYet,
-                        Note = ""
-                    }); ;
+                        var dayInWeek = _unitOfWork.DayInWeekRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceDays == date);
+                        dayInWeeks.Add(new OrderServiceTask()
+                        {
+                            ServiceOrderId = serviceOrder.Id,
+                            TaskId = id,
+                            ServiceTaskStatus = ServiceTaskStatus.NotYet,
+                            Note = ""
+                        }); ;
+                    }
+                    List<OrderServiceTask> serviceTasks = new List<OrderServiceTask>();
+                    foreach (Guid id in serviceOrderModel.TaskId)
+                    {
+                        serviceTasks.Add(new OrderServiceTask()
+                        {
+                            ServiceOrderId = serviceOrder.Id,
+                            TaskId = id,
+                            ServiceTaskStatus = ServiceTaskStatus.NotYet,
+                            Note = ""
+                        }); ;
+                    }
+                    await _unitOfWork.OrderServiceTaskRepository.AddRangeAsync(serviceTasks);
+                    await _unitOfWork.CommitTransactionAsync();
                 }
-                await _unitOfWork.OrderServiceTaskRepository.AddRangeAsync(serviceTasks);
-                await _unitOfWork.CommitTransactionAsync();
-            }
             catch (Exception)
             {
                 _unitOfWork.RollbackTransaction();
@@ -150,7 +162,7 @@ namespace Application.Services
         {
             ApplicationUser? user = null;
             /*if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"){ }*/
-                user = await _userManager.FindByIdAsync(userId);
+            user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
@@ -161,7 +173,7 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return customer;
         }
-        public async Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel)
+        public async Task ResponseServiceOrder(Guid staffId, Guid serviceOrderId, ResponseServiceOrderModel responseServiceOrderModel)
         {
             if (responseServiceOrderModel == null)
                 throw new ArgumentNullException(nameof(responseServiceOrderModel), "Vui lòng nhập thêm thông tin phân loại!");
@@ -173,7 +185,7 @@ namespace Application.Services
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
-            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(id);
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(serviceOrderId);
             if (serviceOrder == null)
                 throw new Exception("Không tìm thấy đơn đặt dịch vụ");
             Order? order = null;
@@ -190,26 +202,32 @@ namespace Application.Services
                 }
                 serviceOrder.ResponseGardenSquare = responseServiceOrderModel.ResponseGardenSquare;
                 serviceOrder.ResponseStandardSquare = responseServiceOrderModel.ResponseStandardSquare;
-                serviceOrder.ResponseWorkingUnit = 0;
+                serviceOrder.ResponseWorkingUnit = (int)(Math.Ceiling((decimal)(serviceOrder.ResponseGardenSquare / serviceOrder.ResponseStandardSquare)));
                 if (serviceOrder.ServiceType == ServiceType.OneTime)
                 {
                     TimeSpan difference = serviceOrder.StartDate - serviceOrder.StartDate;
                     int numberOfDays = (int)difference.TotalDays;
-                    int numberGardeners = 0;
                     serviceOrder.NumberGardener = (serviceOrder.ResponseWorkingUnit / numberOfDays).Value;
                 }
                 else
                 {
+                    var serviceDay = await _unitOfWork.ServiceDayRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrder.Id && !x.IsDeleted);
+                    if (serviceDay == null || serviceDay.TotalItemsCount == 0)
+                        throw new Exception("Chưa có ngày làm việc");
+                    serviceOrder.NumberGardener = (serviceOrder.ResponseWorkingUnit / serviceDay.Items.Count).Value;
 
                 }
-                serviceOrder.ResponseWorkingUnit = 0;
-                serviceOrder.NumberGardener = 0;
-                serviceOrder.ResponsePrice = order.Price;
-                serviceOrder.ResponseWorkingUnit = 0;
-                serviceOrder.ResponseTotalPrice = 0;
-                serviceOrder.ResponseFinalPrice = 0;
-                serviceOrder.NumberGardener = 0;
+                serviceOrder.ResponsePrice = serviceOrder.ResponseWorkingUnit * serviceOrder.StandardPrice;
+                serviceOrder.ResponseTotalPrice = serviceOrder.ResponsePrice + serviceOrder.OrderPrice;
+                serviceOrder.ResponseFinalPrice = serviceOrder.ResponseTotalPrice *
+                          (100 - (serviceOrder.DiscountPercent ?? 0)) / 100;
                 serviceOrder.ServiceStatus = ServiceStatus.Applied;
+                var staff = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(staffId));
+                if (staff == null)
+                {
+                    throw new Exception("Vui lòng đăng nhập lại!");
+                }
+                serviceOrder.StaffId = staff.Id;
                 _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                 await _unitOfWork.SaveChangeAsync();
             }
@@ -236,8 +254,8 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(tempId);
             if (serviceOrder == null)
                 throw new Exception("Không tìm thấy dịch vụ bạn muốn thanh toán!");
-            else if(serviceOrder.ServiceStatus != ServiceStatus.Applied || serviceOrder.ServiceStatus != ServiceStatus.Failed)
-                throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");  
+            else if (serviceOrder.ServiceStatus != ServiceStatus.Applied || serviceOrder.ServiceStatus != ServiceStatus.Failed)
+                throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");
             else if (serviceOrder.ResponseFinalPrice == null)
                 throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");
             double totalPrice = Math.Round(serviceOrder.ResponseFinalPrice.Value);

@@ -31,6 +31,7 @@ namespace Infrastructures
         private readonly IServiceDayRepository _serviceDayRepository;
         private readonly IServiceImageRepository _serviceImageRepository;
         private readonly IOrderServiceTaskRepository _orderServiceTaskRepository;
+        private readonly IDayInWeekRepository _dayInWeekRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -40,7 +41,7 @@ namespace Infrastructures
             IDeliveryFeeRepository deliveryFeeRepository, IServiceRepository serviceRepository, ITasksRepository tasksRepository,
             IServiceOrderRepository serviceOrderRepository, IStaffRepository staffRepository, IBaseTaskRepository baseTaskRepository,
             IAnnualWorkingDayRepository annualWorkingDayRepository, IServiceDayRepository serviceDayRepository, IServiceImageRepository serviceImageRepository,
-            IOrderServiceTaskRepository orderServiceTaskRepository)
+            IOrderServiceTaskRepository orderServiceTaskRepository, IDayInWeekRepository dayInWeekRepository)
         {
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
@@ -64,6 +65,7 @@ namespace Infrastructures
             _serviceDayRepository = serviceDayRepository;
             _serviceImageRepository = serviceImageRepository;
             _orderServiceTaskRepository = orderServiceTaskRepository;
+            _dayInWeekRepository = dayInWeekRepository;
         }
 
 
@@ -108,6 +110,8 @@ namespace Infrastructures
         public IServiceImageRepository ServiceImageRepository => _serviceImageRepository;
 
         public IOrderServiceTaskRepository OrderServiceTaskRepository => _orderServiceTaskRepository;
+
+        public IDayInWeekRepository DayInWeekRepository => _dayInWeekRepository;
         public async Task<int> SaveChangeAsync()
         {
             return await _dbContext.SaveChangesAsync();

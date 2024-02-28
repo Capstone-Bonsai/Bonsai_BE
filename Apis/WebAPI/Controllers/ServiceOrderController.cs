@@ -81,7 +81,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _serviceOrderService.ResponseServiceOrder(id, responseServiceOrderModel);
+                await _serviceOrderService.ResponseServiceOrder(_claims.GetCurrentUserId ,id, responseServiceOrderModel);
             }
             catch (Exception ex)
             {

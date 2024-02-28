@@ -26,6 +26,7 @@ namespace Application
         public IServiceDayRepository ServiceDayRepository { get; }
         public IServiceImageRepository ServiceImageRepository { get; }
         public IOrderServiceTaskRepository OrderServiceTaskRepository { get; }
+        public IDayInWeekRepository DayInWeekRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

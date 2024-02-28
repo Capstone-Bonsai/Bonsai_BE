@@ -14,7 +14,7 @@ namespace Application.Interfaces
         Task<Pagination<ServiceOrder>> GetServiceOrdersPagination(int pageIndex, int pageSize);
         Task<Pagination<ServiceOrder>> GetServiceOrders();
         Task AddServiceOrder(ServiceOrderModel serviceOrderModel, Guid customerId);
-        Task ResponseServiceOrder(Guid id, ResponseServiceOrderModel responseServiceOrderModel);
+        Task ResponseServiceOrder(Guid staffId, Guid serviceOrderId, ResponseServiceOrderModel responseServiceOrderModel);
         Task<ServiceOrder?> GetOrderServiceById(Guid id);
         Task<string> PaymentAsync(Guid tempId);
     }
