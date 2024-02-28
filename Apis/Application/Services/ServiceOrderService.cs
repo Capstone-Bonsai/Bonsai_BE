@@ -191,6 +191,18 @@ namespace Application.Services
                 serviceOrder.ResponseGardenSquare = responseServiceOrderModel.ResponseGardenSquare;
                 serviceOrder.ResponseStandardSquare = responseServiceOrderModel.ResponseStandardSquare;
                 serviceOrder.ResponseWorkingUnit = 0;
+                if (serviceOrder.ServiceType == ServiceType.OneTime)
+                {
+                    TimeSpan difference = serviceOrder.StartDate - serviceOrder.StartDate;
+                    int numberOfDays = (int)difference.TotalDays;
+                    int numberGardeners = 0;
+                    serviceOrder.NumberGardener = (serviceOrder.ResponseWorkingUnit / numberOfDays).Value;
+                }
+                else
+                {
+
+                }
+                serviceOrder.ResponseWorkingUnit = 0;
                 serviceOrder.NumberGardener = 0;
                 serviceOrder.ResponsePrice = order.Price;
                 serviceOrder.ResponseWorkingUnit = 0;
