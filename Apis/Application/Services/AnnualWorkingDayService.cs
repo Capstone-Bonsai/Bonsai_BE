@@ -36,6 +36,7 @@ namespace Application.Services
             List<AnnualWorkingDay> workingDays = new List<AnnualWorkingDay>();
             if (orderService.ServiceType == Domain.Enums.ServiceType.OneTime)
             {
+                if(orderService.NumberGardener != gardernerListModel.GardenerIds.Count)
                 for (DateTime date = orderService.StartDate; date.Date <= orderService.EndDate; date = date.AddDays(1))
                 {
                     foreach (Guid id in gardernerListModel.GardenerIds) 
@@ -55,6 +56,7 @@ namespace Application.Services
                 List<DayType> dayTypes = GetDayTypesFromServiceDays(serviceDay.Items);
                 for (DateTime date = orderService.StartDate; date.Date <= orderService.StartDate.AddMonths(orderService.ImplementationTime.Value); date = date.AddDays(1))
                 {
+
                     if (IsDesiredDayOfWeek(date, dayTypes))
                     {
                         foreach (Guid id in gardernerListModel.GardenerIds)
@@ -88,7 +90,7 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
             var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
             if (!isGardener)
-                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
+                throw new Exception("Đây không phải tài khoản của người làm vườn!");
             var gardener = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
             if (gardener == null)
                 throw new Exception("Không tìm thấy thông tin người dùng");

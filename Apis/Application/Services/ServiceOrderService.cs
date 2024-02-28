@@ -224,7 +224,9 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(tempId);
             if (serviceOrder == null)
                 throw new Exception("Không tìm thấy dịch vụ bạn muốn thanh toán!");
-            else if(serviceOrder.ResponseFinalPrice == null)
+            else if(serviceOrder.ServiceStatus != ServiceStatus.Applied || serviceOrder.ServiceStatus != ServiceStatus.Failed)
+                throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");  
+            else if (serviceOrder.ResponseFinalPrice == null)
                 throw new Exception("Yêu cầu dịch vụ này chưa đủ điều kiện để tiến hành thanh toán!");
             double totalPrice = Math.Round(serviceOrder.ResponseFinalPrice.Value);
             string endpoint = _configuration["MomoServices:endpoint"];
