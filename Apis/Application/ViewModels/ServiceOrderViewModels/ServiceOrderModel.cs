@@ -25,6 +25,6 @@ namespace Application.ViewModels.ServiceOrderViewModels
         [NotMapped]
         public List<Guid> TaskId { get; set; } = default!;
         [NotMapped]
-        public List<ServiceDay> ServiceDays { get; set; } = default!;
+        public List<DayType> ServiceDays { get; set; } = default!;
     }
 }

@@ -117,18 +117,17 @@ namespace Application.Services
 
                         await _unitOfWork.ServiceImageRepository.AddAsync(serviceImage);
                     }
-                    List<DayInWeek> dayInWeeks = new List<DayInWeek>();
-                    foreach (ServiceDay date in serviceOrderModel.ServiceDays)
+                    List<ServiceDay> serviceDays = new List<ServiceDay>();
+                    foreach (DayType date in serviceOrderModel.ServiceDays)
                     {
-                        /*var dayInWeek = _unitOfWork.DayInWeekRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceDays == date);
-                        dayInWeeks.Add(new OrderServiceTask()
+                        var serviceDay = await _unitOfWork.DayInWeekRepository.GetAsync(isTakeAll: true, expression: x => x.DayType == date);
+                        serviceDays.Add(new ServiceDay()
                         {
+                            DayInWeekId = serviceDay.Items[0].Id,
                             ServiceOrderId = serviceOrder.Id,
-                            TaskId = id,
-                            ServiceTaskStatus = ServiceTaskStatus.NotYet,
-                            Note = ""
-                        }); ;*/
+                        });
                     }
+                    await _unitOfWork.ServiceDayRepository.AddRangeAsync(serviceDays);
                     List<OrderServiceTask> serviceTasks = new List<OrderServiceTask>();
                     foreach (Guid id in serviceOrderModel.TaskId)
                     {
