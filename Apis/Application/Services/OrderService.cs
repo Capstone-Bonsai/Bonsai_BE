@@ -297,11 +297,10 @@ namespace Application.Services
             if (order ==null )
                 throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu");
             
-            if (order.Customer.UserId.ToLower().Equals(userId.ToLower()))
+            if (isCustomer && !order.Customer.UserId.ToLower().Equals(userId.ToLower()))
                 throw new Exception("Bạn không có quyền truy cập vào đơn hàng này!");
             return order;
         }
-
         public async Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId)
         {
             var customer = await GetCustomerAsync(model, userId);
@@ -490,6 +489,22 @@ namespace Application.Services
         {
             var distance = await _deliveryFeeService.CalculateFee(destination, price);
             return distance;
+        }
+
+        public async Task UpdateOrderStatusAsync(Guid orderId, OrderStatus orderStatus)
+        {
+            var order = await _unit.OrderRepository.GetByIdAsync(orderId);
+            if(order == null)
+            {
+                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
+            }
+            if(orderStatus < order.OrderStatus)
+            {
+                throw new Exception("Trạng thái không hợp lệ.");
+            }
+            order.OrderStatus = orderStatus;
+            _unit.OrderRepository.Update(order);
+            await _unit.SaveChangeAsync();
         }
     }
 }

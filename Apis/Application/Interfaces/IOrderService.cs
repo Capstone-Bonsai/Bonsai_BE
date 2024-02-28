@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Commons;
 using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Interfaces
 {
@@ -20,5 +21,6 @@ namespace Application.Interfaces
         public Task<string> PaymentAsync(Guid tempId);
         public Task<Pagination<Order>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10);
         public  Task<Order> GetByIdAsync(string userId, Guid orderId);
+        public Task UpdateOrderStatusAsync(Guid orderId, OrderStatus orderStatus);
     }
 }

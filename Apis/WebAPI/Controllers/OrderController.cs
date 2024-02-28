@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Services.Momo;
 using Application.ViewModels.OrderViewModels;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -59,7 +60,7 @@ namespace WebAPI.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAsync([FromQuery] int pageIndex, int pageSize)
+        public async Task<IActionResult> GetAsync([FromQuery] int pageIndex, [FromQuery]int pageSize)
         {
             try
             {
@@ -90,6 +91,22 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpPut("{orderId}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatusAsync(Guid orderId, OrderStatus orderStatus)
+        {
+            try
+            {
+                await _orderService.UpdateOrderStatusAsync( orderId,orderStatus);
+                return Ok("Cập nhật trạng thái đơn hàng thành công.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
 

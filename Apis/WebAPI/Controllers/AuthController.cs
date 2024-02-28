@@ -162,7 +162,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+/*
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPassModel model)
         {
@@ -203,9 +203,9 @@ namespace WebAPI.Controllers
             {
                 return BadRequest("Xác nhận email không thành công: " + e.Message);
             }
-        }
+        }*/
 
-        [HttpPost("ForgotPasswordForMobile")]
+        [HttpPost("ForgotPassword")]
         public async Task<IActionResult> ForgotPasswordForMobile(string email)
         {
             try
@@ -227,7 +227,7 @@ namespace WebAPI.Controllers
                 return BadRequest("Xác nhận email không thành công: " + e.Message);
             }
         }
-        [HttpPost("ResetPasswordForMobile")]
+        [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPasswordForMobile([FromBody] ResetPassModel model)
         {
             try
@@ -245,8 +245,6 @@ namespace WebAPI.Controllers
                 return BadRequest(e.Message);
             }
         }
-
-        
         [NonAction]
         public async Task<string> GetCallbackUrlAsync(string email, string referer, string type)
         {
