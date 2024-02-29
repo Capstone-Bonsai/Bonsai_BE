@@ -38,7 +38,7 @@ namespace Application.Services
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted & !x.isDisable & x.Quantity > 0, includes: includes);
+                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable && x.Quantity > 0, includes: includes);
             }
             return products;
         }
@@ -55,7 +55,7 @@ namespace Application.Services
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & !x.isDisable,
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Quantity > 0, 
                 isDisableTracking: true, includes: includes);
             }
 
@@ -66,7 +66,7 @@ namespace Application.Services
             var filter = new List<Expression<Func<Product, bool>>>();
             filter.Add(x => !x.IsDeleted);
             if (!isAdmin)
-                filter.Add(x => !x.isDisable);
+                filter.Add(x => !x.isDisable && x.Quantity > 0);
             if (filterProductModel.subCategory != null)
             {
                 foreach (var subCategoryId in filterProductModel.subCategory)
@@ -115,12 +115,12 @@ namespace Application.Services
                                     };
             if (isAdmin)
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & x.Id == id,
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == id,
                 isDisableTracking: true, includes: includes);
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted & !x.isDisable & x.Id == id,
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id,
                 isDisableTracking: true, includes: includes);
             }
             return products.Items[0];
