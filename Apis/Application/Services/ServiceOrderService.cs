@@ -195,6 +195,7 @@ namespace Application.Services
             }
             try
             {
+                _unitOfWork.BeginTransaction();
                 if (order != null)
                 {
                     serviceOrder.OrderId = order.Id;
@@ -215,7 +216,26 @@ namespace Application.Services
                     if (serviceDay == null || serviceDay.TotalItemsCount == 0)
                         throw new Exception("Chưa có ngày làm việc");
                     serviceOrder.NumberGardener = (serviceOrder.ResponseWorkingUnit / serviceDay.Items.Count).Value;
-
+                    if (responseServiceOrderModel.ServiceDays.Count == 0)
+                    {
+                        throw new Exception("Chưa chọn ngày làm việc");
+                    }
+                    _unitOfWork.ServiceDayRepository.HardDeleteRange(serviceDay.Items);
+                    await _unitOfWork.SaveChangeAsync();
+                    List<ServiceDay> serviceDays = new List<ServiceDay>();
+                    int numberOfWorkingDaysHavingMoreGardener = (serviceOrder.ResponseWorkingUnit % serviceDay.Items.Count).Value;
+                    foreach (DayType date in responseServiceOrderModel.ServiceDays)
+                    {
+                        var _serviceDay = await _unitOfWork.DayInWeekRepository.GetAsync(isTakeAll: true, expression: x => x.DayType == date);
+                        serviceDays.Add(new ServiceDay()
+                        {
+                            DayInWeekId = _serviceDay.Items[0].Id,
+                            NumberGardener = (numberOfWorkingDaysHavingMoreGardener > 0) ?  serviceOrder.NumberGardener : serviceOrder.NumberGardener - 1,
+                            ServiceOrderId = serviceOrder.Id,
+                        });
+                        numberOfWorkingDaysHavingMoreGardener -= 1;
+                    }
+                    await _unitOfWork.ServiceDayRepository.AddRangeAsync(serviceDays);
                 }
                 serviceOrder.ResponsePrice = serviceOrder.ResponseWorkingUnit * serviceOrder.StandardPrice;
                 serviceOrder.ResponseTotalPrice = serviceOrder.ResponsePrice + serviceOrder.OrderPrice;
@@ -229,10 +249,11 @@ namespace Application.Services
                 }
                 serviceOrder.StaffId = staff.Id;
                 _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
-                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
+                _unitOfWork.RollbackTransaction();
                 throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
             }
         }

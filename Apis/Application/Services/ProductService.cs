@@ -38,7 +38,7 @@ namespace Application.Services
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted & !x.isDisable, includes: includes);
+                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted & !x.isDisable & x.Quantity > 0, includes: includes);
             }
             return products;
         }
