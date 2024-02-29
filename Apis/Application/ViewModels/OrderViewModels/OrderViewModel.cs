@@ -4,6 +4,7 @@ namespace Application.ViewModels.OrderViewModels
 {
     public class OrderViewModel
     {
+        public Guid Id { get; set; }
         public Guid CustomerId { get; set; }
         public Guid? StaffId { get; set; }
         public string Address { get; set; }
