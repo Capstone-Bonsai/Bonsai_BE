@@ -32,11 +32,16 @@ namespace Application.Services
         {
             var orderService = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(serviceOrderId);
             if (orderService == null)
-                throw new Exception("Khong tim thay dich vu");
+                throw new Exception("Không tìm thấy dịch vụ");
             List<AnnualWorkingDay> workingDays = new List<AnnualWorkingDay>();
             if (orderService.ServiceType == Domain.Enums.ServiceType.OneTime)
             {
-                if(orderService.NumberGardener != gardernerListModel.GardenerIds.Count)
+                TimeSpan difference = orderService.StartDate - orderService.StartDate;
+                int numberOfDays = (int)difference.TotalDays;
+                if (orderService.NumberGardener % gardernerListModel.GardenerIds.Count != numberOfDays)
+                {
+                    throw new Exception("Thiếu số người làm việc");
+                }
                 for (DateTime date = orderService.StartDate; date.Date <= orderService.EndDate; date = date.AddDays(1))
                 {
                     foreach (Guid id in gardernerListModel.GardenerIds) 
@@ -53,6 +58,12 @@ namespace Application.Services
                 var serviceDay = await _unitOfWork.ServiceDayRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrderId && !x.IsDeleted);
                 if (serviceDay == null || serviceDay.TotalItemsCount == 0)
                     throw new Exception("Chưa có ngày làm việc");
+                var residualWorkingUnit = orderService.ResponseWorkingUnit % gardernerListModel.GardenerIds.Count;
+                if (residualWorkingUnit > 0)
+                {
+                    if (gardernerListModel.PreventiveGardenerId == null)
+                        throw new Exception("Chưa có người dự phòng");
+                }
                 List<DayType> dayTypes = GetDayTypesFromServiceDays(serviceDay.Items);
                 for (DateTime date = orderService.StartDate; date.Date <= orderService.StartDate.AddMonths(orderService.ImplementationTime.Value); date = date.AddDays(1))
                 {
@@ -64,6 +75,11 @@ namespace Application.Services
                             var gardener = await GetGardenerAsync(id.ToString().ToLower());
                             workingDays.Add(new AnnualWorkingDay { ServiceOrderId = serviceOrderId, GardenerId = gardener.Id, Date = date });
                         }
+                        if(residualWorkingUnit > 0)
+                        {
+                            workingDays.Add(new AnnualWorkingDay { ServiceOrderId = serviceOrderId, GardenerId = gardernerListModel.PreventiveGardenerId.Value, Date = date });
+                        }
+                        residualWorkingUnit -= 1;
                     }
                 }
             }
@@ -84,7 +100,6 @@ namespace Application.Services
         private async Task<Gardener> GetGardenerAsync(string userId)
         {
             ApplicationUser? user = null;
-            /*if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"){ }*/
             user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");

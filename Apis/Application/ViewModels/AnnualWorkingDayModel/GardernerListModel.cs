@@ -10,5 +10,6 @@ namespace Application.ViewModels.AnnualWorkingDayModel
     {
         public List<Guid> GardenerIds { get; set; } = default!;
         public Guid? PreventiveGardenerId { get; set; }
+        // validate
     }
 }
