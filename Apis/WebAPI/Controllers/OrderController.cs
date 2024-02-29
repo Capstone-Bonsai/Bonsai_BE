@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.Services.Momo;
+using Application.ViewModels;
 using Application.ViewModels.OrderViewModels;
 using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -102,6 +103,23 @@ namespace WebAPI.Controllers
             {
                 await _orderService.UpdateOrderStatusAsync( orderId,orderStatus);
                 return Ok("Cập nhật trạng thái đơn hàng thành công.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet("OrderStatus")]
+        [Authorize]
+        public async Task<IActionResult> GetOrderStatusAsync()
+        {
+            try
+            {
+                List<EnumModel> enums = ((OrderStatus[])Enum.GetValues(typeof(OrderStatus))).Select(c => new EnumModel() { Value = (int)c, Display = c.ToString() }).ToList();
+                return Ok(enums);
+               
             }
             catch (Exception ex)
             {
