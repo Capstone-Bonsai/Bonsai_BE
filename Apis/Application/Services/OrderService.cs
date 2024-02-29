@@ -460,17 +460,7 @@ namespace Application.Services
                     total += temp;
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
-                try
-                {
-                    deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
-                   
-                }
-                catch (Exception)
-                {
-                    deliveryPrice.DeliveryType = DeliveryType.PickupTruck.ToString();
-                    deliveryPrice.Price = 0;
-                    deliveryPrice.deliveryFee.DeliveryType = DeliveryType.PickupTruck;
-                }
+                deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
                 order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
                 order.DeliveryPrice = deliveryPrice.Price;
                 order.Price = total;
