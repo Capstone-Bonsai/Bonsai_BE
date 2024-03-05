@@ -292,7 +292,7 @@ namespace Application.Services
 
             var orders = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*/
             var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().
-                Include(x=>x.OrderTransaction).Include(x=>x.Customer.ApplicationUser).Include(x=>x.OrderDetails.Where(i=>!i.IsDeleted)).ThenInclude(x=>x.Product).
+                Include(x=>x.OrderTransaction).Include(x=>x.Customer.ApplicationUser).Include(x=>x.OrderDetails.Where(i=>!i.IsDeleted)).ThenInclude(x=>x.Product.ProductImages).
                 FirstOrDefaultAsync(x=>x.Id == orderId);
             if (order ==null )
                 throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu");
