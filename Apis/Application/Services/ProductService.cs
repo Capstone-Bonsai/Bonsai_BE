@@ -55,7 +55,7 @@ namespace Application.Services
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Quantity > 0, 
+                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Quantity > 0,
                 isDisableTracking: true, includes: includes);
             }
 
@@ -69,11 +69,9 @@ namespace Application.Services
                 filter.Add(x => !x.isDisable && x.Quantity > 0);
             if (filterProductModel.subCategory != null)
             {
-                foreach (var subCategoryId in filterProductModel.subCategory)
-                {
 
-                    filter.Add(x => filterProductModel.subCategory.Contains(x.SubCategoryId));
-                }
+                filter.Add(x => x.SubCategoryId == filterProductModel.subCategory);
+
             }
             if (filterProductModel.tag != null)
             {
@@ -230,7 +228,7 @@ namespace Application.Services
                 if (productModel.Image != null)
                 {
                     var pictures = await _unitOfWork.ProductImageRepository.GetAsync(expression: x => x.ProductId == id && !x.IsDeleted);
-                    foreach(ProductImage image in pictures.Items)
+                    foreach (ProductImage image in pictures.Items)
                     {
                         image.IsDeleted = true;
                     }

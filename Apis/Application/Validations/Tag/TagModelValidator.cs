@@ -16,11 +16,6 @@ namespace Application.Validations.Tag
             RuleFor(tag => tag.Name)
            .NotEmpty().WithMessage("Tên nhãn không được để trống.");
 
-            RuleFor(tag => tag.Description)
-                .NotEmpty().WithMessage("Mô tả nhãn không được để trống.");
-
-            RuleFor(tag => tag.Type)
-                .NotEmpty().WithMessage("Loại nhãn không được để trống.");
         }
     }
 }

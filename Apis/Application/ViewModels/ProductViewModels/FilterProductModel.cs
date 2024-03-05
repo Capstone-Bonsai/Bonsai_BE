@@ -9,7 +9,7 @@ namespace Application.ViewModels.ProductViewModels
     public class FilterProductModel
     {
         public string? keyword { get; set; }
-        public List<Guid>? subCategory { get; set; }
+        public Guid? subCategory { get; set; }
         public List<Guid>? tag { get; set; }
         public double? minPrice { get; set; }
         public double? maxPrice { get; set; }
