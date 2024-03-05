@@ -15,8 +15,6 @@ namespace Domain.Entities
         public Guid ServiceId { get; set; }
         [ForeignKey("Customer")]
         public Guid CustomerId { get; set; }
-
-
         public Guid? StaffId { get; set; }
         public ServiceType ServiceType { get; set; }
         public string Address { get; set; }

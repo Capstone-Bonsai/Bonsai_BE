@@ -2,10 +2,14 @@
 using Application.Services;
 using Application.ViewModels.OrderServiceTaskModels;
 using Application.ViewModels.TasksViewModels;
+using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
@@ -15,7 +19,6 @@ namespace WebAPI.Controllers
     {
         private readonly IOrderServiceTaskService _orderServiceTaskService;
         private readonly IClaimsService _claims;
-
         public OrderServiceTaskController(IOrderServiceTaskService orderServiceTaskService,
             IClaimsService claimsService)
         {
@@ -64,7 +67,7 @@ namespace WebAPI.Controllers
         }
         [HttpPut("UpdateProgress")]
         [Authorize(Roles = "Gardener")]
-        public async Task<IActionResult> UpdateProductAvailability([FromBody] OrderServiceTasksModels orderServiceTasksModels)
+        public async Task<IActionResult> UpdateDailyTasks([FromBody] OrderServiceTasksModels orderServiceTasksModels)
         {
             try
             {

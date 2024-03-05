@@ -52,7 +52,7 @@ namespace Application.Services
             ApplicationUser? user = null;
             user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                throw new Exception("Không tìm thấy người dùng!");
             var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
             if (!isGardener)
                 throw new Exception("Bạn không có quyền để thực hiện hành động này!");

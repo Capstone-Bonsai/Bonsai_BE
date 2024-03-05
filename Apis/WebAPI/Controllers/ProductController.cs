@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         }
         [HttpPut("{id}")]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] ProductModel productModel)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromForm] ProductModel productModel)
         {
             try
             {

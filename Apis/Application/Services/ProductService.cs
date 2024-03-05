@@ -225,8 +225,64 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy sản phẩm!");
             try
             {
-                _unitOfWork.ProductRepository.Update(product);
-                await _unitOfWork.SaveChangeAsync();
+                _unitOfWork.BeginTransaction();
+                await _unitOfWork.ProductRepository.AddAsync(product);
+                if (productModel.Image != null)
+                {
+                    var pictures = await _unitOfWork.ProductImageRepository.GetAsync(expression: x => x.ProductId == id && !x.IsDeleted);
+                    foreach(ProductImage image in pictures.Items)
+                    {
+                        image.IsDeleted = true;
+                    }
+                    _unitOfWork.ProductImageRepository.UpdateRange(pictures.Items);
+                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
+                    {
+                        string newImageName = product.Id + "_i" + singleImage.index;
+                        string folderName = $"product/{product.Id}/Image";
+                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                        const long maxFileSize = 20 * 1024 * 1024;
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                        {
+                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                        }
+                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                        ProductImage productImage = new ProductImage()
+                        {
+                            ProductId = product.Id,
+                            ImageUrl = url
+                        };
+
+                        await _unitOfWork.ProductImageRepository.AddAsync(productImage);
+                    }
+                }
+
+                if (productModel.TagId != null && productModel.TagId.Count > 0)
+                {
+                    var tags = await _unitOfWork.ProductTagRepository.GetAsync(expression: x => x.ProductId == id && !x.IsDeleted);
+                    foreach (ProductTag productTag in tags.Items)
+                    {
+                        productTag.IsDeleted = true;
+                    }
+                    _unitOfWork.ProductTagRepository.UpdateRange(tags.Items);
+                    foreach (Guid guid in productModel.TagId)
+                    {
+                        if (await _unitOfWork.TagRepository.GetByIdAsync(id) == null)
+                        {
+                            throw new Exception();
+                        }
+                        await _unitOfWork.ProductTagRepository.AddAsync(new ProductTag()
+                        {
+                            ProductId = product.Id,
+                            TagId = id
+                        });
+                    }
+
+                }
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {

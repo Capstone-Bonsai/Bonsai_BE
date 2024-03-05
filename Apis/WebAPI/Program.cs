@@ -33,7 +33,6 @@ var configuration = builder.Configuration.Get<AppConfiguration>();
 builder.Services.AddInfrastructuresService(builder.Configuration, builder.Environment);
 builder.Services.AddWebAPIService();
 builder.Services.AddSingleton(configuration);
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -75,7 +74,7 @@ using (var scope = app.Services.CreateScope())
     if (_roleManager.Roles.All(r => r.Name != staffRole.Name))
     {
         await _roleManager.CreateAsync(staffRole);
-    }
+    }   
 
     // customer roles
     var customerRole = new IdentityRole("Customer");
@@ -116,7 +115,6 @@ using (var scope = app.Services.CreateScope())
     app.UseSwagger();
     app.UseSwaggerUI();
 /*}*/
-
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<PerformanceMiddleware>();
 app.MapHealthChecks("/healthchecks");
@@ -128,6 +126,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
 
