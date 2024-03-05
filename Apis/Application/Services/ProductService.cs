@@ -98,7 +98,8 @@ namespace Application.Services
             }
             var finalFilter = filter.Aggregate((current, next) => current.AndAlso(next));
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
-                                 x => x.ProductImages
+                                 x => x.ProductImages,
+                                 x => x.SubCategory
                                     };
             var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
                 isDisableTracking: true, includes: includes);

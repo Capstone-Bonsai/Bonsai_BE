@@ -10,6 +10,7 @@ namespace Domain.Entities
         public string Name { get; set; }
         [JsonIgnore]
         public virtual Category Category { get; set; }
+        [JsonIgnore]
         public IList<Product> Products { get; }
 
     }
