@@ -46,7 +46,7 @@ namespace Application.Services
         {
             Pagination<Product> products;
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
-                                 x => x.ProductImages
+                                 x => x.ProductImages.Where(y => !y.IsDeleted)
                                     };
             if (isAdmin)
             {
@@ -98,7 +98,7 @@ namespace Application.Services
             }
             var finalFilter = filter.Aggregate((current, next) => current.AndAlso(next));
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
-                                 x => x.ProductImages,
+                                 x => x.ProductImages.Where(y => !y.IsDeleted),
                                  x => x.SubCategory
                                     };
             var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
@@ -110,7 +110,7 @@ namespace Application.Services
         {
             Pagination<Product> products;
             List<Expression<Func<Product, object>>> includes = new List<Expression<Func<Product, object>>>{
-                                 x => x.ProductImages
+                                 x => x.ProductImages.Where(y => !y.IsDeleted)
                                     };
             if (isAdmin)
             {
@@ -225,10 +225,10 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                await _unitOfWork.ProductRepository.AddAsync(product);
+                _unitOfWork.ProductRepository.Update(product);
                 if (productModel.Image != null)
                 {
-                    var pictures = await _unitOfWork.ProductImageRepository.GetAsync(expression: x => x.ProductId == id && !x.IsDeleted);
+                    var pictures = await _unitOfWork.ProductImageRepository.GetAsync(isTakeAll: true, expression: x => x.ProductId == id && x.IsDeleted == false, isDisableTracking: true);
                     foreach (ProductImage image in pictures.Items)
                     {
                         image.IsDeleted = true;
@@ -283,9 +283,9 @@ namespace Application.Services
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
+                throw new Exception(ex.Message);
             }
         }
         public async Task DeleteProduct(Guid id)
