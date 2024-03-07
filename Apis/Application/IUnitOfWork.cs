@@ -7,26 +7,16 @@ namespace Application
     {
         public IGardenerRepository GardenerRepository { get; }
         public ICustomerRepository CustomerRepository { get; }
-        public IProductRepository ProductRepository { get; }
+        public IBonsaiRepository ProductRepository { get; }
         public ICategoryRepository CategoryRepository { get; }
-        public ISubCategoryRepository SubCategoryRepository { get; }
-        public IProductImageRepository ProductImageRepository { get; }
+        public IBonsaiImageRepository ProductImageRepository { get; }
         public IOrderRepository OrderRepository { get; }
         public IOrderDetailRepository OrderDetailRepository { get; }
         public IOrderTransactionRepository OrderTransactionRepository { get; }
-        public ITagRepository TagRepository { get; }
-        public IProductTagRepository ProductTagRepository { get; }
         public IDeliveryFeeRepository DeliveryFeeRepository { get; }
-        public IServiceRepository ServiceRepository { get; }
-        public ITasksRepository TasksRepository { get; }
-        public IServiceOrderRepository ServiceOrderRepository { get; }
+
         public IStaffRepository StaffRepository { get; }
-        public IBaseTaskRepository BaseTaskRepository { get; }
-        public IAnnualWorkingDayRepository AnnualWorkingDayRepository { get; }
-        public IServiceDayRepository ServiceDayRepository { get; }
-        public IServiceImageRepository ServiceImageRepository { get; }
-        public IOrderServiceTaskRepository OrderServiceTaskRepository { get; }
-        public IDayInWeekRepository DayInWeekRepository { get; }
+
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

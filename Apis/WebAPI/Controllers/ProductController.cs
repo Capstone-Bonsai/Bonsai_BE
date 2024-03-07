@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+﻿/*using Application.Interfaces;
 using Application.ViewModels.ProductImageViewModels;
 using Application.ViewModels.ProductTagViewModels;
 using Application.ViewModels.ProductViewModels;
@@ -13,21 +13,18 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IProductService _productService;
-        private readonly IProductImageService _productImageService;
-        private readonly IProductTagService _productTagService;
+        private readonly IBonsaiService _productService;
+        private readonly IBonsaiImageService _productImageService;
         private readonly IFirebaseService _firebaseService;
         private readonly IClaimsService _claims;
 
-        public ProductController(IProductService productService,
-            IProductImageService productImageService,
-            IProductTagService productTagService,
+        public ProductController(IBonsaiService productService,
+            IBonsaiImageService productImageService,
             IFirebaseService firebaseService,
             IClaimsService claimsService)
         {
             _productService = productService;
             _productImageService = productImageService;
-            _productTagService = productTagService;
             _firebaseService = firebaseService;
             _claims = claimsService;
         }
@@ -72,7 +69,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("Filter")]
-        public async Task<IActionResult> Post([FromQuery] int pageIndex, int pageSize, [FromBody] FilterProductModel? filterProductModel)
+        public async Task<IActionResult> Post([FromQuery] int pageIndex, int pageSize, [FromBody] FilterBonsaiModel? filterProductModel)
         {
             try
             {
@@ -90,7 +87,7 @@ namespace WebAPI.Controllers
         }
         [HttpPost]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Post([FromForm] ProductModel productModel)
+        public async Task<IActionResult> Post([FromForm] BonsaiModel productModel)
         {
             try
             {
@@ -114,7 +111,7 @@ namespace WebAPI.Controllers
         }
         [HttpPut("{id}")]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Put([FromRoute] Guid id, [FromForm] ProductModel productModel)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromForm] BonsaiModel productModel)
         {
             try
             {
@@ -151,7 +148,7 @@ namespace WebAPI.Controllers
                         if (url == null)
                             throw new Exception("Lỗi khi đăng ảnh lên firebase!");
 
-                        ProductImage productImage = new ProductImage()
+                        BonsaiImage productImage = new BonsaiImage()
                         {
                             ProductId = id,
                             ImageUrl = url
@@ -207,3 +204,4 @@ namespace WebAPI.Controllers
         }
     }
 }
+*/

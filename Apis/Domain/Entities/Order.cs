@@ -11,13 +11,11 @@ namespace Domain.Entities
         public string Address { get; set; }
         public DeliveryType DeliveryType { get; set; }
         public DateTime OrderDate { get; set; }
-        public DateTime ExpectedDeliveryDate { get; set; }
         public double Price { get; set; }
         public double DeliveryPrice { get; set; }
         public double TotalPrice { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public string? Note { get; set; }
-        public OrderType OrderType { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual OrderTransaction OrderTransaction { get; set; }
         public IList<OrderDetail> OrderDetails { get; }

@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public class Category : BaseEntity
+    public class Style : BaseEntity
     {
         public string Name { get; set; }
 

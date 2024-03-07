@@ -20,44 +20,18 @@ namespace Infrastructures
         {
 
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IProductService, ProductService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<ISubCategoryService, SubCategoryService>();
-            services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IOrderTransactionService, OrderTransactionService>();
-            services.AddScoped<IProductImageService, ProductImageService>();
-            services.AddScoped<ITagService, TagService>();
-            services.AddScoped<IProductTagService, ProductTagService>();
-            services.AddScoped<IDeliveryFeeService, DeliveryFeeService>();
-            services.AddScoped<IServiceService, ServiceService>();
-            services.AddScoped<ITasksService, TasksService>();
-            services.AddScoped<IServiceOrderService, ServiceOrderService>();
-            services.AddScoped<IAnnualWorkingDayService, AnnualWorkingDayService>();
-            services.AddScoped<IOrderServiceTaskService, OrderServiceTaskService>();
+            services.AddScoped<IBonsaiImageService, BonsaiImageService>();
 
             services.AddScoped<IGardenerRepository, GardenerRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IBonsaiRepository, BonsaiRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<ISubCategoryRepository, SubCategoryRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
-            services.AddScoped<IProductImageRepository, ProductImageRepository>();
-            services.AddScoped<ITagRepository, TagRepository>();
-            services.AddScoped<IProductTagRepository, ProductTagRepository>();
-            services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
-            services.AddScoped<IServiceRepository, ServiceRepository>();
-            services.AddScoped<ITasksRepository, TasksRepository>();
-            services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
-            services.AddScoped<IStaffRepository, StaffRepository>();
-            services.AddScoped<IBaseTaskRepository, BaseTaskRepository>();
-            services.AddScoped<IAnnualWorkingDayRepository, AnnualWorkingDayRepository>();
-            services.AddScoped<IServiceDayRepository, ServiceDayRepository>();
-            services.AddScoped<IServiceImageRepository, ServiceImageRepository>();
-            services.AddScoped<IOrderServiceTaskRepository, OrderServiceTaskRepository>();
-            services.AddScoped<IDayInWeekRepository, DayInWeekRepository>();
+            services.AddScoped<IBonsaiImageRepository, BonsaiImageRepository>();
 
             services.AddSingleton<IFirebaseService, FirebaseService>();
             services.AddScoped<FirebaseService>();

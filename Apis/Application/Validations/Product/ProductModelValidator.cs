@@ -1,4 +1,4 @@
-﻿using Application.ViewModels.ProductViewModels;
+﻿/*using Application.ViewModels.ProductViewModels;
 using Application.ViewModels.UserViewModels;
 using FluentValidation;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Application.Validations.Product
 {
-    public class ProductModelValidator : AbstractValidator<ProductModel>
+    public class ProductModelValidator : AbstractValidator<BonsaiModel>
     {
         public ProductModelValidator()
         {
@@ -43,3 +43,4 @@ namespace Application.Validations.Product
         }
     }
 }
+*/

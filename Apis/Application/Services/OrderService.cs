@@ -1,4 +1,4 @@
-﻿using Application.Commons;
+﻿/*using Application.Commons;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
@@ -283,14 +283,14 @@ namespace Application.Services
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
             var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
-            /*List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
+            *//*List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
 {
     x => x.Customer.ApplicationUser,
     x=>x.OrderTransaction,
     x=>x.OrderDetails.Select( y =>y.Product).Where(i=>!i.IsDeleted),
 };
 
-            var orders = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*/
+            var orders = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*//*
             var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().
                 Include(x=>x.OrderTransaction).Include(x=>x.Customer.ApplicationUser).Include(x=>x.OrderDetails.Where(i=>!i.IsDeleted)).ThenInclude(x=>x.Product.ProductImages).
                 FirstOrDefaultAsync(x=>x.Id == orderId);
@@ -501,3 +501,4 @@ namespace Application.Services
 }
 
 
+*/
