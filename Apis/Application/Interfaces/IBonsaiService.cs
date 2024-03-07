@@ -1,18 +1,17 @@
 ﻿using Application.Commons;
+using Application.ViewModels.BonsaiViewModel;
 using Domain.Entities;
 
 namespace Application.Interfaces
 {
     public interface IBonsaiService
     {
-/*        Task<Pagination<Bonsai>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false);
-        Task<Pagination<Bonsai>> GetProducts(bool isAdmin = false);
-        Task<Pagination<Bonsai>> GetProductsByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterProductModel, bool isAdmin = false);
-        Task<Bonsai?> GetProductById(Guid id, bool isAdmin = false);
-        Task AddAsync(BonsaiMod productModel);
-        Task UpdateProduct(Guid id, BonsaiModel productModel);
-        Task DeleteProduct(Guid id);
-        Task UpdateProductAvailability(Guid id);
-        Task<List<String?>> GetTreeShapeList();*/
+        Task<Pagination<Bonsai>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false);
+        Task<Pagination<Bonsai>> GetAll(bool isAdmin = false);
+        Task<Pagination<Bonsai>> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false);
+        Task<Bonsai?> GetById(Guid id, bool isAdmin = false);
+        Task AddAsync(BonsaiModel bonsaiModel);
+        Task Update(Guid id, BonsaiModel bonsaiModel);
+        Task Delete(Guid id);
     }
 }

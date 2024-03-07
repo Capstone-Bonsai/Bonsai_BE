@@ -1,10 +1,9 @@
-﻿/*using Application.Commons;
+﻿using Application.Commons;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
 using Application.Validations.Order;
 using Application.ViewModels.DeliveryFeeViewModels;
-using Application.ViewModels.OrderDetailModels;
 using Application.ViewModels.OrderViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -25,7 +24,7 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IDeliveryFeeService _deliveryFeeService;
 
-        public OrderService( IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,IMapper mapper, IDeliveryFeeService deliveryFeeService)
+        public OrderService(IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, IDeliveryFeeService deliveryFeeService)
         {
             _configuration = configuration;
             _unit = unitOfWork;
@@ -63,21 +62,9 @@ namespace Application.Services
                 return errors;
             }
 
-            if (model.ListProduct == null || model.ListProduct.Count == 0)
+            if (model.ListBonsai == null || model.ListBonsai.Count == 0)
             {
                 throw new Exception("Vui lòng chọn sản phẩm bạn muốn mua.");
-            }
-            var orderDetailValidate = new OrderDetailModelValidator();
-            foreach (var item in model.ListProduct)
-            {
-                var resultOrderDetail = await orderDetailValidate.ValidateAsync(item);
-                if (!resultOrderDetail.IsValid)
-                {
-                    var errors = new List<string>();
-                    errors.AddRange(resultOrderDetail.Errors.Select(x => x.ErrorMessage));
-                    return errors;
-                }
-
             }
             return null;
         }
@@ -227,7 +214,7 @@ namespace Application.Services
                 await _unit.SaveChangeAsync();
                 if (momo.resultCode != 0)
                 {
-                    await UpdateProductQuantityFromOrder(orderId);
+                    await UpdateBonsaiFromOrder(orderId);
                 }
             }
             catch (Exception exx)
@@ -236,20 +223,20 @@ namespace Application.Services
             }
         }
 
-        public async Task UpdateProductQuantityFromOrder(Guid orderId)
+        public async Task UpdateBonsaiFromOrder(Guid orderId)
         {
             var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
             if (order == null)
                 throw new Exception("Không tìm thấy đơn hàng.");
             foreach (var item in order.OrderDetails)
             {
-                var product = await _unit.ProductRepository.GetByIdAsync(item.ProductId);
-                if (product == null)
+                var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
+                if (bonsai == null)
                     throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
 
-                //cộng quantity của product
-                product.Quantity += item.Quantity;
-                _unit.ProductRepository.Update(product);
+                                
+                bonsai.isSold = false;
+                _unit.BonsaiRepository.Update(bonsai);
                 await _unit.SaveChangeAsync();
             }
         }
@@ -283,20 +270,20 @@ namespace Application.Services
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
             var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
-            *//*List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
+            List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
 {
     x => x.Customer.ApplicationUser,
     x=>x.OrderTransaction,
-    x=>x.OrderDetails.Select( y =>y.Product).Where(i=>!i.IsDeleted),
+    x=>x.OrderDetails.Select( y =>y.Bonsai).Where(i=>!i.IsDeleted),
 };
 
-            var orders = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x=>x.Id == orderId);*//*
+            var orders = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, isTakeAll: true, expression: x => x.Id == orderId);
             var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().
-                Include(x=>x.OrderTransaction).Include(x=>x.Customer.ApplicationUser).Include(x=>x.OrderDetails.Where(i=>!i.IsDeleted)).ThenInclude(x=>x.Product.ProductImages).
-                FirstOrDefaultAsync(x=>x.Id == orderId);
-            if (order ==null )
+                Include(x => x.OrderTransaction).Include(x => x.Customer.ApplicationUser).Include(x => x.OrderDetails.Where(i => !i.IsDeleted)).ThenInclude(x => x.Bonsai.BonsaiImages).
+                FirstOrDefaultAsync(x => x.Id == orderId);
+            if (order == null)
                 throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu");
-            
+
             if (isCustomer && !order.Customer.UserId.ToLower().Equals(userId.ToLower()))
                 throw new Exception("Bạn không có quyền truy cập vào đơn hàng này!");
             return order;
@@ -308,7 +295,7 @@ namespace Application.Services
             try
             {
                 Guid orderId = await CreateOrder(model, customer.Id);
-                foreach (var item in model.ListProduct)
+                foreach (var item in model.ListBonsai)
                 {
                     await CreateOrderDetail(item, orderId);
                 }
@@ -401,7 +388,6 @@ namespace Application.Services
                 order.DeliveryPrice = 0;
                 order.TotalPrice = 0;
                 order.OrderStatus = Domain.Enums.OrderStatus.Waiting;
-                order.OrderType = Domain.Enums.OrderType.Nomial;
                 await _unit.OrderRepository.AddAsync(order);
                 await _unit.SaveChangeAsync();
                 return order.Id;
@@ -412,24 +398,24 @@ namespace Application.Services
             }
         }
 
-        public async Task CreateOrderDetail(OrderDetailModel model, Guid orderId)
+        public async Task CreateOrderDetail(Guid bonsaiId, Guid orderId)
         {
             try
             {
-                var product = await _unit.ProductRepository.GetByIdAsync(model.ProductId);
-                if (product == null)
+                var bonsai = await _unit.BonsaiRepository.GetByIdAsync(bonsaiId);
+                if (bonsai == null)
                     throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
-                else if ((product.Quantity - model.Quantity) < 0)
-                    throw new Exception($"Số lượng sản phẩm {product.Name} trong kho không đủ số lượng bạn yêu cầu.");
+                else if (bonsai.isSold == true)
+                    throw new Exception($"Sản phẩm {bonsai.Name} đã được bán");
                 //tạo order đetail
-                var orderDetail = _mapper.Map<OrderDetail>(model);
+                var orderDetail = _mapper.Map<OrderDetail>(bonsaiId);
                 orderDetail.OrderId = orderId;
-                orderDetail.UnitPrice = product.UnitPrice;
+                orderDetail.Price = bonsai.Price;
                 await _unit.OrderDetailRepository.AddAsync(orderDetail);
 
                 //trừ quantity của product
-                product.Quantity -= model.Quantity;
-                _unit.ProductRepository.Update(product);
+                bonsai.isSold = true;
+                _unit.BonsaiRepository.Update(bonsai);
                 await _unit.SaveChangeAsync();
             }
             catch (Exception ex)
@@ -447,7 +433,7 @@ namespace Application.Services
                 if (order == null)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
                 List<Expression<Func<OrderDetail, object>>> includes = new List<Expression<Func<OrderDetail, object>>>{
-                                 x => x.Product
+                                 x => x.Bonsai
                                     };
                 var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId && !x.IsDeleted, isDisableTracking: true, isTakeAll: true, includes: includes);
 
@@ -456,8 +442,7 @@ namespace Application.Services
                 double total = 0;
                 foreach (var item in listOrderDetail.Items)
                 {
-                    var temp = item.Quantity * item.Product.UnitPrice;
-                    total += temp;
+                    total += item.Price;
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
                 deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
@@ -485,11 +470,11 @@ namespace Application.Services
         public async Task UpdateOrderStatusAsync(Guid orderId, OrderStatus orderStatus)
         {
             var order = await _unit.OrderRepository.GetByIdAsync(orderId);
-            if(order == null)
+            if (order == null)
             {
                 throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
             }
-            if(orderStatus < order.OrderStatus)
+            if (orderStatus < order.OrderStatus)
             {
                 throw new Exception("Trạng thái không hợp lệ.");
             }
@@ -501,4 +486,3 @@ namespace Application.Services
 }
 
 
-*/

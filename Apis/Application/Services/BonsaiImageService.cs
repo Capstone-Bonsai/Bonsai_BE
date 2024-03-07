@@ -17,19 +17,19 @@ namespace Application.Services
         }
         public async Task<Pagination<BonsaiImage>> GetProductImagesByProductId(Guid bonsaiId)
         {
-            var categories = await _unitOfWork.ProductImageRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.BonsaiId == bonsaiId, isDisableTracking: true);
+            var categories = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.BonsaiId == bonsaiId, isDisableTracking: true);
             return categories;
         }
         public async Task AddProductImages(BonsaiImage productImage)
         {
             try
             {
-                await _unitOfWork.ProductImageRepository.AddAsync(productImage);
+                await _unitOfWork.BonsaiImageRepository.AddAsync(productImage);
                 await _unitOfWork.SaveChangeAsync();
             }
             catch (Exception)
             {
-                _unitOfWork.ProductImageRepository.SoftRemove(productImage);
+                _unitOfWork.BonsaiImageRepository.SoftRemove(productImage);
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }
@@ -37,8 +37,8 @@ namespace Application.Services
         {
             try
             {
-                var productImages = await _unitOfWork.ProductImageRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.BonsaiId == bonsaiId, isDisableTracking: true);
-                _unitOfWork.ProductImageRepository.SoftRemoveRange(productImages.Items);
+                var productImages = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.BonsaiId == bonsaiId, isDisableTracking: true);
+                _unitOfWork.BonsaiImageRepository.SoftRemoveRange(productImages.Items);
                 await _unitOfWork.SaveChangeAsync();
             }
             catch (Exception)

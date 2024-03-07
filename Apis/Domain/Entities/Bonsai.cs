@@ -33,7 +33,7 @@ namespace Domain.Entities
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
         public virtual OrderDetail? OrderDetail { get; set; }
-        public IList<BonsaiImage> ProductImages { get; set; }
+        public IList<BonsaiImage> BonsaiImages { get; set; }
         private string RemoveDiacritics(string text)
         {
             string normalized = text.Normalize(NormalizationForm.FormD);

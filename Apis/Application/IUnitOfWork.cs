@@ -7,14 +7,13 @@ namespace Application
     {
         public IGardenerRepository GardenerRepository { get; }
         public ICustomerRepository CustomerRepository { get; }
-        public IBonsaiRepository ProductRepository { get; }
+        public IBonsaiRepository BonsaiRepository { get; }
         public ICategoryRepository CategoryRepository { get; }
-        public IBonsaiImageRepository ProductImageRepository { get; }
+        public IBonsaiImageRepository BonsaiImageRepository { get; }
         public IOrderRepository OrderRepository { get; }
         public IOrderDetailRepository OrderDetailRepository { get; }
         public IOrderTransactionRepository OrderTransactionRepository { get; }
         public IDeliveryFeeRepository DeliveryFeeRepository { get; }
-
         public IStaffRepository StaffRepository { get; }
 
         public Task<int> SaveChangeAsync();

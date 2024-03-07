@@ -12,9 +12,9 @@ namespace Infrastructures
         private readonly AppDbContext _dbContext;
         private readonly IGardenerRepository _gardenerRepository;
         private readonly ICustomerRepository _customerRepository;
-        private readonly IBonsaiRepository _productRepository;
+        private readonly IBonsaiRepository _bonsaiRepository;
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IBonsaiImageRepository _productImageRepository;
+        private readonly IBonsaiImageRepository _bonsaiImageRepository;
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderDetailRepository _orderDetailRepository;
         private readonly IOrderTransactionRepository _orderTransactionRepository;
@@ -23,9 +23,9 @@ namespace Infrastructures
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
-            IBonsaiRepository productRepository, ICategoryRepository categoryRepository,
+            IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository,
             IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
-            IBonsaiImageRepository productImageRepository,
+            IBonsaiImageRepository bonsaiImageRepository,
             IDeliveryFeeRepository deliveryFeeRepository,
          IStaffRepository staffRepository
          )
@@ -33,9 +33,9 @@ namespace Infrastructures
             _dbContext = dbContext;
             _gardenerRepository = gardenerRepository;
             _customerRepository = customerRepository;
-            _productRepository = productRepository;
+            _bonsaiRepository = bonsaiRepository;
             _categoryRepository = categoryRepository;
-            _productImageRepository = productImageRepository;
+            _bonsaiImageRepository = bonsaiImageRepository;
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
             _orderTransactionRepository = orderTransactionRepository;
@@ -51,13 +51,13 @@ namespace Infrastructures
 
         public ICustomerRepository CustomerRepository => _customerRepository;
 
-        public IBonsaiRepository ProductRepository => _productRepository;
+        public IBonsaiRepository BonsaiRepository => _bonsaiRepository;
 
         public ICategoryRepository CategoryRepository => _categoryRepository;
 
 
 
-        public IBonsaiImageRepository ProductImageRepository => _productImageRepository;
+        public IBonsaiImageRepository BonsaiImageRepository => _bonsaiImageRepository;
 
         public IOrderRepository OrderRepository => _orderRepository;
 
@@ -65,11 +65,7 @@ namespace Infrastructures
 
         public IOrderTransactionRepository OrderTransactionRepository => _orderTransactionRepository;
 
-
-
         public IDeliveryFeeRepository DeliveryFeeRepository => _deliveryFeeRepository;
-
-
 
         public IStaffRepository StaffRepository => _staffRepository;
 

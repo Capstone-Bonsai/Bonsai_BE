@@ -1,9 +1,8 @@
-﻿/*using Application.Commons;
+﻿using Application.Commons;
 using Application.Interfaces;
 using Application.Utils;
-using Application.Validations.Product;
-using Application.ViewModels.ProductViewModels;
-using Application.ViewModels.ServiceModels;
+using Application.Validations.Bonsai;
+using Application.ViewModels.BonsaiViewModel;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
@@ -28,114 +27,114 @@ namespace Application.Services
 
         public async Task<Pagination<Bonsai>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false)
         {
-            Pagination<Bonsai> products;
+            Pagination<Bonsai> bonsais;
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.ProductImages
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
                                     };
             if (isAdmin)
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable, includes: includes);
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable, includes: includes);
             }
-            return products;
+            return bonsais;
         }
-        public async Task<Pagination<Bonsai>> GetProducts(bool isAdmin = false)
+        public async Task<Pagination<Bonsai>> GetAll(bool isAdmin = false)
         {
-            Pagination<Bonsai> products;
+            Pagination<Bonsai> bonsais;
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.ProductImages.Where(y => !y.IsDeleted)
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
                                     };
             if (isAdmin)
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
                 isDisableTracking: true, includes: includes);
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable,
                 isDisableTracking: true, includes: includes);
             }
 
-            return products;
+            return bonsais;
         }
-        public async Task<Pagination<Bonsai>> GetProductsByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterProductModel, bool isAdmin = false)
+        public async Task<Pagination<Bonsai>> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false)
         {
             var filter = new List<Expression<Func<Bonsai, bool>>>();
             filter.Add(x => !x.IsDeleted);
             if (!isAdmin)
                 filter.Add(x => !x.isDisable);
-         
-            if (filterProductModel.keyword != null)
+
+            if (filterBonsaiModel.Keyword != null)
             {
-                string keywordLower = filterProductModel.keyword.ToLower();
+                string keywordLower = filterBonsaiModel.Keyword.ToLower();
                 filter.Add(x => x.Name.ToLower().Contains(keywordLower) || x.NameUnsign.ToLower().Contains(keywordLower));
             }
-            if (filterProductModel.minPrice != null)
+            if (filterBonsaiModel.MinPrice != null)
             {
-                filter.Add(x => x.Price >= filterProductModel.minPrice);
+                filter.Add(x => x.Price >= filterBonsaiModel.MinPrice);
             }
-            if (filterProductModel.maxPrice != null)
+            if (filterBonsaiModel.MaxPrice != null)
             {
-                filter.Add(x => x.Price <= filterProductModel.maxPrice);
+                filter.Add(x => x.Price <= filterBonsaiModel.MaxPrice);
             }
             var finalFilter = filter.Aggregate((current, next) => current.AndAlso(next));
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.ProductImages.Where(y => !y.IsDeleted),
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted),
                                  x => x.Category
                                     };
-            var products = await _unitOfWork.ProductRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
                 isDisableTracking: true, includes: includes);
-            return products;
+            return bonsais;
         }
 
-        public async Task<Bonsai?> GetProductById(Guid id, bool isAdmin = false)
+        public async Task<Bonsai?> GetById(Guid id, bool isAdmin = false)
         {
-            Pagination<Bonsai> products;
+            Pagination<Bonsai> bonsais;
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.ProductImages.Where(y => !y.IsDeleted)
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
                                     };
             if (isAdmin)
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == id,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == id,
                 isDisableTracking: true, includes: includes);
             }
             else
             {
-                products = await _unitOfWork.ProductRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id,
                 isDisableTracking: true, includes: includes);
             }
-            return products.Items[0];
+            return bonsais.Items[0];
         }
 
-        public async Task AddAsync(BonsaiModel productModel)
+        public async Task AddAsync(BonsaiModel bonsaiModel)
         {
             bool operationSuccessful = false;
 
-            if (productModel == null)
-                throw new ArgumentNullException(nameof(productModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+            if (bonsaiModel == null)
+                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
 
-            var validationRules = new ProductModelValidator();
-            var resultProductInfo = await validationRules.ValidateAsync(productModel);
-            if (!resultProductInfo.IsValid)
+            var validationRules = new BonsaiModelValidator();
+            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModel);
+            if (!resultBonsaiInfo.IsValid)
             {
-                var errors = resultProductInfo.Errors.Select(x => x.ErrorMessage);
+                var errors = resultBonsaiInfo.Errors.Select(x => x.ErrorMessage);
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
-            var product = _mapper.Map<Bonsai>(productModel);
+            var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             try
             {
                 _unitOfWork.BeginTransaction();
-                await _unitOfWork.ProductRepository.AddAsync(product);
-                if (productModel.Image != null)
+                await _unitOfWork.BonsaiRepository.AddAsync(bonsai);
+                if (bonsaiModel.Image != null)
                 {
-                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
+                    foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
                     {
-                        string newImageName = product.Id + "_i" + singleImage.index;
-                        string folderName = $"product/{product.Id}/Image";
+                        string newImageName = bonsai.Id + "_i" + singleImage.index;
+                        string folderName = $"bonsai/{bonsai.Id}/Image";
                         string imageExtension = Path.GetExtension(singleImage.image.FileName);
                         //Kiểm tra xem có phải là file ảnh không.
                         string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
@@ -148,81 +147,55 @@ namespace Application.Services
                         if (url == null)
                             throw new Exception("Lỗi khi đăng ảnh lên firebase!");
 
-                        BonsaiImage productImage = new BonsaiImage()
+                        BonsaiImage bonsaiImage = new BonsaiImage()
                         {
-                            BonsaiId = product.Id,
+                            BonsaiId = bonsai.Id,
                             ImageUrl = url
                         };
 
-                        await _unitOfWork.ProductImageRepository.AddAsync(productImage);
+                        await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                     }
+                    await _unitOfWork.CommitTransactionAsync();
                 }
-
-                if (productModel.TagId != null && productModel.TagId.Count > 0)
-                {
-                    foreach (Guid id in productModel.TagId)
-                    {
-                        if (await _unitOfWork.TagRepository.GetByIdAsync(id) == null)
-                        {
-                            throw new Exception();
-                        }
-                        await _unitOfWork.ProductTagRepository.AddAsync(new ProductTag()
-                        {
-                            ProductId = product.Id,
-                            TagId = id
-                        });
-                    }
-
-                }
-                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
                 _unitOfWork.RollbackTransaction();
-                if (operationSuccessful)
-                {
-                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
-                    {
-                        string newImageName = product.Id + "_i" + singleImage.index;
-                        string folderName = $"product/{product.Id}/Image";
-                        await _fireBaseService.DeleteFileInFirebaseStorage(newImageName, folderName);
-                    }
-                }
                 throw;
             }
         }
-        public async Task UpdateProduct(Guid id, BonsaiModel productModel)
+        public async Task Update(Guid id, BonsaiModel bonsaiModel)
         {
-            if (productModel == null)
-                throw new ArgumentNullException(nameof(productModel), "Vui lòng nhập thêm thông tin sản phẩm!");
-            var validationRules = new ProductModelValidator();
-            var resultOrderInfo = await validationRules.ValidateAsync(productModel);
+            if (bonsaiModel == null)
+                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+            var validationRules = new BonsaiModelValidator();
+            var resultOrderInfo = await validationRules.ValidateAsync(bonsaiModel);
             if (!resultOrderInfo.IsValid)
             {
                 var errors = resultOrderInfo.Errors.Select(x => x.ErrorMessage);
                 throw new ValidationException("Xác thực không thành công cho mẫu sản phẩm.", (Exception?)errors);
             }
-            var product = _mapper.Map<Bonsai>(productModel);
-            product.Id = id;
-            var result = await _unitOfWork.ProductRepository.GetByIdAsync(product.Id);
+            var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
+            bonsai.Id = id;
+            var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(bonsai.Id);
             if (result == null)
                 throw new Exception("Không tìm thấy sản phẩm!");
             try
             {
                 _unitOfWork.BeginTransaction();
-                _unitOfWork.ProductRepository.Update(product);
-                if (productModel.Image != null)
+                _unitOfWork.BonsaiRepository.Update(bonsai);
+                if (bonsaiModel.Image != null)
                 {
-                    var pictures = await _unitOfWork.ProductImageRepository.GetAsync(isTakeAll: true, expression: x => x.ProductId == id && x.IsDeleted == false, isDisableTracking: true);
+                    var pictures = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => x.BonsaiId == id && x.IsDeleted == false, isDisableTracking: true);
                     foreach (BonsaiImage image in pictures.Items)
                     {
                         image.IsDeleted = true;
                     }
-                    _unitOfWork.ProductImageRepository.UpdateRange(pictures.Items);
-                    foreach (var singleImage in productModel.Image.Select((image, index) => (image, index)))
+                    _unitOfWork.BonsaiImageRepository.UpdateRange(pictures.Items);
+                    foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
                     {
-                        string newImageName = product.Id + "_i" + singleImage.index;
-                        string folderName = $"product/{product.Id}/Image";
+                        string newImageName = bonsai.Id + "_i" + singleImage.index;
+                        string folderName = $"bonsai/{bonsai.Id}/Image";
                         string imageExtension = Path.GetExtension(singleImage.image.FileName);
                         string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
                         const long maxFileSize = 20 * 1024 * 1024;
@@ -234,37 +207,14 @@ namespace Application.Services
                         if (url == null)
                             throw new Exception("Lỗi khi đăng ảnh lên firebase!");
 
-                        BonsaiImage productImage = new BonsaiImage()
+                        BonsaiImage bonsaiImage = new BonsaiImage()
                         {
-                            ProductId = product.Id,
+                            BonsaiId = bonsai.Id,
                             ImageUrl = url
                         };
 
-                        await _unitOfWork.ProductImageRepository.AddAsync(productImage);
+                        await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                     }
-                }
-
-                if (productModel.TagId != null && productModel.TagId.Count > 0)
-                {
-                    var tags = await _unitOfWork.ProductTagRepository.GetAsync(expression: x => x.ProductId == id && !x.IsDeleted);
-                    foreach (ProductTag productTag in tags.Items)
-                    {
-                        productTag.IsDeleted = true;
-                    }
-                    _unitOfWork.ProductTagRepository.UpdateRange(tags.Items);
-                    foreach (Guid guid in productModel.TagId)
-                    {
-                        if (await _unitOfWork.TagRepository.GetByIdAsync(id) == null)
-                        {
-                            throw new Exception();
-                        }
-                        await _unitOfWork.ProductTagRepository.AddAsync(new ProductTag()
-                        {
-                            ProductId = product.Id,
-                            TagId = id
-                        });
-                    }
-
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }
@@ -273,14 +223,14 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
-        public async Task DeleteProduct(Guid id)
+        public async Task Delete(Guid id)
         {
-            var result = await _unitOfWork.ProductRepository.GetByIdAsync(id);
+            var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy sản phẩm!");
             try
             {
-                _unitOfWork.ProductRepository.SoftRemove(result);
+                _unitOfWork.BonsaiRepository.SoftRemove(result);
                 await _unitOfWork.SaveChangeAsync();
             }
             catch (Exception)
@@ -288,25 +238,6 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
             }
         }
-        public async Task UpdateProductAvailability(Guid id)
-        {
-            var result = await _unitOfWork.ProductRepository.GetByIdAsync(id);
-            if (result == null)
-                throw new Exception("Không tìm thấy sản phẩm!");
-            try
-            {
-                result.isDisable = !result.isDisable;
-                _unitOfWork.ProductRepository.Update(result);
-                await _unitOfWork.SaveChangeAsync();
-            }
-            catch (Exception)
-            {
-                throw new Exception("Đã xảy ra lỗi trong quá trình cập nhật. Vui lòng thử lại!");
-            }
-        }
 
-        public Task<List<String?>> GetTreeShapeList()
-            => _unitOfWork.ProductRepository.GetTreeShapeList();
     }
 }
-*/

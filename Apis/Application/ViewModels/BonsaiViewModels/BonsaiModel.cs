@@ -1,22 +1,21 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Application.ViewModels.ProductViewModels
+namespace Application.ViewModels.BonsaiViewModel
 {
-    public class ProductModel
+    public class BonsaiModel
     {
-        public Guid SubCategoryId { get; set; }
-        public string Name { get; set; }
+        public Guid CategoryId { get; set; }
+        public Guid StyleId { get; set; }
+        public string Name { get; private set; }
         public string Description { get; set; }
-        public string? TreeShape { get; set; }
-        public int? AgeRange { get; set; }
+        public int? YearOfPlanting { get; set; }
+        public int TrunkDimenter { get; set; }
         public float? Height { get; set; }
-        public string Unit { get; set; }
-        public int Quantity { get; set; }
-        public double UnitPrice { get; set; }
+        public int MainBranch { get; set; }
+        public double Price { get; set; }
+        public bool isDisable { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
-        [NotMapped]
-        public List<Guid>? TagId { get; set; } = default!;
     }
 }

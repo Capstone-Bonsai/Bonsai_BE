@@ -1,4 +1,4 @@
-﻿/*using Application.ViewModels.ProductViewModels;
+﻿using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.UserViewModels;
 using FluentValidation;
 using System;
@@ -7,13 +7,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validations.Product
+namespace Application.Validations.Bonsai
 {
-    public class ProductModelValidator : AbstractValidator<BonsaiModel>
+    public class BonsaiModelValidator : AbstractValidator<BonsaiModel>
     {
-        public ProductModelValidator()
+        public BonsaiModelValidator()
         {
-            RuleFor(x => x.SubCategoryId).NotEmpty().WithMessage("SubCategoryId không được để trống.");
+            RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Category không được để trống.");
+
+            RuleFor(x => x.StyleId).NotEmpty().WithMessage("StyleId không được để trống.");
 
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name không được để trống.")
@@ -22,25 +24,20 @@ namespace Application.Validations.Product
             RuleFor(x => x.Description)
                 .NotEmpty().WithMessage("Description không được để trống.");
 
-            RuleFor(x => x.TreeShape)
-                .MaximumLength(50).WithMessage("TreeShape không quá 50 ký tự.");
-
-            RuleFor(x => x.AgeRange)
+            RuleFor(x => x.YearOfPlanting)
                 .GreaterThan(0).WithMessage("AgeRange phải là số nguyên dương.");
 
             RuleFor(x => x.Height)
                 .GreaterThan(0).WithMessage("Height phải là số dương.");
 
-            RuleFor(x => x.Unit)
-                .NotEmpty().WithMessage("Unit không được để trống.")
-                .MaximumLength(20).WithMessage("Unit không quá 20 ký tự.");
+            RuleFor(x => x.TrunkDimenter)
+               .GreaterThan(0).WithMessage("Unit không quá 20 ký tự.");
 
-            RuleFor(x => x.Quantity)
+            RuleFor(x => x.MainBranch)
                 .GreaterThan(0).WithMessage("Quantity phải là số nguyên dương.");
 
-            RuleFor(x => x.UnitPrice)
+            RuleFor(x => x.Price)
                 .GreaterThan(0).WithMessage("UnitPrice phải là số dương.");
         }
     }
 }
-*/

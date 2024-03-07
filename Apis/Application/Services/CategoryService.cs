@@ -1,4 +1,4 @@
-﻿/*using Application.Commons;
+﻿using Application.Commons;
 using Application.Interfaces;
 using Application.ViewModels.CategoryViewModels;
 using AutoMapper;
@@ -19,10 +19,7 @@ namespace Application.Services
         }
         public async Task<Pagination<Category>> GetCategories()
         {
-            List<Expression<Func<Category, object>>> includes = new List<Expression<Func<Category, object>>>{
-                                 x => x.SubCategories
-                                    };
-            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true, includes: includes);
+            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
             return categories;
         }
         public async Task AddCategory(CategoryModel categoryModel)
@@ -84,4 +81,3 @@ namespace Application.Services
         }
     }
 }
-*/
