@@ -18,7 +18,6 @@ namespace Infrastructures
     {
         public static IServiceCollection AddInfrastructuresService(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment env)
         {
-
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IOrderTransactionService, OrderTransactionService>();
@@ -33,12 +32,9 @@ namespace Infrastructures
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
             services.AddScoped<IBonsaiImageRepository, BonsaiImageRepository>();
 
-            services.AddSingleton<IFirebaseService, FirebaseService>();
-            services.AddScoped<FirebaseService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-
             services.AddSingleton<ICurrentTime, CurrentTime>();
             services.AddHttpClient<IDeliveryFeeService, DeliveryFeeService>();
 

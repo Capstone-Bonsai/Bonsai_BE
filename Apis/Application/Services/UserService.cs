@@ -23,7 +23,8 @@ namespace Infrastructures.Services
         private readonly AppConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IClaimsService _claims;
-        private readonly FirebaseService _fireBaseService;
+        private readonly IFirebaseService _fireBaseService;
+
         private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserService(IUnitOfWork unitOfWork,
@@ -32,7 +33,7 @@ namespace Infrastructures.Services
             AppConfiguration configuration,
             UserManager<ApplicationUser> userManager,
             IClaimsService claims,
-            FirebaseService fireBaseService,
+            IFirebaseService fireBaseService,
             RoleManager<IdentityRole> roleManager
 
             )

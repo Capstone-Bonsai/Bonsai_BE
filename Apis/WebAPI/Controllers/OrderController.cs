@@ -12,7 +12,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly IOrderService _orderService;
+        /*private readonly IOrderService _orderService;
         private readonly IClaimsService _claimsService;
 
         public OrderController(IOrderService orderService, IClaimsService claimsService)
@@ -125,7 +125,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
 
 
