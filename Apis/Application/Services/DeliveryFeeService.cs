@@ -202,29 +202,38 @@ namespace Application.Services
             {
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
             }
-            DeliveryType deliveryType;
-            var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxPrice >= price && !x.IsDeleted).OrderBy(x => x.MaxPrice).ToListAsync();
-            if (feewithPrice == null || feewithPrice.Count == 0)
-                deliveryType = DeliveryType.LargeTruck;
-            else
-                deliveryType = feewithPrice.FirstOrDefault().DeliveryType;
+            try
+            {
+                DeliveryType deliveryType;
+                var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxPrice >= price && !x.IsDeleted).OrderBy(x => x.MaxPrice).ToListAsync();
+                if (feewithPrice == null || feewithPrice.Count == 0)
+                    deliveryType = DeliveryType.LargeTruck;
+                else
+                    deliveryType = feewithPrice.FirstOrDefault().DeliveryType;
 
-            var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliveryType == deliveryType).OrderBy(x=>x.MaxDistance).ToListAsync();
-            DeliveryFee fee = new DeliveryFee();
-            if(feeWithDistance == null || feeWithDistance.Count==0)
-            {
-                 fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance ==null && !x.IsDeleted && x.DeliveryType == deliveryType).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
+                var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliveryType == deliveryType).OrderBy(x => x.MaxDistance).ToListAsync();
+                DeliveryFee fee = new DeliveryFee();
+                if (feeWithDistance == null || feeWithDistance.Count == 0)
+                {
+                    fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null && !x.IsDeleted && x.DeliveryType == deliveryType).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
+                }
+                else
+                {
+                    fee = feeWithDistance.FirstOrDefault();
+                }
+                finalPrice = fee.Fee * distance;
+                finalFee.deliveryFee = fee;
+                finalFee.DeliveryType = fee.DeliveryType.ToString();
+                finalFee.Price = finalPrice;
+                finalFee.Distance = distance;
+                return finalFee;
             }
-            else
+            catch (Exception)
             {
-                fee = feeWithDistance.FirstOrDefault();
+
+                throw new Exception("Chưa cập nhật bảng giá vẫn chuyển");
             }
-            finalPrice = fee.Fee * distance;
-            finalFee.deliveryFee = fee;
-            finalFee.DeliveryType = fee.DeliveryType.ToString();
-            finalFee.Price = finalPrice;
-            finalFee.Distance = distance;
-            return finalFee;
+            
         }
     }
 }

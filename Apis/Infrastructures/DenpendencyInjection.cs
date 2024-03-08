@@ -24,6 +24,8 @@ namespace Infrastructures
             services.AddScoped<IBonsaiService, BonsaiService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IStyleService, StyleService>();
+            services.AddScoped<IOrderService, OrderService>();
+
 
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
