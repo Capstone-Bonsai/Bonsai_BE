@@ -21,6 +21,7 @@ namespace Domain.Entities
                 NameUnsign = RemoveDiacritics(value);
             }
         }
+        public string Code { get; private set; }
         public string NameUnsign { get; private set; }
         public string Description { get; set; }
         public int? YearOfPlanting { get; set; }
@@ -32,7 +33,7 @@ namespace Domain.Entities
         public bool? isSold { get; set; }
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
-        public virtual OrderDetail? OrderDetail { get; set; }
+        public IList<OrderDetail> OrderDetails { get; set; }
         public IList<BonsaiImage> BonsaiImages { get; set; }
         private string RemoveDiacritics(string text)
         {
