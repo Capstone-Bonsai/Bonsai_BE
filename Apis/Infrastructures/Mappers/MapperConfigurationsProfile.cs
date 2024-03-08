@@ -1,5 +1,6 @@
 ﻿
 using Application.Commons;
+using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.OrderViewModels;
 using Application.ViewModels.StyleViewModels;
@@ -18,6 +19,7 @@ namespace Infrastructures.Mappers
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             CreateMap<Chemical, ChemicalViewModel>()
                 .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
+            CreateMap<BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
             CreateMap<OrderModel, Order>().ReverseMap();

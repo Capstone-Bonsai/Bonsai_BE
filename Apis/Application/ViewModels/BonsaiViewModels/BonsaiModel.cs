@@ -7,7 +7,7 @@ namespace Application.ViewModels.BonsaiViewModel
     {
         public Guid CategoryId { get; set; }
         public Guid StyleId { get; set; }
-        public string Name { get; private set; }
+        public string Name { get; set; }
         public string Description { get; set; }
         public int? YearOfPlanting { get; set; }
         public int TrunkDimenter { get; set; }

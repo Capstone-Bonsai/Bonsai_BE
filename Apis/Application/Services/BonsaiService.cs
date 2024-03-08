@@ -111,7 +111,6 @@ namespace Application.Services
 
         public async Task AddAsync(BonsaiModel bonsaiModel)
         {
-            bool operationSuccessful = false;
 
             if (bonsaiModel == null)
                 throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
