@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq.Expressions;
 
 namespace Application.Services
@@ -232,10 +233,9 @@ namespace Application.Services
             {
                 var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
                 if (bonsai == null)
-                    throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
-
-                                
+                    throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");    
                 bonsai.isSold = false;
+                bonsai.isDisable = false;
                 _unit.BonsaiRepository.Update(bonsai);
                 await _unit.SaveChangeAsync();
             }
@@ -405,16 +405,21 @@ namespace Application.Services
                 var bonsai = await _unit.BonsaiRepository.GetByIdAsync(bonsaiId);
                 if (bonsai == null)
                     throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
-                else if (bonsai.isSold == true)
-                    throw new Exception($"Sản phẩm {bonsai.Name} đã được bán");
+                else if (bonsai.isSold == null)
+                    throw new Exception($"{bonsai.Name} không tồn tại");
+                else if(bonsai.isSold == true)
+                    throw new Exception($"{bonsai.Name} đã được bán");
+
                 //tạo order đetail
-                var orderDetail = _mapper.Map<OrderDetail>(bonsaiId);
+                var orderDetail =new OrderDetail();
+                orderDetail.BonsaiId = bonsaiId;
                 orderDetail.OrderId = orderId;
                 orderDetail.Price = bonsai.Price;
                 await _unit.OrderDetailRepository.AddAsync(orderDetail);
 
                 //trừ quantity của product
                 bonsai.isSold = true;
+                bonsai.isDisable = true;
                 _unit.BonsaiRepository.Update(bonsai);
                 await _unit.SaveChangeAsync();
             }
@@ -432,16 +437,15 @@ namespace Application.Services
                 var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.Id == orderId && !x.IsDeleted).FirstOrDefaultAsync();
                 if (order == null)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
-                List<Expression<Func<OrderDetail, object>>> includes = new List<Expression<Func<OrderDetail, object>>>{
-                                 x => x.Bonsai
-                                    };
-                var listOrderDetail = await _unit.OrderDetailRepository.GetAsync(expression: x => x.OrderId == orderId && !x.IsDeleted, isDisableTracking: true, isTakeAll: true, includes: includes);
+                
+                var listOrderDetail = await _unit.OrderDetailRepository.GetAllQueryable().Where(x=>x.OrderId ==orderId && !x.IsDeleted).AsNoTracking().ToListAsync();
 
-                if (listOrderDetail == null || listOrderDetail.TotalItemsCount == 0)
+                if (listOrderDetail == null || listOrderDetail.Count == 0)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
                 double total = 0;
-                foreach (var item in listOrderDetail.Items)
+                foreach (var item in listOrderDetail)
                 {
+
                     total += item.Price;
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
