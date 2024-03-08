@@ -13,17 +13,14 @@ namespace WebAPI.Controllers
     public class BonsaiController : ControllerBase
     {
         private readonly IBonsaiService _bonsaiService;
-        private readonly IBonsaiImageService _bonsaiImageService;
         private readonly IFirebaseService _firebaseService;
         private readonly IClaimsService _claims;
 
         public BonsaiController(IBonsaiService bonsaiService,
-            IBonsaiImageService bonsaiImageService,
             IFirebaseService firebaseService,
             IClaimsService claimsService)
         {
             _bonsaiService = bonsaiService;
-            _bonsaiImageService = bonsaiImageService;
             _firebaseService = firebaseService;
             _claims = claimsService;
         }

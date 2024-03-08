@@ -12,7 +12,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class OrderController : ControllerBase
     {
-        /*private readonly IOrderService _orderService;
+        private readonly IOrderService _orderService;
         private readonly IClaimsService _claimsService;
 
         public OrderController(IOrderService orderService, IClaimsService claimsService)
@@ -21,16 +21,16 @@ namespace WebAPI.Controllers
             _claimsService = claimsService;
         }
         [HttpPost]
-        public async Task<IActionResult> CreateOrderAsync([FromBody]OrderModel model)
+        public async Task<IActionResult> CreateOrderAsync([FromBody] OrderModel model)
         {
             try
             {
                 var userId = _claimsService.GetCurrentUserId.ToString().ToLower();
-                var resultValidate = await _orderService. ValidateOrderModel(model, userId);
+                var resultValidate = await _orderService.ValidateOrderModel(model, userId);
                 if (resultValidate == null)
                 {
                     var result = await _orderService.CreateOrderAsync(model, userId);
-                    if (result!=null)
+                    if (result != null)
                         return Ok(result);
                     else return BadRequest(result);
                 }
@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         }
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAsync([FromQuery] int pageIndex, [FromQuery]int pageSize)
+        public async Task<IActionResult> GetAsync([FromQuery] int pageIndex, [FromQuery] int pageSize)
         {
             try
             {
@@ -79,7 +79,7 @@ namespace WebAPI.Controllers
 
         [HttpGet("{orderId}")]
         [Authorize]
-        public async Task<IActionResult> GetByIdAsync( Guid orderId)
+        public async Task<IActionResult> GetByIdAsync(Guid orderId)
         {
             try
             {
@@ -101,7 +101,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _orderService.UpdateOrderStatusAsync( orderId,orderStatus);
+                await _orderService.UpdateOrderStatusAsync(orderId, orderStatus);
                 return Ok("Cập nhật trạng thái đơn hàng thành công.");
             }
             catch (Exception ex)
@@ -119,13 +119,13 @@ namespace WebAPI.Controllers
             {
                 List<EnumModel> enums = ((OrderStatus[])Enum.GetValues(typeof(OrderStatus))).Select(c => new EnumModel() { Value = (int)c, Display = c.ToString() }).ToList();
                 return Ok(enums);
-               
+
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }*/
+        }
 
 
 

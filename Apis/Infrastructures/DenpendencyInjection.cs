@@ -21,10 +21,9 @@ namespace Infrastructures
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IOrderDetailService, OrderDetailService>();
             services.AddScoped<IOrderTransactionService, OrderTransactionService>();
-            services.AddScoped<IBonsaiImageService, BonsaiImageService>();
             services.AddScoped<IBonsaiService, BonsaiService>();
             services.AddScoped<ICategoryService, CategoryService>();
-
+            services.AddScoped<IStyleService, StyleService>();
 
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
@@ -36,6 +35,7 @@ namespace Infrastructures
             services.AddScoped<IOrderDetailRepository, OrderDetailRepository>();
             services.AddScoped<IOrderTransactionRepository, OrderTransactionRepository>();
             services.AddScoped<IBonsaiImageRepository, BonsaiImageRepository>();
+            services.AddScoped<IStyleRepository, StyleRepository>();
 
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddSingleton<FirebaseService>();

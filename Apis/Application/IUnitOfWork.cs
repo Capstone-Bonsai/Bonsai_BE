@@ -16,6 +16,8 @@ namespace Application
         public IDeliveryFeeRepository DeliveryFeeRepository { get; }
         public IStaffRepository StaffRepository { get; }
 
+        public IStyleRepository StyleRepository { get; }
+
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

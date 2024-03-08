@@ -2,6 +2,7 @@
 using Application.Commons;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.OrderViewModels;
+using Application.ViewModels.StyleViewModels;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -18,6 +19,7 @@ namespace Infrastructures.Mappers
             CreateMap<Chemical, ChemicalViewModel>()
                 .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
             CreateMap<CategoryModel, Category>();
+            CreateMap<StyleModel, Style>();
             CreateMap<OrderModel, Order>().ReverseMap();
             CreateMap<OrderViewModel, Order>().ReverseMap();
             CreateMap<UserViewModel, ApplicationUser>().ReverseMap();

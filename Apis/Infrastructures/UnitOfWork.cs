@@ -20,14 +20,13 @@ namespace Infrastructures
         private readonly IOrderTransactionRepository _orderTransactionRepository;
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IStaffRepository _staffRepository;
+        private readonly IStyleRepository _styleRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
-            IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository,
-            IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,
-            IBonsaiImageRepository bonsaiImageRepository,
-            IDeliveryFeeRepository deliveryFeeRepository,
-         IStaffRepository staffRepository
+            IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository, IOrderRepository orderRepository, 
+            IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,  IBonsaiImageRepository bonsaiImageRepository,
+            IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository
          )
         {
             _dbContext = dbContext;
@@ -39,9 +38,8 @@ namespace Infrastructures
             _orderRepository = orderRepository;
             _orderDetailRepository = orderDetailRepository;
             _orderTransactionRepository = orderTransactionRepository;
-
             _deliveryFeeRepository = deliveryFeeRepository;
-
+            _styleRepository = styleRepository;
             _staffRepository = staffRepository;
 
         }
@@ -55,7 +53,7 @@ namespace Infrastructures
 
         public ICategoryRepository CategoryRepository => _categoryRepository;
 
-
+        public IStyleRepository StyleRepository => _styleRepository;
 
         public IBonsaiImageRepository BonsaiImageRepository => _bonsaiImageRepository;
 
