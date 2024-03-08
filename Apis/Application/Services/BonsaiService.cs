@@ -54,7 +54,7 @@ namespace Application.Services
             }
             else
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.isSold != null && !x.isSold.Value,
                 isDisableTracking: true, includes: includes);
             }
 
@@ -65,12 +65,20 @@ namespace Application.Services
             var filter = new List<Expression<Func<Bonsai, bool>>>();
             filter.Add(x => !x.IsDeleted);
             if (!isAdmin)
-                filter.Add(x => !x.isDisable);
+                filter.Add(x => !x.isDisable && x.isSold != null && !x.isSold.Value);
 
             if (filterBonsaiModel.Keyword != null)
             {
                 string keywordLower = filterBonsaiModel.Keyword.ToLower();
                 filter.Add(x => x.Name.ToLower().Contains(keywordLower) || x.NameUnsign.ToLower().Contains(keywordLower));
+            }
+            if (filterBonsaiModel.Category != null)
+            {
+                filter.Add(x => x.CategoryId == filterBonsaiModel.Category);
+            }
+            if (filterBonsaiModel.Style != null)
+            {
+                filter.Add(x => x.StyleId == filterBonsaiModel.Style);
             }
             if (filterBonsaiModel.MinPrice != null)
             {
@@ -103,13 +111,13 @@ namespace Application.Services
             }
             else
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id && x.isSold != null && !x.isSold.Value,
                 isDisableTracking: true, includes: includes);
             }
             return bonsais.Items[0];
         }
 
-        public async Task AddAsync(BonsaiModel bonsaiModel)
+        public async Task AddAsync(BonsaiModel bonsaiModel, bool isAdmin)
         {
 
             if (bonsaiModel == null)
@@ -124,6 +132,10 @@ namespace Application.Services
                 throw new Exception(errorMessage);
             }
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
+            if (isAdmin)
+            {
+                bonsai.isSold = false;
+            }
             try
             {
                 _unitOfWork.BeginTransaction();

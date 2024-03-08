@@ -87,7 +87,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _bonsaiService.AddAsync(productModel);
+                await _bonsaiService.AddAsync(productModel, _claims.GetIsAdmin);
             }
             catch (Exception ex)
             {
