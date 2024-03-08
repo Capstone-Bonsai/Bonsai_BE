@@ -29,7 +29,8 @@ namespace Application.Services
         {
             Pagination<Bonsai> bonsais;
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted),
+                                 x => x.Category,
                                     };
             if (isAdmin)
             {
@@ -45,7 +46,8 @@ namespace Application.Services
         {
             Pagination<Bonsai> bonsais;
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted),
+                                 x => x.Category,
                                     };
             if (isAdmin)
             {
@@ -91,7 +93,7 @@ namespace Application.Services
             var finalFilter = filter.Aggregate((current, next) => current.AndAlso(next));
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
                                  x => x.BonsaiImages.Where(y => !y.IsDeleted),
-                                 x => x.Category
+                                 x => x.Category,
                                     };
             var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
                 isDisableTracking: true, includes: includes);
@@ -102,7 +104,8 @@ namespace Application.Services
         {
             Pagination<Bonsai> bonsais;
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
-                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted),
+                                 x => x.Category,
                                     };
             if (isAdmin)
             {
