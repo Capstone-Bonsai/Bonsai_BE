@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Xml.Linq;
 
 namespace Domain.Entities
@@ -34,6 +35,7 @@ namespace Domain.Entities
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
         public virtual CustomerBonsai?  CustomerBonsai { get; set; }
+        [JsonIgnore]
         public IList<OrderDetail> OrderDetails { get; set; }
         public IList<BonsaiImage> BonsaiImages { get; set; }
         private string RemoveDiacritics(string text)

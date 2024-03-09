@@ -243,7 +243,7 @@ namespace Application.Services
 
         public async Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
         {
-            Pagination<Order> res;
+            IList< Order > listOrder = new List< Order >();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new Exception("Không tìm thấy người dùng!");
@@ -253,12 +253,35 @@ namespace Application.Services
             List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
 {
     x => x.Customer.ApplicationUser
+    
 };
             if (isCustomer && !isAdmin && !isStaff)
-                res = await _unit.OrderRepository.GetAsync(expression: x => x.Customer.UserId.ToLower() == userId, isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
+                listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
+                    .Include(x => x.Customer)
+                .Include(x => x.OrderDetails)
+                .ThenInclude(x => x.Bonsai)
+                .Where(x => x.Customer.UserId.ToLower() == userId).OrderByDescending(y => y.CreationDate).ToListAsync();
             else if (isAdmin || isStaff)
-                res = await _unit.OrderRepository.GetAsync(isDisableTracking: true, includes: includes, pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(y => y.CreationDate));
+                listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
+                   .Include(x => x.Customer)
+               .Include(x => x.OrderDetails)
+               .ThenInclude(x => x.Bonsai)
+               .OrderByDescending(y => y.CreationDate).ToListAsync();
             else return null;
+            var itemCount = listOrder.Count();
+            var items = listOrder.OrderByDescending(x => x.CreationDate)
+                                    .Skip(pageIndex * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+
+            var res = new Pagination<Order>()
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItemsCount = itemCount,
+                Items = items,
+            };
+
             var result = _mapper.Map<Pagination<OrderViewModel>>(res);
             return result;
         }

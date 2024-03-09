@@ -23,7 +23,8 @@ namespace Infrastructures.Mappers
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
             CreateMap<OrderModel, Order>().ReverseMap();
-            CreateMap<OrderViewModel, Order>().ReverseMap();
+            CreateMap<OrderViewModel, Order>();
+            CreateMap<Order, OrderViewModel>().ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
             CreateMap<UserViewModel, ApplicationUser>().ReverseMap();
 
 
