@@ -33,6 +33,7 @@ namespace Domain.Entities
         public bool? isSold { get; set; }
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
+        public virtual CustomerBonsai?  CustomerBonsai { get; set; }
         public IList<OrderDetail> OrderDetails { get; set; }
         public IList<BonsaiImage> BonsaiImages { get; set; }
         private string RemoveDiacritics(string text)

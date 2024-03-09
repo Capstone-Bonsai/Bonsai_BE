@@ -27,6 +27,21 @@ namespace Infrastructures
         public DbSet<OrderTransaction> OrderTransaction { get; set; }
         public DbSet<DeliveryFee> DeliveryFee { get; set; }
 
+        public DbSet<CustomerBonsai> CustomerBonsai { get; set; }
+        public DbSet<CustomerGarden> CustomerGarden { get; set; }
+        public DbSet<CustomerGardenImage> CustomerGardenImage { get; set; }
+        public DbSet<CategoryExpectedPrice> CategoryExpectedPrice { get; set; }
+        public DbSet<CareStep> CareStep { get; set; }
+        public DbSet<Contract> Contract { get; set; }
+        public DbSet<ContractImage> ContractImage { get; set; }
+        public DbSet<BonsaiCareStep> BonsaiCareStep { get; set; }
+        public DbSet<ContractGardener> ContractGardener { get; set; }
+        public DbSet<ContractTransaction> ContractTransaction { get; set; }
+        public DbSet<Service> Service { get; set; }
+        public DbSet<BaseTask> BaseTask { get; set; }
+        public DbSet<GardenCareTask> GardenCareTask { get; set; }
+        public DbSet<ServiceBaseTask> ServiceBaseTask { get; set; }
+        public DbSet<ServiceSurcharge> ServiceSurcharge { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             var cascadeFKs = builder.Model.GetEntityTypes()
