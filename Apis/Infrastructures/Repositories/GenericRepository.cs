@@ -25,7 +25,8 @@ namespace Infrastructures.Repositories
         public Task<List<TEntity>> GetAllAsync() => _dbSet.AsNoTracking().Where(x => !x.IsDeleted).ToListAsync();
 
         public IQueryable<TEntity> GetAllQueryable() => _dbSet.Where(x => !x.IsDeleted).AsNoTracking();
-
+       
+             
         public async Task<TEntity?> GetByIdAsync(Guid id)
         {
             var result = await _dbSet.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
