@@ -35,7 +35,6 @@ namespace Application.Services
             }
             catch (Exception)
             {
-                _unitOfWork.CategoryRepository.SoftRemove(category);
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }

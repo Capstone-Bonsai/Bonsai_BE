@@ -39,7 +39,6 @@ namespace Application.Services
             }
             catch (Exception)
             {
-                _unitOfWork.StyleRepository.SoftRemove(style);
                 throw new Exception("Đã xảy ra lỗi trong quá trình tạo mới. Vui lòng thử lại!");
             }
         }

@@ -24,13 +24,14 @@ namespace Infrastructures
         private readonly ICustomerGardenRepository _customerGardenRepository;
         private readonly ICustomerGardenImageRepository _customerGardenImageRepository;
         private readonly ICustomerBonsaiRepository _customerBonsaiRepository;
+        private readonly ICareStepRepository _careStepRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository, IOrderRepository orderRepository, 
             IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,  IBonsaiImageRepository bonsaiImageRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
-            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository
+            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository
          )
         {
             _dbContext = dbContext;
@@ -48,6 +49,7 @@ namespace Infrastructures
             _customerGardenRepository = customerGardenRepository;
             _customerGardenImageRepository = customerGardenImageRepository;
             _customerBonsaiRepository = customerBonsaiRepository;
+            _careStepRepository = careStepRepository;
 
         }
 
@@ -79,6 +81,8 @@ namespace Infrastructures
         public ICustomerGardenImageRepository CustomerGardenImageRepository => _customerGardenImageRepository;
 
         public ICustomerBonsaiRepository CustomerBonsaiRepository => _customerBonsaiRepository;
+
+        public ICareStepRepository CareStepRepository => _careStepRepository;
 
 
         public async Task<int> SaveChangeAsync()

@@ -19,6 +19,7 @@ namespace Application
         public ICustomerGardenRepository CustomerGardenRepository { get; }
         public ICustomerGardenImageRepository CustomerGardenImageRepository { get; }
         public ICustomerBonsaiRepository CustomerBonsaiRepository { get; }
+        public ICareStepRepository CareStepRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();
