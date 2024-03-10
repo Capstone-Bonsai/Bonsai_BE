@@ -1,5 +1,6 @@
 ﻿
 using Application.Commons;
+using Application.ViewModels.BaseTaskViewTasks;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.CustomerBonsaiViewModels;
@@ -31,7 +32,7 @@ namespace Infrastructures.Mappers
             CreateMap<Order, OrderViewModel>().ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
             CreateMap<UserViewModel, ApplicationUser>().ReverseMap();
 
-
+            CreateMap<BaseTaskModel, BaseTask>().ReverseMap();
 
         }
     }

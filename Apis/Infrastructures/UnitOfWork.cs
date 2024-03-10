@@ -25,13 +25,17 @@ namespace Infrastructures
         private readonly ICustomerGardenImageRepository _customerGardenImageRepository;
         private readonly ICustomerBonsaiRepository _customerBonsaiRepository;
         private readonly ICareStepRepository _careStepRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IBaseTaskRepository _baseTaskRepository;
+        private readonly IServiceBaseTaskRepository _serviceBaseTaskRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository, IOrderRepository orderRepository, 
             IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,  IBonsaiImageRepository bonsaiImageRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
-            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository
+            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository,
+            IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository
          )
         {
             _dbContext = dbContext;
@@ -50,6 +54,9 @@ namespace Infrastructures
             _customerGardenImageRepository = customerGardenImageRepository;
             _customerBonsaiRepository = customerBonsaiRepository;
             _careStepRepository = careStepRepository;
+            _serviceRepository = serviceRepository;
+            _baseTaskRepository = baseTaskRepository;
+            _serviceBaseTaskRepository = serviceBaseTaskRepository;
 
         }
 
@@ -84,6 +91,11 @@ namespace Infrastructures
 
         public ICareStepRepository CareStepRepository => _careStepRepository;
 
+        public IServiceRepository ServiceRepository => _serviceRepository;
+
+        public IBaseTaskRepository BaseTaskRepository => _baseTaskRepository;
+
+        public IServiceBaseTaskRepository ServiceBaseTaskRepository => _serviceBaseTaskRepository;
 
         public async Task<int> SaveChangeAsync()
         {
