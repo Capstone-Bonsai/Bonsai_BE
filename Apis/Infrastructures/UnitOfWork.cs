@@ -21,12 +21,16 @@ namespace Infrastructures
         private readonly IDeliveryFeeRepository _deliveryFeeRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IStyleRepository _styleRepository;
+        private readonly ICustomerGardenRepository _customerGardenRepository;
+        private readonly ICustomerGardenImageRepository _customerGardenImageRepository;
+        private readonly ICustomerBonsaiRepository _customerBonsaiRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository, IOrderRepository orderRepository, 
             IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,  IBonsaiImageRepository bonsaiImageRepository,
-            IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository
+            IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
+            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository
          )
         {
             _dbContext = dbContext;
@@ -41,6 +45,9 @@ namespace Infrastructures
             _deliveryFeeRepository = deliveryFeeRepository;
             _styleRepository = styleRepository;
             _staffRepository = staffRepository;
+            _customerGardenRepository = customerGardenRepository;
+            _customerGardenImageRepository = customerGardenImageRepository;
+            _customerBonsaiRepository = customerBonsaiRepository;
 
         }
 
@@ -66,6 +73,12 @@ namespace Infrastructures
         public IDeliveryFeeRepository DeliveryFeeRepository => _deliveryFeeRepository;
 
         public IStaffRepository StaffRepository => _staffRepository;
+
+        public ICustomerGardenRepository CustomerGardenRepository => _customerGardenRepository;
+
+        public ICustomerGardenImageRepository CustomerGardenImageRepository => _customerGardenImageRepository;
+
+        public ICustomerBonsaiRepository CustomerBonsaiRepository => _customerBonsaiRepository;
 
 
         public async Task<int> SaveChangeAsync()

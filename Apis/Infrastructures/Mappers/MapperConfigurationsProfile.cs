@@ -2,6 +2,8 @@
 using Application.Commons;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CategoryViewModels;
+using Application.ViewModels.CustomerBonsaiViewModels;
+using Application.ViewModels.CustomerGardenViewModels;
 using Application.ViewModels.OrderViewModels;
 using Application.ViewModels.StyleViewModels;
 using Application.ViewModels.UserViewModels;
@@ -22,6 +24,8 @@ namespace Infrastructures.Mappers
             CreateMap<BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
+            CreateMap<CustomerGardenModel, CustomerGarden>();
+            CreateMap<CustomerBonsaiModel, CustomerBonsai>();
             CreateMap<OrderModel, Order>().ReverseMap();
             CreateMap<OrderViewModel, Order>().ReverseMap();
             CreateMap<UserViewModel, ApplicationUser>().ReverseMap();

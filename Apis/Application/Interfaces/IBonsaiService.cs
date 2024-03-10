@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task AddAsync(BonsaiModel bonsaiModel, bool isAdmin);
         Task Update(Guid id, BonsaiModel bonsaiModel);
         Task Delete(Guid id);
+        Task<Pagination<Bonsai>> GetBoughtBonsai(Guid id);
     }
 }

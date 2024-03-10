@@ -15,9 +15,10 @@ namespace Application
         public IOrderTransactionRepository OrderTransactionRepository { get; }
         public IDeliveryFeeRepository DeliveryFeeRepository { get; }
         public IStaffRepository StaffRepository { get; }
-
         public IStyleRepository StyleRepository { get; }
-
+        public ICustomerGardenRepository CustomerGardenRepository { get; }
+        public ICustomerGardenImageRepository CustomerGardenImageRepository { get; }
+        public ICustomerBonsaiRepository CustomerBonsaiRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

@@ -13,15 +13,12 @@ namespace WebAPI.Controllers
     public class BonsaiController : ControllerBase
     {
         private readonly IBonsaiService _bonsaiService;
-        private readonly IFirebaseService _firebaseService;
         private readonly IClaimsService _claims;
 
         public BonsaiController(IBonsaiService bonsaiService,
-            IFirebaseService firebaseService,
             IClaimsService claimsService)
         {
             _bonsaiService = bonsaiService;
-            _firebaseService = firebaseService;
             _claims = claimsService;
         }
         [HttpGet("Pagination")]
@@ -133,6 +130,27 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok();
+        }
+        [HttpGet("BoughtBonsai")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetBoughtBonsai()
+        {
+            try
+            {
+                var products = await _bonsaiService.GetBoughtBonsai(_claims.GetCurrentUserId);
+                if (products.Items.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(products);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

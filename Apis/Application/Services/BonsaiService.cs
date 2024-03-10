@@ -6,6 +6,8 @@ using Application.ViewModels.BonsaiViewModel;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
 using System.Linq.Expressions;
@@ -17,12 +19,14 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly FirebaseService _fireBaseService;
         private readonly IMapper _mapper;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService)
+        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fireBaseService = fireBaseService;
+            _userManager = userManager;
         }
 
         public async Task<Pagination<Bonsai>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false)
@@ -169,8 +173,8 @@ namespace Application.Services
 
                         await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                     }
-                    await _unitOfWork.CommitTransactionAsync();
                 }
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
@@ -252,6 +256,34 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
             }
         }
-
+        public async Task<Pagination<Bonsai>> GetBoughtBonsai(Guid id)
+        {
+            var customer =  await GetCustomerAsync(id);
+            var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(isTakeAll: true, expression: x => x.Order.CustomerId == customer.Id && x.Order.OrderStatus == Domain.Enums.OrderStatus.Delivered);
+            if (orderDetails.Items.Count == 0)
+            {
+                throw new Exception("Bạn chưa có đơn hàng nào");
+            }
+            List<Guid> orderDetailsId = new List<Guid>();
+            foreach(OrderDetail orderDetail in orderDetails.Items)
+            {
+                orderDetailsId.Add(orderDetail.Id);
+            }
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.OrderDetails.Any(y => orderDetailsId.Contains(y.Id)) && x.CustomerBonsai == null);
+            return bonsais;
+        }
+        private async Task<Customer> GetCustomerAsync(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+            if (!isCustomer)
+                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
+            var customer = await _unitOfWork.CustomerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
+            if (customer == null)
+                throw new Exception("Không tìm thấy thông tin người dùng");
+            return customer;
+        }
     }
 }
