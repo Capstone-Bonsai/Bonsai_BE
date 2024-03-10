@@ -24,13 +24,17 @@ namespace Infrastructures
         private readonly ICustomerGardenRepository _customerGardenRepository;
         private readonly ICustomerGardenImageRepository _customerGardenImageRepository;
         private readonly ICustomerBonsaiRepository _customerBonsaiRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IBaseTaskRepository _baseTaskRepository;
+        private readonly IServiceBaseTaskRepository _serviceBaseTaskRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
             IBonsaiRepository bonsaiRepository, ICategoryRepository categoryRepository, IOrderRepository orderRepository, 
             IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,  IBonsaiImageRepository bonsaiImageRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
-            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository
+            ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, IServiceRepository serviceRepository,
+            IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository
          )
         {
             _dbContext = dbContext;
@@ -48,6 +52,9 @@ namespace Infrastructures
             _customerGardenRepository = customerGardenRepository;
             _customerGardenImageRepository = customerGardenImageRepository;
             _customerBonsaiRepository = customerBonsaiRepository;
+            _serviceRepository = serviceRepository;
+            _baseTaskRepository = baseTaskRepository;
+            _serviceBaseTaskRepository = serviceBaseTaskRepository;
 
         }
 
@@ -80,6 +87,11 @@ namespace Infrastructures
 
         public ICustomerBonsaiRepository CustomerBonsaiRepository => _customerBonsaiRepository;
 
+        public IServiceRepository ServiceRepository => _serviceRepository;
+
+        public IBaseTaskRepository BaseTaskRepository => _baseTaskRepository;
+
+        public IServiceBaseTaskRepository ServiceBaseTaskRepository => _serviceBaseTaskRepository;
 
         public async Task<int> SaveChangeAsync()
         {
