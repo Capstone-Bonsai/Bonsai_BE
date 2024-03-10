@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
@@ -14,6 +15,7 @@ namespace Domain.Entities
         [ForeignKey("Service")]
         public Guid ServiceId { get; set; }
         public virtual BaseTask BaseTask { get; set; }
+        [JsonIgnore]
         public virtual Service Service { get; set; }
     }
 }
