@@ -68,6 +68,16 @@ namespace Application.Services
             var result = await _unitOfWork.CategoryRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy phân loại!");
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == id && !x.IsDeleted);
+            if (bonsais.TotalItemsCount > 0)
+            {
+                throw new Exception("Còn tồn tại cây thuộc về phân loại này, không thể xóa!");
+            }
+            var careSteps = await _unitOfWork.CareStepRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == id && !x.IsDeleted);
+            if (careSteps.TotalItemsCount > 0)
+            {
+                throw new Exception("Còn tồn tại bước chăm sóc thuộc về phân loại này, không thể xóa!");
+            }
             try
             {
                 _unitOfWork.CategoryRepository.SoftRemove(result);

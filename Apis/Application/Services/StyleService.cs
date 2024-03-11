@@ -72,6 +72,11 @@ namespace Application.Services
             var result = await _unitOfWork.StyleRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy dáng cây!");
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.StyleId == id && !x.IsDeleted);
+            if (bonsais.TotalItemsCount > 0)
+            {
+                throw new Exception("Còn tồn tại cây thuộc về phân loại này, không thể xóa!");
+            }
             try
             {
                 _unitOfWork.StyleRepository.SoftRemove(result);

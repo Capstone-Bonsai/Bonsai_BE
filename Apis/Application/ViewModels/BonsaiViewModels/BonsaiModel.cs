@@ -14,7 +14,6 @@ namespace Application.ViewModels.BonsaiViewModel
         public float? Height { get; set; }
         public int MainBranch { get; set; }
         public double Price { get; set; }
-        public bool isDisable { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
     }

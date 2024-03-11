@@ -139,6 +139,7 @@ namespace Application.Services
                 throw new Exception(errorMessage);
             }
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
+            bonsai.isDisable = false;
             if (isAdmin)
             {
                 bonsai.isSold = false;
@@ -246,6 +247,11 @@ namespace Application.Services
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy sản phẩm!");
+            var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.BonsaiId == id && !x.IsDeleted);
+            if (orderDetails.TotalItemsCount > 0)
+            {
+                throw new Exception("Tồn tại đơn hàng thuộc về cây này, không thể xóa!");
+            }
             try
             {
                 _unitOfWork.BonsaiRepository.SoftRemove(result);
