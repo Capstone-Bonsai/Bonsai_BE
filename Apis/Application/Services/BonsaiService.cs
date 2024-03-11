@@ -8,6 +8,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.Export.ToCollection;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
 using System.Linq.Expressions;
@@ -78,14 +79,22 @@ namespace Application.Services
                 string keywordLower = filterBonsaiModel.Keyword.ToLower();
                 filter.Add(x => x.Name.ToLower().Contains(keywordLower) || x.NameUnsign.ToLower().Contains(keywordLower));
             }
-            if (filterBonsaiModel.Category != null)
+            try 
             {
-                filter.Add(x => x.CategoryId == filterBonsaiModel.Category);
+                if (filterBonsaiModel.Category != null)
+                {
+                    filter.Add(x => x.CategoryId == Guid.Parse(filterBonsaiModel.Category));
+                }
+                if (filterBonsaiModel.Style != null)
+                {
+                    filter.Add(x => x.StyleId == Guid.Parse(filterBonsaiModel.Style));
+                }
             }
-            if (filterBonsaiModel.Style != null)
+            catch (Exception)
             {
-                filter.Add(x => x.StyleId == filterBonsaiModel.Style);
+                throw new Exception("Xảy ra lỗi trong quá trình nhập filter!");
             }
+            
             if (filterBonsaiModel.MinPrice != null)
             {
                 filter.Add(x => x.Price >= filterBonsaiModel.MinPrice);
