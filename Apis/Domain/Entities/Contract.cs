@@ -17,6 +17,7 @@ namespace Domain.Entities
         public Guid? CustomerBonsaiId { get; set; }
         public string CustomerName { get; set; }      
         public string CustomerPhoneNumber { get; set; }
+        public int Distance { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public float GardenSquare { get; set; }
