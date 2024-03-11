@@ -36,6 +36,7 @@ namespace Application.Services
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
                                  x => x.BonsaiImages.Where(y => !y.IsDeleted),
                                  x => x.Category,
+                                 x => x.Style,
                                     };
             if (isAdmin)
             {
@@ -53,6 +54,7 @@ namespace Application.Services
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
                                  x => x.BonsaiImages.Where(y => !y.IsDeleted),
                                  x => x.Category,
+                                 x => x.Style,
                                     };
             if (isAdmin)
             {
@@ -107,6 +109,7 @@ namespace Application.Services
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
                                  x => x.BonsaiImages.Where(y => !y.IsDeleted),
                                  x => x.Category,
+                                 x => x.Style,
                                     };
             var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
                 isDisableTracking: true, includes: includes);
@@ -119,6 +122,7 @@ namespace Application.Services
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
                                  x => x.BonsaiImages.Where(y => !y.IsDeleted),
                                  x => x.Category,
+                                 x => x.Style,
                                     };
             if (isAdmin)
             {
