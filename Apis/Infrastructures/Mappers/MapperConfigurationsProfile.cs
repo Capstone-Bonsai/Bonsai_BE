@@ -6,6 +6,7 @@ using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.CustomerBonsaiViewModels;
 using Application.ViewModels.CustomerGardenViewModels;
 using Application.ViewModels.OrderViewModels;
+using Application.ViewModels.ServiceViewModels;
 using Application.ViewModels.StyleViewModels;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
@@ -31,9 +32,10 @@ namespace Infrastructures.Mappers
             CreateMap<OrderViewModel, Order>();
             CreateMap<Order, OrderViewModel>().ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
             CreateMap<UserViewModel, ApplicationUser>().ReverseMap();
-
             CreateMap<BaseTaskModel, BaseTask>().ReverseMap();
-
+            CreateMap<ServiceViewModel, Service>();
+            CreateMap<Service, ServiceViewModel>().ForMember(dest => dest.ServiceBaseTasks, opt => opt.MapFrom(src => src.ServiceBaseTasks));
+            CreateMap<ServiceModel, Service>().ReverseMap();
         }
     }
 }
