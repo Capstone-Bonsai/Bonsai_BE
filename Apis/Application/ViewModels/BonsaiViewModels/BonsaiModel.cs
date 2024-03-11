@@ -12,7 +12,7 @@ namespace Application.ViewModels.BonsaiViewModel
         public int? YearOfPlanting { get; set; }
         public int TrunkDimenter { get; set; }
         public float? Height { get; set; }
-        public int MainBranch { get; set; }
+        public int NumberOfTrunk { get; set; }
         public double Price { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;

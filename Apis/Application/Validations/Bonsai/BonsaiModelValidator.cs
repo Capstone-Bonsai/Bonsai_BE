@@ -33,7 +33,7 @@ namespace Application.Validations.Bonsai
             RuleFor(x => x.TrunkDimenter)
                .GreaterThan(0).WithMessage("Unit không quá 20 ký tự.");
 
-            RuleFor(x => x.MainBranch)
+            RuleFor(x => x.NumberOfTrunk)
                 .GreaterThan(0).WithMessage("Quantity phải là số nguyên dương.");
 
             RuleFor(x => x.Price)

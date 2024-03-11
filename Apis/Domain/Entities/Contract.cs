@@ -15,8 +15,8 @@ namespace Domain.Entities
         [ForeignKey("Service")]
         public Guid ServiceId { get; set; }
         public Guid? CustomerBonsaiId { get; set; }
-        
-        public int Distance { get; set; }
+        public string CustomerName { get; set; }      
+        public string CustomerPhoneNumber { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public float GardenSquare { get; set; }
