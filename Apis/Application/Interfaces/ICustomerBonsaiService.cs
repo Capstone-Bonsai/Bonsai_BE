@@ -1,4 +1,6 @@
-﻿using Application.ViewModels.CustomerBonsaiViewModels;
+﻿using Application.Commons;
+using Application.ViewModels.CustomerBonsaiViewModels;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +12,7 @@ namespace Application.Interfaces
     public interface ICustomerBonsaiService
     {
         Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId);
+        Task CreateBonsai(Guid gardenId, BonsaiModelForCustomer bonsaiModelForCustomer);
+        Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId);
     }
 }

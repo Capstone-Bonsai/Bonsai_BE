@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Application.ViewModels.CustomerBonsaiViewModels
 {
-    public class BonsaiModel
+    public class BonsaiModelForCustomer
     {
         public Guid CategoryId { get; set; }
         public Guid StyleId { get; set; }
@@ -13,7 +14,6 @@ namespace Application.ViewModels.CustomerBonsaiViewModels
         public int TrunkDimenter { get; set; }
         public float? Height { get; set; }
         public int NumberOfTrunk { get; set; }
-        public double Price { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
     }

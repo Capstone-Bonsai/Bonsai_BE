@@ -1,5 +1,9 @@
 ﻿using Application.Interfaces;
+using Application.Services;
+using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CustomerBonsaiViewModels;
+using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +22,7 @@ namespace WebAPI.Controllers
             _customerBonsaiService = customerBonsaiService;
             _claims = claimsService;
         }
-        [HttpPost]
+        [HttpPost("")]
         public async Task<IActionResult> AddBonsaiForCustomer([FromBody] CustomerBonsaiModel customerBonsaiModel)
         {
             try
@@ -31,6 +35,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
 
+        }
+        [HttpPost("Customer/{gardenId}")]
+        [Authorize(Roles = "Manager")]
+        public async Task<IActionResult> Post([FromRoute] Guid gardenId, [FromForm] BonsaiModelForCustomer bonsaiModelForCustomer)
+        {
+            try
+            {
+                await _customerBonsaiService.CreateBonsai(gardenId, bonsaiModelForCustomer);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
         }
     }
 }

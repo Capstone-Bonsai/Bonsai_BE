@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Utils;
 using Application.Validations.Bonsai;
 using Application.ViewModels.BonsaiViewModel;
+using Application.ViewModels.DeliveryFeeViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
@@ -11,7 +12,10 @@ using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.Export.ToCollection;
 using System.ComponentModel.DataAnnotations;
 using System.Drawing.Printing;
+using System.Globalization;
 using System.Linq.Expressions;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Application.Services
 {
@@ -83,11 +87,11 @@ namespace Application.Services
             }
             try 
             {
-                if (filterBonsaiModel.Category != null)
+                if (filterBonsaiModel.Category != null && filterBonsaiModel.Category != "")
                 {
                     filter.Add(x => x.CategoryId == Guid.Parse(filterBonsaiModel.Category));
                 }
-                if (filterBonsaiModel.Style != null)
+                if (filterBonsaiModel.Style != null && filterBonsaiModel.Style != "")
                 {
                     filter.Add(x => x.StyleId == Guid.Parse(filterBonsaiModel.Style));
                 }
@@ -137,7 +141,7 @@ namespace Application.Services
             return bonsais.Items[0];
         }
 
-        public async Task AddAsync(BonsaiModel bonsaiModel, bool isAdmin)
+        public async Task AddAsync(BonsaiModel bonsaiModel)
         {
 
             if (bonsaiModel == null)
@@ -153,10 +157,8 @@ namespace Application.Services
             }
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.isDisable = false;
-            if (isAdmin)
-            {
-                bonsai.isSold = false;
-            }
+            bonsai.Code = await generateCode(bonsaiModel.CategoryId);
+            bonsai.isSold = false;
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -201,17 +203,21 @@ namespace Application.Services
             if (bonsaiModel == null)
                 throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
             var validationRules = new BonsaiModelValidator();
-            var resultOrderInfo = await validationRules.ValidateAsync(bonsaiModel);
-            if (!resultOrderInfo.IsValid)
+            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModel);
+            if (!resultBonsaiInfo.IsValid)
             {
-                var errors = resultOrderInfo.Errors.Select(x => x.ErrorMessage);
-                throw new ValidationException("Xác thực không thành công cho mẫu sản phẩm.", (Exception?)errors);
+                var errors = resultBonsaiInfo.Errors.Select(x => x.ErrorMessage);
+                string errorMessage = string.Join(Environment.NewLine, errors);
+                throw new Exception(errorMessage);
             }
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.Id = id;
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(bonsai.Id);
             if (result == null)
                 throw new Exception("Không tìm thấy sản phẩm!");
+            bonsai.Code = result.Code;
+            bonsai.isDisable = false;
+            bonsai.isSold = false;
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -219,11 +225,7 @@ namespace Application.Services
                 if (bonsaiModel.Image != null)
                 {
                     var pictures = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => x.BonsaiId == id && x.IsDeleted == false, isDisableTracking: true);
-                    foreach (BonsaiImage image in pictures.Items)
-                    {
-                        image.IsDeleted = true;
-                    }
-                    _unitOfWork.BonsaiImageRepository.UpdateRange(pictures.Items);
+                    _unitOfWork.BonsaiImageRepository.SoftRemoveRange(pictures.Items);
                     foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
                     {
                         string newImageName = bonsai.Id + "_i" + singleImage.index;
@@ -303,6 +305,50 @@ namespace Application.Services
             if (customer == null)
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return customer;
+        }
+        private async Task<string> generateCode(Guid categoryId)
+        {
+            List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
+                                 x => x.Category,
+                                    };
+            var lastCodeBonsai =await  _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == categoryId, orderBy: query => query.OrderByDescending(x => x.Code), includes: includes);
+            if (lastCodeBonsai.Items[0] != null)
+            {
+                var lastCodeNumericPart = Regex.Match(lastCodeBonsai.Items[0].Code, @"\d+").Value;
+                if (lastCodeNumericPart == "")
+                {
+                    var category = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
+                    return $"{RemoveDiacritics(category.Name)}00001";
+                }
+                var newCodeNumericPart = (int.Parse(lastCodeNumericPart) + 1).ToString().PadLeft(lastCodeNumericPart.Length, '0');
+                return $"{RemoveDiacritics((lastCodeBonsai.Items[0].Category.Name))}{newCodeNumericPart}";
+
+            }
+            else
+            {
+                var category = await _unitOfWork.CategoryRepository.GetByIdAsync(categoryId);
+                return $"{RemoveDiacritics(category.Name)}00001";
+            }
+        }
+        private string RemoveDiacritics(string text)
+        {
+            string normalized = text.Normalize(NormalizationForm.FormD);
+            StringBuilder result = new StringBuilder();
+
+            foreach (char c in normalized)
+            {
+                UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (c == 'đ' || c == 'Đ')
+                {
+                    result.Append('d');
+                }
+                else if (category != UnicodeCategory.NonSpacingMark)
+                {
+                    result.Append(c);
+                }
+            }
+
+            return result.ToString().ToUpper().Replace(" ", "");
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
 using Application.Validations.Bonsai;
-using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CustomerBonsaiViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -19,12 +19,14 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IBonsaiService _bonsaiService;
+        private readonly FirebaseService _fireBaseService;
 
-        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService)
+        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _bonsaiService = bonsaiService;
+            _fireBaseService = fireBaseService;
         }
         public async Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId)
         {
@@ -50,29 +52,30 @@ namespace Application.Services
             var customerBonsai = _mapper.Map<CustomerBonsai>(customerBonsaiModel);
             await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
         }
-        public async Task AddAsync(BonsaiModel bonsaiModel, bool isAdmin)
+        public async Task CreateBonsai(Guid gardenId,BonsaiModelForCustomer bonsaiModelForCustomer)
         {
 
-            if (bonsaiModel == null)
-                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+            if (bonsaiModelForCustomer == null)
+                throw new ArgumentNullException(nameof(bonsaiModelForCustomer), "Vui lòng nhập thêm thông tin sản phẩm!");
 
-            var validationRules = new BonsaiModelValidator();
-            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModel);
+            var validationRules = new BonsaiModelForCustomerValidator();
+            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModelForCustomer);
             if (!resultBonsaiInfo.IsValid)
             {
                 var errors = resultBonsaiInfo.Errors.Select(x => x.ErrorMessage);
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
-            var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
+            var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
+            bonsai.Price = 0;
             bonsai.isDisable = false;
             try
             {
                 _unitOfWork.BeginTransaction();
                 await _unitOfWork.BonsaiRepository.AddAsync(bonsai);
-                if (bonsaiModel.Image != null)
+                if (bonsaiModelForCustomer.Image != null)
                 {
-                    foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
+                    foreach (var singleImage in bonsaiModelForCustomer.Image.Select((image, index) => (image, index)))
                     {
                         string newImageName = bonsai.Id + "_i" + singleImage.index;
                         string folderName = $"bonsai/{bonsai.Id}/Image";
@@ -97,6 +100,12 @@ namespace Application.Services
                         await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                     }
                 }
+                await _unitOfWork.CustomerBonsaiRepository.AddAsync(new CustomerBonsai()
+                {
+                    BonsaiId = bonsai.Id,
+                    CustomerGardenId = gardenId,
+                    CustomerBonsaiStatus = CustomerBonsaiStatus.Unsent
+                });
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
@@ -104,6 +113,11 @@ namespace Application.Services
                 _unitOfWork.RollbackTransaction();
                 throw;
             }
+        }
+        public async Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId)
+        {
+            var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted);
+            return bonsais;
         }
     }
 }

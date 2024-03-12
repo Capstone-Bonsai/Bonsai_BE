@@ -22,7 +22,7 @@ namespace Domain.Entities
                 NameUnsign = RemoveDiacritics(value);
             }
         }
-        public string Code { get; private set; }
+        public string Code { get; set; }
         public string NameUnsign { get; private set; }
         public string Description { get; set; }
         public int? YearOfPlanting { get; set; }
