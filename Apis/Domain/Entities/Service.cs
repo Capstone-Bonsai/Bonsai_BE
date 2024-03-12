@@ -17,7 +17,7 @@ namespace Domain.Entities
         public string Image {  get; set; }
         public ServiceType ServiceType { get; set; }
         [JsonIgnore]
-        public IList<Contract> Contracts { get; set; }
+        public IList<ServiceGarden> CustomerGardenServices { get; set; }
         public IList<ServiceBaseTask> ServiceBaseTasks { get; set; }
 
     }

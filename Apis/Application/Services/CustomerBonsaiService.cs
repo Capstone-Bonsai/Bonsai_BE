@@ -19,12 +19,14 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IBonsaiService _bonsaiService;
+        private readonly IFirebaseService _firebaseService;
 
-        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService)
+        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService,IFirebaseService firebaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _bonsaiService = bonsaiService;
+            _firebaseService = firebaseService;
         }
         public async Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId)
         {
@@ -50,7 +52,7 @@ namespace Application.Services
             var customerBonsai = _mapper.Map<CustomerBonsai>(customerBonsaiModel);
             await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
         }
-        public async Task AddAsync(BonsaiModel bonsaiModel, bool isAdmin)
+        public async Task AddAsync(ViewModels.BonsaiViewModel.BonsaiModel bonsaiModel, bool isAdmin)
         {
 
             if (bonsaiModel == null)
@@ -84,7 +86,7 @@ namespace Application.Services
                         {
                             throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
                         }
-                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        var url = await _firebaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
                         if (url == null)
                             throw new Exception("Lỗi khi đăng ảnh lên firebase!");
 

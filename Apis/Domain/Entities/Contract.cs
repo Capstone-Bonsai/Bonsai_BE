@@ -10,10 +10,8 @@ namespace Domain.Entities
 {
     public  class Contract : BaseEntity
     {
-        [ForeignKey ("CustomerGarden")]
-        public Guid CustomerGardenId { get; set; }
-        [ForeignKey("Service")]
-        public Guid ServiceId { get; set; }
+        [ForeignKey ("ServiceGarden")]
+        public Guid ServiceGardenId { get; set; }
         public Guid? CustomerBonsaiId { get; set; }
         public string CustomerName { get; set; }      
         public string CustomerPhoneNumber { get; set; }
@@ -30,11 +28,7 @@ namespace Domain.Entities
         public ContractStatus ContractStatus { get; set; }
         public ContractType ContractType { get; set; }
         public int NumberOfGardener { get; set; }
-
-
-
-        public virtual CustomerGarden CustomerGarden { get; set; }
-        public virtual Service Service { get; set; }
+        public virtual ServiceGarden ServiceGarden { get; set; }
 
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }
         public IList<ContractImage> ContractImages { get; set; }
