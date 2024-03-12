@@ -14,14 +14,10 @@ namespace Domain.Entities
         public Guid CustomerId { get; set; }
         public string Address { get; set; }
         public float Square { get; set; }
-        public double? TemporaryPrice { get; set; }
-        public double? TemporarySurchargePrice { get; set; }
-        public double? TemporaryTotalPrice { get; set; }
-        public CustomerGardenStatus CustomerGardenStatus { get; set; }
-        public string? Note { get; set; }
+  
         public virtual Customer Customer { get; set; }
         public IList<CustomerBonsai > CustomerBonsais { get; set; }
         public IList<CustomerGardenImage> CustomerGardenImages { get; set; }
-        public IList<Contract> Contracts { get; set; }
+        public IList<ServiceGarden> CustomerGardenServices { get; set; }
     }
 }

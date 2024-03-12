@@ -22,6 +22,7 @@ namespace Application.Services
         private readonly FirebaseService _fireBaseService;
 
         public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService)
+
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -103,8 +104,7 @@ namespace Application.Services
                 await _unitOfWork.CustomerBonsaiRepository.AddAsync(new CustomerBonsai()
                 {
                     BonsaiId = bonsai.Id,
-                    CustomerGardenId = gardenId,
-                    CustomerBonsaiStatus = CustomerBonsaiStatus.Unsent
+                    CustomerGardenId = gardenId
                 });
                 await _unitOfWork.CommitTransactionAsync();
             }

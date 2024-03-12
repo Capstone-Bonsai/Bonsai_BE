@@ -1,7 +1,9 @@
 ﻿using Application.Interfaces;
 using Application.Services;
+using Application.ViewModels;
 using Application.ViewModels.BaseTaskViewTasks;
 using Application.ViewModels.ServiceViewModels;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +53,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("ServiveType")]
+        public async Task<IActionResult> ServiveType()
+        {
+            try
+            {
+                List<EnumModel> enums = ((ServiceType[])Enum.GetValues(typeof(ServiceType))).Select(c => new EnumModel() { Value = (int)c, Display = c.ToString() }).ToList();
+                return Ok(enums);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
@@ -90,10 +106,10 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
-       [HttpPut("{id}")]
+
+        [HttpPut("{id}")]
         [Authorize(Roles = "Manager")]
-        public async Task<IActionResult> Put(Guid id,[FromForm] ServiceModel model)
+        public async Task<IActionResult> Put(Guid id, [FromForm] ServiceModel model)
         {
             try
             {

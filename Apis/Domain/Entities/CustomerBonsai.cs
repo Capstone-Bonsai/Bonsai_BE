@@ -14,12 +14,6 @@ namespace Domain.Entities
         public Guid BonsaiId { get; set; }
         [ForeignKey("CustomerGarden")]
         public Guid CustomerGardenId { get; set; }
-        public double? TemporaryPrice { get; set; }
-        public double? TemporarySurchargePrice { get; set; }
-        public double? TemporaryTotalPrice { get; set; }
-        public CustomerBonsaiStatus CustomerBonsaiStatus { get; set; }
-        public string? Note { get; set; }
-
         public virtual Bonsai Bonsai { get; set;}
         public virtual CustomerGarden CustomerGarden { get; set;}
     }

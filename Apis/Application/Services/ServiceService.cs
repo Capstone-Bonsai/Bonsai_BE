@@ -71,14 +71,17 @@ namespace Application.Services
                 try
                 {
                     _unit.BeginTransaction();
+                    
                     //thêm ảnh
                     IList<string> list = await AddImage(model.Image, null);
                     // thêm service
                     Guid serviceId = Guid.Parse(list[0]);
                     await CreateService(model, list[1], serviceId);
-                    // Add service task
-                    await CreateServiceBaseTask(model.ServiceBaseTaskId, serviceId);
-
+                    if (model.ServiceType == Domain.Enums.ServiceType.GardenCare)
+                    {
+                        // Add service task
+                        await CreateServiceBaseTask(model.ServiceBaseTaskId, serviceId);
+                    }
                     await _unit.CommitTransactionAsync();
                     return null;
                 }
@@ -155,33 +158,37 @@ namespace Application.Services
 
         public async Task<ServiceViewModel> GetServiceById(Guid id, string? userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                throw new Exception("Không tìm thấy người dùng!");
-            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
-            var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
-            Service service;
-            if (isCustomer && !isAdmin && !isStaff)
+            Service services = new Service();
+            if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"))
             {
-                service = await _unit.ServiceRepository.GetAllQueryable()
-                   .AsNoTracking()
-                   .Include(x => x.ServiceBaseTasks)
-                   .ThenInclude(x => x.BaseTask)
-                   .FirstOrDefaultAsync(x => x.IsDeleted == false && x.IsDisable == false && x.Id == id);
+                services = await _unit.ServiceRepository.GetAllQueryable()
+                       .AsNoTracking()
+                       .Include(x => x.ServiceBaseTasks)
+                       .ThenInclude(x => x.BaseTask)
+                       .FirstOrDefaultAsync(x => x.IsDeleted == false && !x.IsDisable && x.Id == id);
+                      
             }
-            else if (isAdmin || isStaff)
+            else
             {
-                service = await _unit.ServiceRepository.GetAllQueryable()
-                     .AsNoTracking()
-                     .Include(x => x.ServiceBaseTasks)
-                     .ThenInclude(x => x.BaseTask)
-                     .FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == id);
+                var user = await _userManager.FindByIdAsync(userId);
+                var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+                var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
+                var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
+
+                if (isCustomer && !isAdmin && !isStaff)
+                    services = await _unit.ServiceRepository.GetAllQueryable()
+                        .AsNoTracking()
+                        .Include(x => x.ServiceBaseTasks)
+                        .ThenInclude(x => x.BaseTask).FirstOrDefaultAsync(x => x.IsDeleted == false && x.IsDisable == false && x.Id == id);
+                else if (isAdmin || isStaff)
+                    services = await _unit.ServiceRepository.GetAllQueryable()
+                        .AsNoTracking()
+                        .Include(x => x.ServiceBaseTasks)
+                        .ThenInclude(x => x.BaseTask).FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == id);
             }
-            else return null;
-            if (service == null)
+            if (services == null)
                 throw new Exception("Không tìm thấy");
-            var result = _mapper.Map<ServiceViewModel>(service);
+            var result = _mapper.Map<ServiceViewModel>(services);
             return result;
         }
 
@@ -292,12 +299,10 @@ namespace Application.Services
         public async Task DeleteService(Guid id)
         {
             var service = await _unit.ServiceRepository
-               .GetAllQueryable().Include(x=>x.Contracts).Include(x=>x.ServiceBaseTasks)
+               .GetAllQueryable().Include(x=>x.ServiceBaseTasks)
                .FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
             if (service == null)
                 throw new Exception("Không tìm thấy dịch vụ bạn muốn tìm");
-            if(service.Contracts.Any()|| service.ServiceBaseTasks.Any())
-                throw new Exception("Không thể xóa dịch vụ này vì vẫn còn hợp đồng của dịch vụ này");
             try
             {
                 _unit.BeginTransaction();

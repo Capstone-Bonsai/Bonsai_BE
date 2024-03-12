@@ -8,6 +8,6 @@ namespace Domain.Enums
 {
     public enum ServiceType
     {
-         OneTime = 1, Monthly = 2,
+         BonsaiCare = 1, GardenCare = 2,
     }
 }

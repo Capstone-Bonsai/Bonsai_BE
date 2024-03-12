@@ -23,7 +23,7 @@ namespace Infrastructures.Mappers
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             CreateMap<Chemical, ChemicalViewModel>()
                 .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
-            CreateMap<BonsaiModel, Bonsai>();
+            CreateMap<Application.ViewModels.BonsaiViewModel.BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
             CreateMap<CustomerGardenModel, CustomerGarden>();

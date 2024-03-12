@@ -40,7 +40,6 @@ namespace Application.Services
             var customerGarden = _mapper.Map<CustomerGarden>(customerGardenModel);
             var customer = await GetCustomerAsync(id);
             customerGarden.CustomerId = customer.Id;
-            customerGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Unsent;
             try
             {
                 _unitOfWork.BeginTransaction();
