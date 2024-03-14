@@ -28,6 +28,8 @@ namespace Infrastructures
         private readonly IServiceRepository _serviceRepository;
         private readonly IBaseTaskRepository _baseTaskRepository;
         private readonly IServiceBaseTaskRepository _serviceBaseTaskRepository;
+        private readonly IServiceGardenRepository _serviceGardenRepository;
+        private readonly IContractRepository _contractRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -35,7 +37,8 @@ namespace Infrastructures
             IOrderDetailRepository orderDetailRepository, IOrderTransactionRepository orderTransactionRepository,  IBonsaiImageRepository bonsaiImageRepository,
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
             ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository,
-            IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository
+            IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
+            IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository
          )
         {
             _dbContext = dbContext;
@@ -57,7 +60,8 @@ namespace Infrastructures
             _serviceRepository = serviceRepository;
             _baseTaskRepository = baseTaskRepository;
             _serviceBaseTaskRepository = serviceBaseTaskRepository;
-
+            _serviceGardenRepository = serviceGardenRepository;
+            _contractRepository = contractRepository;
         }
 
 
@@ -96,6 +100,10 @@ namespace Infrastructures
         public IBaseTaskRepository BaseTaskRepository => _baseTaskRepository;
 
         public IServiceBaseTaskRepository ServiceBaseTaskRepository => _serviceBaseTaskRepository;
+
+        public IServiceGardenRepository ServiceGardenRepository => _serviceGardenRepository;
+
+        public IContractRepository ContractRepository => _contractRepository;
 
         public async Task<int> SaveChangeAsync()
         {

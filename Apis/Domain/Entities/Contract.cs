@@ -21,7 +21,6 @@ namespace Domain.Entities
         public float GardenSquare { get; set; }
         public string Address { get; set; }
         public double StandardPrice { get; set; }
-
         public double SurchargePrice { get; set; }
         public double ServicePrice { get; set; }
         public double TotalPrice { get; set; }

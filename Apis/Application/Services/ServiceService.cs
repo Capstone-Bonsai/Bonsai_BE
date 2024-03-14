@@ -36,7 +36,7 @@ namespace Application.Services
         }
         public async Task<IList<string>> ValidateServiceModel(ServiceModel model)
         {
-            if (model == null || model.ServiceBaseTaskId == null)
+            if (model == null)
             {
                 throw new Exception("Vui lòng điền đầy đủ thông tin.");
             }
@@ -48,11 +48,13 @@ namespace Application.Services
                 errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
                 return errors;
             }
-
-            if (model.ServiceBaseTaskId == null || model.ServiceBaseTaskId.Count == 0)
-            {
-                throw new Exception("Vui lòng chọn sản phẩm bạn muốn mua.");
+            if (model.ServiceType == Domain.Enums.ServiceType.GardenCare) {
+                if (model.ServiceBaseTaskId == null || model.ServiceBaseTaskId.Count == 0)
+                {
+                    throw new Exception("Vui lòng điền danh sách công việc đi kèm dịch vụ.");
+                }
             }
+            
             return null;
         }
         public async Task<IList<string>> AddService(ServiceModel model)
@@ -127,7 +129,7 @@ namespace Application.Services
             if (service != null)
                 throw new Exception("Tên dịch vụ này đã tồn tại.");
             var newService = _mapper.Map<Service>(model);
-            newService.IsDisable = true;
+            newService.IsDisable = false;
             newService.Image = image;
             newService.Id = serviceId;
             await _unit.ServiceRepository.AddAsync(newService);

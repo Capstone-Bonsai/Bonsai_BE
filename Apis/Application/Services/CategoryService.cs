@@ -4,6 +4,8 @@ using Application.ViewModels.CategoryViewModels;
 using AutoMapper;
 using Domain.Entities;
 using System.Linq.Expressions;
+using Application.Utils;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Services
 {
@@ -24,9 +26,7 @@ namespace Application.Services
         }
         public async Task AddCategory(CategoryModel categoryModel)
         {
-            var checkCategory = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
-            if (checkCategory.Items.Count > 0)
-                throw new Exception("Phân loại này đã tồn tại!");
+            await CheckName(categoryModel.Name);
             var category = _mapper.Map<Category>(categoryModel);
             try
             {
@@ -45,9 +45,7 @@ namespace Application.Services
         }
         public async Task UpdateCategory(Guid id, CategoryModel categoryModel)
         {
-            var checkCategory = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(categoryModel.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
-            if (checkCategory.Items.Count > 0)
-                throw new Exception("Phân loại này đã tồn tại!");
+            await CheckName(categoryModel.Name);
             var category = _mapper.Map<Category>(categoryModel);
             category.Id = id;
             var result = await _unitOfWork.CategoryRepository.GetByIdAsync(category.Id);
@@ -87,6 +85,19 @@ namespace Application.Services
             {
                 throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
             }
+        }
+        private async Task CheckName(string categoryName)
+        {
+            var categories = await _unitOfWork.CategoryRepository.GetAllQueryable()
+               .AsNoTracking().ToListAsync();
+
+            var normalizedCategoryName = StringUtils.RemoveDiacritics(categoryName.ToLower());
+
+            var matchingCategories = categories
+                .Where(c => StringUtils.RemoveDiacritics(c.Name.ToLower()) == normalizedCategoryName)
+                .ToList();
+            if (matchingCategories.Count > 0)
+                throw new Exception("Phân loại này đã tồn tại!");
         }
     }
 }

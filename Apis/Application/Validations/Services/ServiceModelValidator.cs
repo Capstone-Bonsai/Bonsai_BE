@@ -19,9 +19,7 @@ namespace Application.Validations.Services
             RuleFor(x => x.Description).NotEmpty().WithMessage("Mô tả không được để trống.")
                 .MaximumLength(1000)
                 .WithMessage("Mô tả không quá 1000 ký tự.");
-            RuleFor(x => x.StandardPrice).NotEmpty().WithMessage("Số điện thoại không được để trống.").GreaterThan(0).WithMessage("Giá dịch vụ phải lớn hơn 0");
-              
-
+            /*RuleFor(x => x.StandardPrice).NotEmpty().WithMessage("Giá cơ bản không được để trống, có thể nhập 0 nếu là dịch vụ bonsai.");*/
         }
     }
 }

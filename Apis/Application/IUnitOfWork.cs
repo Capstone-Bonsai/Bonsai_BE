@@ -23,7 +23,8 @@ namespace Application
         public IServiceRepository ServiceRepository { get; }
         public IBaseTaskRepository BaseTaskRepository { get; }
         public IServiceBaseTaskRepository ServiceBaseTaskRepository { get; }
-
+        public IServiceGardenRepository ServiceGardenRepository { get; }
+        public IContractRepository ContractRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

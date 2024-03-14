@@ -6,6 +6,7 @@ using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.CustomerBonsaiViewModels;
 using Application.ViewModels.CustomerGardenViewModels;
 using Application.ViewModels.OrderViewModels;
+using Application.ViewModels.ServiceGardenViewModels;
 using Application.ViewModels.ServiceViewModels;
 using Application.ViewModels.StyleViewModels;
 using Application.ViewModels.UserViewModels;
@@ -26,6 +27,7 @@ namespace Infrastructures.Mappers
             CreateMap<Application.ViewModels.BonsaiViewModel.BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
+            CreateMap<ServiceGardenModel, ServiceGarden>();
             CreateMap<CustomerGardenModel, CustomerGarden>();
             CreateMap<CustomerBonsaiModel, CustomerBonsai>();
             CreateMap<OrderModel, Order>().ReverseMap();

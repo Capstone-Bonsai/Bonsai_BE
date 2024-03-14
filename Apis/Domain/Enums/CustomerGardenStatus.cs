@@ -8,7 +8,7 @@ namespace Domain.Enums
 {
     public enum CustomerGardenStatus
     {
-        Unsent = 1, Waiting = 2, OnGoing = 3, Finished = 4
+        Waiting = 1, OnGoing = 2, Finished = 3, Denied = 4
     }
 
 }

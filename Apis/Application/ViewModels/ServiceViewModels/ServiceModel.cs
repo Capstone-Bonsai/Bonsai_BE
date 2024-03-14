@@ -12,6 +12,6 @@ namespace Application.ViewModels.ServiceViewModels
 
         public IFormFile? Image { get; set; }
         public ServiceType ServiceType { get; set; }
-        public IList<Guid> ServiceBaseTaskId { get; set; }
+        public IList<Guid>? ServiceBaseTaskId { get; set; }
     }
 }

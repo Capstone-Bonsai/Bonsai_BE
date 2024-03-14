@@ -29,7 +29,7 @@ namespace WebAPI.Controllers
                 var products = await _bonsaiService.GetPagination(pageIndex, pageSize, _claims.GetIsAdmin);
                 if (products.Items.Count == 0)
                 {
-                    return BadRequest("Không tìm thấy");
+                    return BadRequest("Không tìm thấy!");
                 }
                 else
                 {
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                 var products = await _bonsaiService.GetAll(_claims.GetIsAdmin);
                 if (products.Items.Count == 0)
                 {
-                    return BadRequest("Không tìm thấy");
+                    return BadRequest("Không tìm thấy!");
                 }
                 else
                 {
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
                 var products = await _bonsaiService.GetByFilter(pageIndex, pageSize, filterBonsaiModel, _claims.GetIsAdmin);
                 if (products.Items.Count == 0)
                 {
-                    return NotFound("Không tìm thấy");
+                    return NotFound("Không tìm thấy!");
                 }
                 return Ok(products);
             }
@@ -90,7 +90,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return Ok();
+            return Ok("Tạo bonsai thành công!");
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] Guid id)
@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return Ok();
+            return Ok("Cập nhật thành công!");
         }
 
         [HttpDelete("{id}")]
@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            return Ok();
+            return Ok("Xóa thành công!");
         }
         [HttpGet("BoughtBonsai")]
         [Authorize(Roles = "Customer")]
@@ -140,7 +140,7 @@ namespace WebAPI.Controllers
                 var products = await _bonsaiService.GetBoughtBonsai(_claims.GetCurrentUserId);
                 if (products.Items.Count == 0)
                 {
-                    return BadRequest("Không tìm thấy");
+                    return BadRequest("Không tìm thấy!");
                 }
                 else
                 {
