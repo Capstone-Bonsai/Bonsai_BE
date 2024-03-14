@@ -32,7 +32,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
             }
-            if (contract.ContractType == Domain.Enums.ContractType.BonsaiCare)
+            if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
                 CustomerBonsai? customerBonsai = new CustomerBonsai();
                 customerBonsai = await _unitOfWork.CustomerBonsaiRepository

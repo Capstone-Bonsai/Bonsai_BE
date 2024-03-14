@@ -25,7 +25,7 @@ namespace Domain.Entities
         public double ServicePrice { get; set; }
         public double TotalPrice { get; set; }
         public ContractStatus ContractStatus { get; set; }
-        public ContractType ContractType { get; set; }
+        public ServiceType ServiceType { get; set; }
         public int NumberOfGardener { get; set; }
         public virtual ServiceGarden ServiceGarden { get; set; }
 
