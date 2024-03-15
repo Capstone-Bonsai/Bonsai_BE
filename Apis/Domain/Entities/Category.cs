@@ -7,8 +7,7 @@ namespace Domain.Entities
         public string Name { get; set; }
         [JsonIgnore]
         public IList<Bonsai> Bonsais { get; set; }
-        [JsonIgnore]
-        public IList<CategoryExpectedPrice> CategoryExpectedPrices { get; set; }
+        
         [JsonIgnore]
         public IList<CareStep> CareSteps { get; set; }
     }

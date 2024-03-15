@@ -14,6 +14,8 @@ namespace Domain.Entities
         public Guid CustomerGardenId { get; set; }
         [ForeignKey("Service")]
         public Guid ServiceId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public double? TemporaryPrice { get; set; }
         public double? TemporarySurchargePrice { get; set; }
         public double? TemporaryTotalPrice { get; set; }
