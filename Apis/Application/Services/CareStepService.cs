@@ -48,7 +48,7 @@ namespace Application.Services
                 }
                 await _unitOfWork.CareStepRepository.AddRangeAsync(careSteps);
                 await _unitOfWork.SaveChangeAsync();
-            } catch(Exception e)
+            } catch(Exception)
             {
                 throw;
             }

@@ -64,9 +64,9 @@ namespace Application.Services
             await _unitOfWork.SaveChangeAsync();
             return serviceGarden;
         }
-        public async Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerGardenId)
+        public async Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerGardenId, int pageIndex, int pageSize)
         {
-            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == customerGardenId, orderBy: query => query.OrderBy(x => x.CustomerGardenStatus));
+            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGardenId == customerGardenId, orderBy: query => query.OrderBy(x => x.CustomerGardenStatus));
             return serviceGardens;
         }
         public async Task CancelServiceGarden(Guid serviceGardenId)

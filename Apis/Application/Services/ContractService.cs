@@ -1,4 +1,5 @@
-﻿using Application.ViewModels.ContractViewModels;
+﻿using Application.Interfaces;
+using Application.ViewModels.ContractViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ContractService
+    public class ContractService : IContractService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -94,6 +95,10 @@ namespace Application.Services
                     throw new Exception("Không tìm thấy dịch vụ");
                 }
             }
+        }
+        public async Task CreateContract(ContractModel contractModel)
+        {
+
         }
     }
 }
