@@ -1,4 +1,5 @@
-﻿using Application.Interfaces;
+﻿using Application.Commons;
+using Application.Interfaces;
 using Application.ViewModels.ServiceGardenViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -17,7 +18,7 @@ namespace Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task AddServiceGarden(ServiceGardenModel serviceGardenModel)
+        public async Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel)
         {
             var garden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(serviceGardenModel.CustomerGardenId);
             if (garden == null)
@@ -27,7 +28,7 @@ namespace Application.Services
             var service = await _unitOfWork.ServiceRepository.GetByIdAsync(serviceGardenModel.ServiceId);
             if (service == null)
             {
-                throw new Exception("Không tìm thấy vườn");
+                throw new Exception("Không tìm thấy dịch vụ");
             }
             
             var serviceGarden = _mapper.Map<ServiceGarden>(serviceGardenModel);
@@ -44,20 +45,50 @@ namespace Application.Services
                         .GetAllQueryable()
                         .AsNoTracking()
                         .Include(x => x.Bonsai)
-                        .ThenInclude(x => x.Category).FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGardenModel.CustomerBonsaiId);
+                        .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGardenModel.CustomerBonsaiId);
                     if (customerBonsai == null)
                     {
                         throw new Exception("Không tìm thấy bonsai");
                     }
-
+                    await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
+                    await _unitOfWork.SaveChangeAsync();
+                    //implement add time
+                    return serviceGarden;
                 }
             }
             serviceGarden.TemporaryPrice = garden.Square / service.StandardPrice;
-            // implement surcharge price calculator
             serviceGarden.TemporarySurchargePrice = 0;
             serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
             serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Waiting;
             await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
+            await _unitOfWork.SaveChangeAsync();
+            return serviceGarden;
+        }
+        public async Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerGardenId)
+        {
+            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == customerGardenId, orderBy: query => query.OrderBy(x => x.CustomerGardenStatus));
+            return serviceGardens;
+        }
+        public async Task CancelServiceGarden(Guid serviceGardenId)
+        {
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(serviceGardenId);
+            if (serviceGarden == null)
+            {
+                throw new Exception("Không tìm thấy đơn đặt dịch vụ");
+            }
+            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Cancel;
+            _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
+            await _unitOfWork.SaveChangeAsync();
+        }
+        public async Task DenyServiceGarden(Guid serviceGardenId)
+        {
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(serviceGardenId);
+            if (serviceGarden == null)
+            {
+                throw new Exception("Không tìm thấy đơn đặt dịch vụ");
+            }
+            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Denied;
+            _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
         }
     }
