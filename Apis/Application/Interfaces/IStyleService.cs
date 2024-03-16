@@ -17,5 +17,6 @@ namespace Application.Interfaces
         Task AddStyle(StyleModel styleModel);
         Task UpdateStyle(Guid id, StyleModel styleModel);
         Task DeleteStyle(Guid id);
+         Task<List<StyleCountViewModel>> GetStyleCount();
     }
 }

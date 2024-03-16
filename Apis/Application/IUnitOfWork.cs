@@ -1,5 +1,4 @@
-﻿using Application.Interfaces;
-using Application.Repositories;
+﻿using Application.Repositories;
 
 namespace Application
 {

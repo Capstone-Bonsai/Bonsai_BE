@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("Distance")]
-        public async Task<IActionResult> DistanceAsync(string destination, double price)
+        public async Task<IActionResult> DistanceAsync(string destination)
         {
             try
             {

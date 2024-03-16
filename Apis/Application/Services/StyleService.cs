@@ -87,5 +87,21 @@ namespace Application.Services
                 throw new Exception("Đã xảy ra lỗi trong quá trình xóa dáng cây. Vui lòng thử lại!");
             }
         }
+        public async Task<List<StyleCountViewModel>> GetStyleCount()
+        {
+            var styles = await _unitOfWork.StyleRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
+            List<StyleCountViewModel> styleCountViewModels = new List<StyleCountViewModel>();
+            foreach (Style style in styles.Items)
+            {
+                var numberOfBonsai = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.StyleId == style.Id && !x.IsDeleted && !x.isDisable && x.isSold == false);
+                styleCountViewModels.Add(new StyleCountViewModel()
+                {
+                    Id = style.Id,
+                    name = style.Name,
+                    count = numberOfBonsai.Items.Count
+                });
+            }
+            return styleCountViewModels;
+        }
     }
 }

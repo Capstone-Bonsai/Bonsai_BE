@@ -296,7 +296,7 @@ namespace Application.Services
             var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(isTakeAll: true, expression: x => x.Order.CustomerId == customer.Id && x.Order.OrderStatus == Domain.Enums.OrderStatus.Delivered);
             if (orderDetails.Items.Count == 0)
             {
-                throw new Exception("Bạn chưa có đơn hàng nào");
+                throw new Exception("Bạn chưa có đơn hàng hoàn thành nào");
             }
             List<Guid> orderDetailsId = new List<Guid>();
             foreach (OrderDetail orderDetail in orderDetails.Items)
@@ -325,7 +325,7 @@ namespace Application.Services
                                  x => x.Category,
                                     };
             var lastCodeBonsai = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == categoryId, orderBy: query => query.OrderByDescending(x => x.Code), includes: includes);
-            if (lastCodeBonsai.Items[0] != null)
+            if (lastCodeBonsai.Items.Count > 0)
             {
                 var lastCodeNumericPart = Regex.Match(lastCodeBonsai.Items[0].Code, @"\d+").Value;
                 if (lastCodeNumericPart == "")

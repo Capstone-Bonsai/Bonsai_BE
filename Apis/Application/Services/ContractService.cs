@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Repositories;
 using Application.ViewModels.ContractViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -15,11 +16,13 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IDeliveryFeeService _deliveryFeeService;
 
-        public ContractService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ContractService(IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _deliveryFeeService = deliveryFeeService;
         }
         public async Task<List<TaskViewModel>> GetTaskOfContract(Guid contractId)
         {
@@ -111,7 +114,8 @@ namespace Application.Services
             Contract contract = new Contract();
             contract.CustomerName = customerGarden.Customer.ApplicationUser.Fullname;
             contract.Address = customerGarden.Address;
-            contract.Distance = 0;
+            var distance = await _deliveryFeeService.GetDistanse(contract.Address);
+            contract.Distance = distance.rows[0].elements[0].distance.value;
             contract.StartDate = contractModel.StartDate;
             contract.EndDate = contractModel.EndDate;
             contract.GardenSquare = customerGarden.Square;

@@ -1,5 +1,6 @@
 ﻿
 using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.CategoryViewModels;
 using Application.ViewModels.StyleViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -102,6 +103,26 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok();
+        }
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCount()
+        {
+            try
+            {
+                var styleCounts = await _styleService.GetStyleCount();
+                if (styleCounts.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(styleCounts);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
