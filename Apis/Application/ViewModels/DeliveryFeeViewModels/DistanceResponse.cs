@@ -10,6 +10,8 @@ namespace Application.ViewModels.DeliveryFeeViewModels
 {
     public class DistanceResponse
     {
+        public string Origin { get; set; }
+        public string Destination { get; set; }
         public List<Row> rows { get; set; }
     }
     public class Distance

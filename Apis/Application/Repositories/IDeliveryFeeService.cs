@@ -15,5 +15,6 @@ namespace Application.Repositories
         public Task UpdateAsync(IFormFile file);
         public Task<DeliveryFeeViewModel> GetAllAsync();
         public Task<FeeViewModel> CalculateFee(string destination, double price);
+        public Task<DistanceResponse> GetDistanse(string destination);
     }
 }
