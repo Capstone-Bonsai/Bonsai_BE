@@ -174,7 +174,7 @@ namespace Application.Services
 
         public async Task<FeeViewModel> CalculateFee(string destination, double price)
         {
-            string origin = "11.7341038,108.3735893";
+            string origin = _configuration["Origin:GeoLocation"];
             double finalPrice = 0;
             int distance = 0;
             var finalFee = new FeeViewModel();
@@ -234,6 +234,35 @@ namespace Application.Services
                 throw new Exception("Chưa cập nhật bảng giá vẫn chuyển");
             }
             
+        }
+
+        public async Task<DistanceResponse> GetDistanse(string destination)
+        {
+            string origin = _configuration["Origin:GeoLocation"];
+            var addressModel = await GetGeocoding(destination);
+            string codeKey = _configuration["GoongAPI"];
+            HttpResponseMessage response = await _httpClient.GetAsync($"https://rsapi.goong.io/DistanceMatrix?origins={origin}&destinations={addressModel.Geocoding}&vehicle=car&api_key={codeKey}");
+            if (response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                var res = JsonConvert.DeserializeObject<DistanceResponse>(content);
+                if (res != null && res.rows != null && res.rows.Count > 0)
+                {
+                    res.Origin = _configuration["Origin:Address"];
+                    res.Destination = destination;
+                    return res;
+                }
+                else
+                {
+                    //var temp = response;
+                    throw new Exception("Địa điểm giao hàng không hợp lệ.");
+                }
+
+            }
+            else
+            {
+                throw new Exception("Địa điểm giao hàng không hợp lệ.");
+            }
         }
     }
 }
