@@ -98,7 +98,26 @@ namespace Application.Services
         }
         public async Task CreateContract(ContractModel contractModel)
         {
-
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(contractModel.ServiceGardenId);
+            if (serviceGarden == null)
+            {
+                throw new Exception("Không tìm thấy đơn đăng ký");
+            }
+            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAllQueryable()
+                .AsNoTracking()
+                .Include(x => x.Customer)
+                .ThenInclude(x => x.ApplicationUser)
+                .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGarden.CustomerGardenId);
+            Contract contract = new Contract();
+            contract.CustomerName = customerGarden.Customer.ApplicationUser.Fullname;
+            contract.Address = customerGarden.Address;
+            contract.Distance = 0;
+            contract.StartDate = contractModel.StartDate;
+            contract.EndDate = contractModel.EndDate;
+            contract.GardenSquare = customerGarden.Square;
+            contract.StandardPrice = serviceGarden.TemporaryPrice ?? 0;
+            contract.ServicePrice = contractModel.ServicePrice;
+            
         }
     }
 }
