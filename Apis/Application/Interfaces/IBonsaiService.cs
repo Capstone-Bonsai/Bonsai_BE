@@ -14,5 +14,6 @@ namespace Application.Interfaces
         Task Update(Guid id, BonsaiModel bonsaiModel);
         Task Delete(Guid id);
         Task<Pagination<Bonsai>> GetBoughtBonsai(Guid id);
+        Task<Pagination<Bonsai>> GetByCategory(int pageIndex, int pageSize, Guid categoryId);
     }
 }

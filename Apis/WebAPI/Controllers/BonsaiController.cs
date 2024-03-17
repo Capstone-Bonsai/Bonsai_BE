@@ -152,5 +152,25 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("Category")]
+        public async Task<IActionResult> GetByCategory([FromQuery] int pageIndex, int pageSize, Guid categoryId)
+        {
+            try
+            {
+                var products = await _bonsaiService.GetByCategory(pageIndex, pageSize, categoryId);
+                if (products.Items.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy!");
+                }
+                else
+                {
+                    return Ok(products);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

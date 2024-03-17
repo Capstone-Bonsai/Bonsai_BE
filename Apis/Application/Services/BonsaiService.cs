@@ -343,6 +343,17 @@ namespace Application.Services
                 return $"{StringUtils.RemoveDiacritics(category.Name)}00001";
             }
         }
-       
+        public async Task<Pagination<Bonsai>> GetByCategory(int pageIndex, int pageSize, Guid categoryId)
+        {
+            List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted),
+                                 x => x.Category,
+                                 x => x.Style,
+                                    };
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable && x.isSold == false && x.CategoryId == categoryId,
+                isDisableTracking: true, includes: includes);
+            return bonsais;
+        }
+
     }
 }
