@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
             _customerBonsaiService = customerBonsaiService;
             _claims = claimsService;
         }
-        [HttpPost("")]
+        [HttpPost("BoughtBonsai")]
         public async Task<IActionResult> AddBonsaiForCustomer([FromBody] CustomerBonsaiModel customerBonsaiModel)
         {
             try

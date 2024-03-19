@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class CustomerBonsaiService
+    public class CustomerBonsaiService : ICustomerBonsaiService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;

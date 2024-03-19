@@ -64,5 +64,31 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("WorkingCalendar")]
+        public async Task<IActionResult> GetWorkingCalendar(int month, int year)
+        {
+            try
+            {
+                var contracts = await _contractService.GetWorkingCalendar(month, year, _claims.GetCurrentUserId);
+                return Ok(contracts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            try
+            {
+                var contracts = await _contractService.GetContractById(id);
+                return Ok(contracts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

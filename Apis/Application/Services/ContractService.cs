@@ -5,6 +5,7 @@ using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
 using Org.BouncyCastle.Math.EC.Multiplier;
@@ -21,12 +22,13 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IDeliveryFeeService _deliveryFeeService;
-
-        public ContractService(IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ContractService(IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _deliveryFeeService = deliveryFeeService;
+            _userManager = userManager;
         }
         public async Task CreateContract(ContractModel contractModel)
         {
@@ -145,6 +147,72 @@ namespace Application.Services
             }
             await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
             await _unitOfWork.SaveChangeAsync();
+        }
+        public async Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id)
+        {
+            var gardener = await GetGardenerAsync(id);
+            if (gardener == null)
+            {
+                throw new Exception("Không tìm thấy gardener!");
+            }
+            var startDate = new DateTime(year, month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            List<ContractViewModel> contractViewModels = new List<ContractViewModel>();
+            var contracts = await _unitOfWork.ContractRepository
+                .GetAllQueryable()
+                .Where(x => x.ContractGardeners.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= endDate && x.EndDate >= startDate)
+                .ToListAsync();
+            if(contracts.Count == 0)
+            {
+                return new List<ContractViewModel>();
+            }
+            foreach(Contract contract in contracts)
+            {
+                contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
+            }
+            return contractViewModels;
+        }
+        private async Task<Gardener> GetGardenerAsync(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                throw new Exception("Không tìm thấy người làm vườn!");
+            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
+            if (!isGardener)
+                throw new Exception("Chỉ người làm vườn mới có thể thêm vào dự án!");
+            var gardener = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
+            if (gardener == null)
+                throw new Exception("Không tìm thấy thông tin người dùng");
+            return gardener;
+        }
+        public async Task<ContractViewModel> GetContractById(Guid id)
+        {
+            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(id);
+            if (contract ==  null)
+            {
+                throw new Exception("Không tồn tại hợp đồng");
+            }
+           
+            var contractViewModel = _mapper.Map<ContractViewModel>(contract);
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(contract.ServiceGardenId);
+            if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
+            {
+                //add get bonsai customer
+            }
+            else
+            {
+                var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGarden.CustomerGardenId && !x.IsDeleted);
+                if (customerGardenImage.Items.Count > 0)
+                {
+                    List<string> images = new List<string>();
+                    foreach (CustomerGardenImage image in customerGardenImage.Items)
+                    {
+                        images.Add(image.Image);
+                    }
+                    contractViewModel.Image = images;
+                }        
+            }     
+            return contractViewModel;
         }
     }
 }

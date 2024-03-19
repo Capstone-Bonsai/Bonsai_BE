@@ -23,6 +23,5 @@ namespace Domain.Entities
         public string? Note { get; set; }
         public virtual CustomerGarden CustomerGarden { get; set; }
         public virtual Service Service { get; set; }
-
     }
 }
