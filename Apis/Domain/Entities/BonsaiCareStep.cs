@@ -11,13 +11,10 @@ namespace Domain.Entities
     {
         [ForeignKey("CareStep")]
         public Guid CareStepId { get; set; }
-
         [ForeignKey("Contract")]
         public Guid ContractId { get; set; }
         public string? Note { get; set; }
         public DateTime? CompletedTime { get; set; }
-
-
         public virtual CareStep CareStep { get; set; }
         public virtual Contract Contract { get; set; }
     }

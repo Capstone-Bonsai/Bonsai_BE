@@ -1,4 +1,7 @@
-﻿using Application.ViewModels.ContractViewModels;
+﻿using Application.Commons;
+using Application.ViewModels.ContractViewModels;
+using Application.ViewModels.TaskViewModels;
+using Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +11,7 @@ namespace Application.Interfaces
 {
     public interface IContractService
     {
-        Task<List<TaskViewModel>> GetTaskOfContract(Guid contractId);
+        Task CreateContract(ContractModel contractModel);
+        Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize);
     }
 }

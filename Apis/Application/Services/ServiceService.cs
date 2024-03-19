@@ -68,6 +68,10 @@ namespace Application.Services
             {
                 throw new Exception("Không để trống hình ảnh");
             }
+            if(model.ServiceType == Domain.Enums.ServiceType.GardenCare && model.StandardPrice == 0)
+            {
+                throw new Exception("Dịch vụ chăm sóc vườn không được để trống giá tiêu chuẩn");
+            }
             else
             {
                 try

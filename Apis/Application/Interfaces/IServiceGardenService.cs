@@ -11,5 +11,6 @@ namespace Application.Interfaces
         Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerGardenId, int pageIndex, int pageSize);
         Task CancelServiceGarden(Guid serviceGardenId);
         Task DenyServiceGarden(Guid serviceGardenId);
+        Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize);
     }
 }

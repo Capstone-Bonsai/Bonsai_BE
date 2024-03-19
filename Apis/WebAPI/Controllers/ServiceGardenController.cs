@@ -1,10 +1,12 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.OrderViewModels;
 using Application.ViewModels.ServiceGardenViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
+using System.Security.Claims;
 
 namespace WebAPI.Controllers
 {
@@ -36,7 +38,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost("customerGardenId")]
+        [HttpGet("customerGardenId")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize, [FromBody] Guid customerGardenId)
         {
@@ -74,6 +76,26 @@ namespace WebAPI.Controllers
             {
                 await _serviceGardenService.DenyServiceGarden(customerGardenId);
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("Pagination")]
+        public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
+        {
+            try
+            {
+                var pagination = await _serviceGardenService.GetServiceGarden(pageIndex, pageSize);
+                if (pagination.Items.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy!");
+                }
+                else
+                {
+                    return Ok(pagination);
+                }
             }
             catch (Exception ex)
             {

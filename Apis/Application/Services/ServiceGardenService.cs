@@ -1,10 +1,12 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Repositories;
 using Application.ViewModels.ServiceGardenViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Firebase.Auth;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Contracts;
 
 namespace Application.Services
 {
@@ -12,11 +14,15 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IServiceSurchargeService _serviceSurchargeService;
+        private readonly IDeliveryFeeService _deliveryFeeService;
 
-        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper)
+        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IServiceSurchargeService serviceSurchargeService, IDeliveryFeeService deliveryFeeService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _serviceSurchargeService = serviceSurchargeService;
+            _deliveryFeeService = deliveryFeeService;
         }
         public async Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel)
         {
@@ -56,8 +62,9 @@ namespace Application.Services
                     return serviceGarden;
                 }
             }
-            serviceGarden.TemporaryPrice = garden.Square / service.StandardPrice;
-            serviceGarden.TemporarySurchargePrice = 0;
+            var distance = await _deliveryFeeService.GetDistanse(garden.Address);
+            serviceGarden.TemporaryPrice = garden.Square * service.StandardPrice;
+            serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString()));
             serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
             serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Waiting;
             await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
@@ -90,6 +97,11 @@ namespace Application.Services
             serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Denied;
             _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
+        }
+        public async Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize)
+        {
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted);
+            return serviceGarden;
         }
     }
 }

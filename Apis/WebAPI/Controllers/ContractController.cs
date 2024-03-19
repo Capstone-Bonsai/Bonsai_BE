@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.ViewModels.ContractViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,20 +18,33 @@ namespace WebAPI.Controllers
             _contractService = contractService;
             _claims = claimsService;
         }
-        [HttpGet("{contractId}")]
-        public async Task<IActionResult> Get([FromRoute] Guid contractId)
+        [HttpGet("Pagination")]
+        public async Task<IActionResult> Get([FromRoute] int pageIndex, int pageSize)
         {
             try
             {
-                var categories = await _contractService.GetTaskOfContract(contractId);
-                if (categories.Count == 0)
+                var contracts = await _contractService.GetContracts(pageIndex, pageSize);
+                if (contracts.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
                 }
                 else
                 {
-                    return Ok(categories);
+                    return Ok(contracts);
                 }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] ContractModel contractModel)
+        {
+            try
+            {
+                await _contractService.CreateContract(contractModel);
+                return Ok();
             }
             catch (Exception ex)
             {

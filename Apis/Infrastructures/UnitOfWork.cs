@@ -29,6 +29,9 @@ namespace Infrastructures
         private readonly IServiceBaseTaskRepository _serviceBaseTaskRepository;
         private readonly IServiceGardenRepository _serviceGardenRepository;
         private readonly IContractRepository _contractRepository;
+        private readonly IGardenCareTaskRepository _gardenCareTaskRepository;
+        private readonly IBonsaiCareStepRepository _bonsaiCareStepRepository;
+        private readonly IServiceSurchargeRepository _serviceSurchargeRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -37,7 +40,8 @@ namespace Infrastructures
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
             ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository,
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
-            IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository
+            IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
+            IBonsaiCareStepRepository bonsaiCareStepRepository, IServiceSurchargeRepository serviceSurchargeRepository
          )
         {
             _dbContext = dbContext;
@@ -61,6 +65,9 @@ namespace Infrastructures
             _serviceBaseTaskRepository = serviceBaseTaskRepository;
             _serviceGardenRepository = serviceGardenRepository;
             _contractRepository = contractRepository;
+            _gardenCareTaskRepository = gardenCareTaskRepository;
+            _bonsaiCareStepRepository = bonsaiCareStepRepository;
+            _serviceSurchargeRepository = serviceSurchargeRepository;
         }
 
 
@@ -103,6 +110,12 @@ namespace Infrastructures
         public IServiceGardenRepository ServiceGardenRepository => _serviceGardenRepository;
 
         public IContractRepository ContractRepository => _contractRepository;
+
+        public IGardenCareTaskRepository GardenCareTaskRepository => _gardenCareTaskRepository;
+
+        public IBonsaiCareStepRepository BonsaiCareStepRepository => _bonsaiCareStepRepository;
+
+        public IServiceSurchargeRepository ServiceSurchargeRepository => _serviceSurchargeRepository;
 
         public async Task<int> SaveChangeAsync()
         {
