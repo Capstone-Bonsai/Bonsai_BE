@@ -25,10 +25,9 @@ namespace Application
         public IServiceGardenRepository ServiceGardenRepository { get; }
         public IContractRepository ContractRepository { get; }
         public IGardenCareTaskRepository GardenCareTaskRepository { get; }
-
         public IBonsaiCareStepRepository BonsaiCareStepRepository { get; }
-
         public IServiceSurchargeRepository ServiceSurchargeRepository { get; }
+        public IContractGardenerRepository ContractGardenerRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

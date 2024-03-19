@@ -187,6 +187,19 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        //[Authorize(Roles = "Staff")]
+        [HttpGet("FreeGardener")]
+        public async Task<IActionResult> GetListGardenerAsync(int pageIndex, int pageSize, Guid contractId)   
+        {
+            try
+            {
+                var users = await _userService.GetListGardenerAsync(pageIndex, pageSize, contractId);
+                return Ok(users);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

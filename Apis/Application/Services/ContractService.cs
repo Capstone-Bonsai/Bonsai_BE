@@ -6,6 +6,8 @@ using Application.ViewModels.TaskViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using Org.BouncyCastle.Math.EC.Multiplier;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -119,6 +121,30 @@ namespace Application.Services
         {
             var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize);
             return contracts;
+        }
+        public async Task AddContractGardener(ContractGardenerModel contractGardenerModel)
+        {
+            var contract = await  _unitOfWork.ContractRepository.GetByIdAsync(contractGardenerModel.ContractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng");
+            }
+            List<ContractGardener> contractGardeners = new List<ContractGardener>();
+            foreach (Guid id in contractGardenerModel.GardenerIds)
+            {
+                var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ContractId == contract.Id && !x.IsDeleted);
+                if (contractGardener.Items.Count == 0)
+                {
+                    contractGardeners.Add(new ContractGardener()
+                    {
+                        ContractId = contract.Id,
+                        GardenerId = id,
+                        HasRequest = false,
+                    });
+                }
+            }
+            await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
+            await _unitOfWork.SaveChangeAsync();
         }
     }
 }

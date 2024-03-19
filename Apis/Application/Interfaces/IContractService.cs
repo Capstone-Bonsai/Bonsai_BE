@@ -13,5 +13,6 @@ namespace Application.Interfaces
     {
         Task CreateContract(ContractModel contractModel);
         Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize);
+        Task AddContractGardener(ContractGardenerModel contractGardenerModel);
     }
 }
