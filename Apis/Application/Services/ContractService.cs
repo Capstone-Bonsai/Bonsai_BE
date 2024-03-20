@@ -201,6 +201,8 @@ namespace Application.Services
             }
             else
             {
+                var customerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(serviceGarden.CustomerGardenId);
+                contractViewModel.CustomerGarden = customerGarden ?? new CustomerGarden();
                 var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGarden.CustomerGardenId && !x.IsDeleted);
                 if (customerGardenImage.Items.Count > 0)
                 {

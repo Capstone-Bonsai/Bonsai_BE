@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Enums;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -19,5 +20,9 @@ namespace Application.ViewModels.ContractViewModels
         public string Address { get; set; }
         [NotMapped]
         public List<string> Image { get; set; } = default!;
+        public ServiceType ServiceType { get; set; }
+        [NotMapped]
+        public CustomerBonsai CustomerBonsai { get; set; } = default!;
+
     }
 }

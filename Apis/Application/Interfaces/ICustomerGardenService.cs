@@ -14,5 +14,6 @@ namespace Application.Interfaces
         Task AddCustomerGarden(CustomerGardenModel customerGardenModel, Guid id);
         Task<Pagination<CustomerGarden>> GetByCustomerId(Guid id);
         Task<Pagination<CustomerGarden>> Get();
+        Task Delete(Guid id);
     }
 }

@@ -110,5 +110,15 @@ namespace Application.Services
             var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, includes: includes);
             return customerGarden;
         }
+        public async Task Delete(Guid id)
+        {
+            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(id);
+            if (customerGarden == null)
+            {
+                throw new Exception("Không tìm thấy");
+            }
+            _unitOfWork.CustomerGardenRepository.SoftRemove(customerGarden);
+            await _unitOfWork.SaveChangeAsync();
+        }
     }
 }
