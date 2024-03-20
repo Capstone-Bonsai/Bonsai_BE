@@ -31,7 +31,7 @@ namespace Infrastructures.Mappers
             CreateMap<StyleModel, Style>();
             CreateMap<ServiceGardenModel, ServiceGarden>();
             CreateMap<CustomerGardenModel, CustomerGarden>();
-            CreateMap<CustomerBonsaiModel, CustomerBonsai>();
+            CreateMap<CustomerBonsaiModel, CustomerBonsai>().ReverseMap();
             CreateMap<ServiceSurchargeModel, ServiceSurcharge>();
             CreateMap<Contract, ContractViewModel>().ReverseMap();
             CreateMap<OrderModel, Order>().ReverseMap();

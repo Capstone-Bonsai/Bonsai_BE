@@ -15,14 +15,12 @@ namespace Domain.Entities
         [ForeignKey("Service")]
         public Guid ServiceId { get; set; }
         public Guid? CustomerBonsaiId { get; set; }
-
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public double? TemporaryPrice { get; set; }
         public double? TemporarySurchargePrice { get; set; }
         public double? TemporaryTotalPrice { get; set; }
         public int? TemporaryGardener { get; set; }
-
         public CustomerGardenStatus CustomerGardenStatus { get; set; }
         public string? Note { get; set; }
         public virtual CustomerGarden CustomerGarden { get; set; }

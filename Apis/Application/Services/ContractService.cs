@@ -5,6 +5,7 @@ using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic;
@@ -197,14 +198,28 @@ namespace Application.Services
             var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(contract.ServiceGardenId);
             if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
-                //add get bonsai customer
-                var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGarden.CustomerGardenId && !x.IsDeleted);
-                if (customerGardenImage.Items.Count > 0)
+                if (serviceGarden.CustomerBonsaiId == null || serviceGarden.CustomerBonsaiId.Equals("00000000-0000-0000-0000-000000000000"))
+                {
+                    throw new Exception("Đơn yêu cầu chưa bao gồm bonsai");
+                }
+                var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetByIdAsync(serviceGarden.CustomerBonsaiId.Value);
+                if (customerBonsai == null)
+                {
+                    throw new Exception("Không tìm thấy bonsai");
+                }
+                var bonsai  = await _unitOfWork.BonsaiRepository.GetByIdAsync(customerBonsai.BonsaiId);
+                if (bonsai == null)
+                {
+                    throw new Exception("Không tìm thấy bonsai");
+                }
+                contractViewModel.Bonsai = bonsai;
+                var bonsaiImage = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => x.BonsaiId == bonsai.Id && !x.IsDeleted);
+                if (bonsaiImage.Items.Count > 0)
                 {
                     List<string> images = new List<string>();
-                    foreach (CustomerGardenImage image in customerGardenImage.Items)
+                    foreach (BonsaiImage image in bonsaiImage.Items)
                     {
-                        images.Add(image.Image);
+                        images.Add(image.ImageUrl);
                     }
                     contractViewModel.Image = images;
                 }        

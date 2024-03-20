@@ -310,7 +310,7 @@ namespace Application.Services
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
-                throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                throw new Exception("Không tìm thấy!");
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
             if (!isCustomer)
                 throw new Exception("Bạn không có quyền để thực hiện hành động này!");

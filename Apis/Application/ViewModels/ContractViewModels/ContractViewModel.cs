@@ -22,7 +22,7 @@ namespace Application.ViewModels.ContractViewModels
         public List<string> Image { get; set; } = default!;
         public ServiceType ServiceType { get; set; }
         [NotMapped]
-        public CustomerBonsai CustomerBonsai { get; set; } = default!;
+        public Bonsai Bonsai { get; set; } = default!;
 
     }
 }

@@ -34,6 +34,7 @@ namespace Domain.Entities
         public bool? isSold { get; set; }
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
+        [JsonIgnore]
         public virtual CustomerBonsai?  CustomerBonsai { get; set; }
         [JsonIgnore]
         public IList<OrderDetail> OrderDetails { get; set; }

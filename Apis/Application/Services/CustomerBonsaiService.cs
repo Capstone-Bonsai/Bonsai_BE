@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -41,7 +42,7 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy thông tin bonsai");
             }
             var listBoughtBonsai = await _bonsaiService.GetBoughtBonsai(customerId);
-            if (!listBoughtBonsai.Items.Contains(bonsai))
+            if (!listBoughtBonsai.Items.Any(x => x.Id == bonsai.Id))
             {
                 throw new Exception("Cây này không tồn tại trong danh sách đã mua");
             }
@@ -52,6 +53,7 @@ namespace Application.Services
             }
             var customerBonsai = _mapper.Map<CustomerBonsai>(customerBonsaiModel);
             await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
+            await _unitOfWork.SaveChangeAsync();
         }
         public async Task CreateBonsai(Guid gardenId,BonsaiModelForCustomer bonsaiModelForCustomer)
         {
@@ -116,7 +118,10 @@ namespace Application.Services
         }
         public async Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId)
         {
-            var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted);
+            List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
+                                 x => x.Bonsai,
+                                    };
+            var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted, includes: includes);
             return bonsais;
         }
     }

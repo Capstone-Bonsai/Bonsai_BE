@@ -37,7 +37,6 @@ namespace WebAPI.Controllers
 
         }
         [HttpPost("Customer/{gardenId}")]
-        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Post([FromRoute] Guid gardenId, [FromForm] BonsaiModelForCustomer bonsaiModelForCustomer)
         {
             try
@@ -49,6 +48,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
             return Ok();
+        }
+        [HttpGet("CustomerGarden/{gardenId}")]
+        public async Task<IActionResult> Post([FromRoute] Guid gardenId)
+        {
+            try
+            {
+                var bonsai = await _customerBonsaiService.GetBonsaiOfGarden(gardenId);
+                return Ok(bonsai);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
