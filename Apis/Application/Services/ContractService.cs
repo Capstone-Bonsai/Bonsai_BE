@@ -220,7 +220,7 @@ namespace Application.Services
                         images.Add(image.Image);
                     }
                     contractViewModel.Image = images;
-                }        
+                }
             }     
             return contractViewModel;
         }
