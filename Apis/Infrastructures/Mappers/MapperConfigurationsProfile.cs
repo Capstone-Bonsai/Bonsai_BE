@@ -26,12 +26,14 @@ namespace Infrastructures.Mappers
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
             CreateMap<Chemical, ChemicalViewModel>()
                 .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
-            CreateMap<Application.ViewModels.BonsaiViewModel.BonsaiModel, Bonsai>();
+            CreateMap<BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
             CreateMap<ServiceGardenModel, ServiceGarden>();
             CreateMap<CustomerGardenModel, CustomerGarden>();
             CreateMap<CustomerBonsaiModel, CustomerBonsai>().ReverseMap();
+            CreateMap<BonsaiModelForCustomer, Bonsai>();
+            
             CreateMap<ServiceSurchargeModel, ServiceSurcharge>();
             CreateMap<Contract, ContractViewModel>().ReverseMap();
             CreateMap<OrderModel, Order>().ReverseMap();

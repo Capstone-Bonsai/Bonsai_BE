@@ -42,11 +42,11 @@ namespace WebAPI.Controllers
         }
         [HttpGet("Customer")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int pageIndex, int pageSize)
         {
             try
             {
-               var customerGarden = await _customerGardenService.GetByCustomerId(_claims.GetCurrentUserId);
+               var customerGarden = await _customerGardenService.GetByCustomerId(pageIndex, pageSize,_claims.GetCurrentUserId);
                 if (customerGarden.Items.Count == 0)
                 {
                     throw new Exception("Không tìm thấy");

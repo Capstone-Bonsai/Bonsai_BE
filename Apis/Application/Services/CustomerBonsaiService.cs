@@ -72,6 +72,7 @@ namespace Application.Services
             var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
             bonsai.Price = 0;
             bonsai.isDisable = false;
+            bonsai.Code = "KHACHHANG";
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -119,7 +120,7 @@ namespace Application.Services
         public async Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId)
         {
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
-                                 x => x.Bonsai,
+                                 x => x.Bonsai.BonsaiImages
                                     };
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted, includes: includes);
             return bonsais;

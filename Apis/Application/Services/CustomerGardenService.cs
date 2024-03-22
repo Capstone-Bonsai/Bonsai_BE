@@ -69,7 +69,7 @@ namespace Application.Services
                         };
 
                         await _unitOfWork.CustomerGardenImageRepository.AddAsync(customerGardenImage);
-                    } 
+                    }
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }
@@ -93,14 +93,38 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return customer;
         }
-        public async Task<Pagination<CustomerGarden>> GetByCustomerId(Guid id)
+        public async Task<Pagination<CustomerGarden>> GetByCustomerId(int pageIndex, int pageSize, Guid id)
         {
             var customer = await GetCustomerAsync(id);
-            List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
-                                 x => x.CustomerGardenImages.Where(y => !y.IsDeleted),
-                                    };
-            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerId == customer.Id && !x.IsDeleted, includes: includes);
-            return customerGarden;
+            var customerGardenQuery = _unitOfWork.CustomerGardenRepository
+                .GetAllQueryable()
+                .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted))
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize);
+
+
+            var customerGardens = await customerGardenQuery.ToListAsync();
+
+            foreach (CustomerGarden _garden in customerGardens)
+            {
+                // Load CustomerBonsais with Bonsai and BonsaiImages
+                var bonsais = await _unitOfWork.CustomerBonsaiRepository
+                    .GetAllQueryable()
+                    .Where(cb => cb.CustomerGardenId == _garden.Id)
+                    .Include(bonsai => bonsai.Bonsai)
+                    .ThenInclude(x => x.BonsaiImages)
+                    .ToListAsync();
+
+                _garden.CustomerBonsais = bonsais;
+            }
+            Pagination<CustomerGarden> garden = new Pagination<CustomerGarden>()
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Items = customerGardens,
+                TotalItemsCount = customerGardens.Count
+            };
+            return garden;
         }
         public async Task<Pagination<CustomerGarden>> Get()
         {
