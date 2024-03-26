@@ -101,7 +101,9 @@ namespace Application.Services
                 .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted))
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize);
-
+            var count = _unitOfWork.CustomerGardenRepository
+               .GetAllQueryable()
+               .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted)).Count();
 
             var customerGardens = await customerGardenQuery.ToListAsync();
 
@@ -122,17 +124,9 @@ namespace Application.Services
                 PageIndex = pageIndex,
                 PageSize = pageSize,
                 Items = customerGardens,
-                TotalItemsCount = customerGardens.Count
+                TotalItemsCount = count
             };
             return garden;
-        }
-        public async Task<Pagination<CustomerGarden>> Get()
-        {
-            List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
-                                 x => x.CustomerGardenImages.Where(y => !y.IsDeleted),
-                                    };
-            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, includes: includes);
-            return customerGarden;
         }
         public async Task Delete(Guid id)
         {

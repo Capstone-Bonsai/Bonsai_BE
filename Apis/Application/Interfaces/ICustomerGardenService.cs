@@ -13,7 +13,6 @@ namespace Application.Interfaces
     {
         Task AddCustomerGarden(CustomerGardenModel customerGardenModel, Guid id);
         Task<Pagination<CustomerGarden>> GetByCustomerId(int pageIndex, int pageSize, Guid id);
-        Task<Pagination<CustomerGarden>> Get();
         Task Delete(Guid id);
     }
 }

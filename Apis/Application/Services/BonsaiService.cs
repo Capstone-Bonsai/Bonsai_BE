@@ -303,7 +303,10 @@ namespace Application.Services
             {
                 orderDetailsId.Add(orderDetail.Id);
             }
-            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.OrderDetails.Any(y => orderDetailsId.Contains(y.Id)) && x.CustomerBonsai == null);
+            List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
+                                 x => x.BonsaiImages.Where(y => !y.IsDeleted)
+                                    };
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.OrderDetails.Any(y => orderDetailsId.Contains(y.Id)) && x.CustomerBonsai == null, includes: includes);
             return bonsais;
         }
         private async Task<Customer> GetCustomerAsync(Guid id)
