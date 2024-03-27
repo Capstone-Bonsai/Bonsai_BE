@@ -128,6 +128,23 @@ namespace Application.Services
             };
             return garden;
         }
+        public async Task<Pagination<CustomerGarden>> GetAllByCustomerId(Guid id)
+        {
+            var customer = await GetCustomerAsync(id);
+            var customerGardenQuery = _unitOfWork.CustomerGardenRepository
+                .GetAllQueryable()
+                .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted));
+
+            var customerGardens = await customerGardenQuery.ToListAsync();
+            Pagination<CustomerGarden> garden = new Pagination<CustomerGarden>()
+            {
+                PageIndex = 0,
+                PageSize = customerGardens.Count,
+                Items = customerGardens,
+                TotalItemsCount = customerGardens.Count
+            };
+            return garden;
+        }
         public async Task Delete(Guid id)
         {
             var customerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(id);

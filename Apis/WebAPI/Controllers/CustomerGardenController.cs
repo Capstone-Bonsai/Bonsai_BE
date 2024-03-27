@@ -22,8 +22,25 @@ namespace WebAPI.Controllers
             _customerGardenService = customerGardenService;
             _claims = claimsService;
         }
-  
         [HttpGet]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var customerGarden = await _customerGardenService.GetAllByCustomerId(_claims.GetCurrentUserId);
+                if (customerGarden.Items.Count == 0)
+                {
+                    throw new Exception("Không tìm thấy");
+                }
+                return Ok(customerGarden);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("Pagination")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Get([FromQuery] int pageIndex, int pageSize)
         {
@@ -40,7 +57,6 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-
         }
         [HttpPost]
         [Authorize(Roles = "Customer")]
