@@ -61,7 +61,8 @@ namespace Infrastructures
             services.AddScoped<IGardenCareTaskRepository, GardenCareTaskRepository>();
             services.AddScoped<IServiceSurchargeRepository, ServiceSurchargeRepository>();
             services.AddScoped<IContractGardenerRepository, ContractGardenerRepository>();
-            
+            services.AddScoped<ICategoryExpectedPriceRepository, CategoryExpectedPriceRepository>();
+
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddSingleton<FirebaseService>();
 

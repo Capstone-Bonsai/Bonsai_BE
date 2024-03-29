@@ -38,6 +38,7 @@ namespace Application.Services
             }
             
             var serviceGarden = _mapper.Map<ServiceGarden>(serviceGardenModel);
+            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.UnAccepted;
             if (service.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
                 if (serviceGardenModel.CustomerBonsaiId == null || serviceGardenModel.CustomerBonsaiId.Equals("00000000-0000-0000-0000-000000000000"))
@@ -54,7 +55,11 @@ namespace Application.Services
                         .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGardenModel.CustomerBonsaiId);
                     if (customerBonsai == null)
                     {
-                        throw new Exception("Không tìm thấy bonsai");
+                        throw new Exception("Không tìm thấy bonsai!");
+                    }
+                    if (customerBonsai.CustomerGardenId != serviceGardenModel.CustomerGardenId)
+                    {
+                        throw new Exception("Bonsai không ở trong vườn!");
                     }
                     await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
                     await _unitOfWork.SaveChangeAsync();

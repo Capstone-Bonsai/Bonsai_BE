@@ -28,6 +28,8 @@ namespace Application
         public IBonsaiCareStepRepository BonsaiCareStepRepository { get; }
         public IServiceSurchargeRepository ServiceSurchargeRepository { get; }
         public IContractGardenerRepository ContractGardenerRepository { get; }
+
+        public ICategoryExpectedPriceRepository CategoryExpectedPriceRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();
