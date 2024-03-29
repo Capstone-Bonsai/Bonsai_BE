@@ -38,7 +38,7 @@ namespace Application.Services
             }
             
             var serviceGarden = _mapper.Map<ServiceGarden>(serviceGardenModel);
-            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.UnAccepted;
+            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.UnAccepted;
             if (service.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
                 if (serviceGardenModel.CustomerBonsaiId == null || serviceGardenModel.CustomerBonsaiId.Equals("00000000-0000-0000-0000-000000000000"))
@@ -71,14 +71,14 @@ namespace Application.Services
             serviceGarden.TemporaryPrice = garden.Square * service.StandardPrice;
             serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString()));
             serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
-            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Waiting;
+            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Waiting;
             await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
             return serviceGarden;
         }
         public async Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerGardenId, int pageIndex, int pageSize)
         {
-            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGardenId == customerGardenId, orderBy: query => query.OrderBy(x => x.CustomerGardenStatus));
+            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGardenId == customerGardenId, orderBy: query => query.OrderBy(x => x.ServiceGardenStatus));
             return serviceGardens;
         }
         public async Task CancelServiceGarden(Guid serviceGardenId)
@@ -88,7 +88,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy đơn đặt dịch vụ");
             }
-            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Cancel;
+            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Cancel;
             _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
         }
@@ -99,7 +99,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy đơn đặt dịch vụ");
             }
-            serviceGarden.CustomerGardenStatus = Domain.Enums.CustomerGardenStatus.Denied;
+            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Denied;
             _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
         }

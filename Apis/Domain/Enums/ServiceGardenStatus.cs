@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum CustomerGardenStatus
+    public enum ServiceGardenStatus
     {
         UnAccepted = 1,Waiting = 2, OnGoing = 3, Finished = 4, Denied = 5, Cancel = 6
     }

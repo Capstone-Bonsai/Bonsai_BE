@@ -21,7 +21,7 @@ namespace Domain.Entities
         public double? TemporarySurchargePrice { get; set; }
         public double? TemporaryTotalPrice { get; set; }
         public int? TemporaryGardener { get; set; }
-        public CustomerGardenStatus CustomerGardenStatus { get; set; }
+        public ServiceGardenStatus ServiceGardenStatus { get; set; }
         public string? Note { get; set; }
         public virtual CustomerGarden CustomerGarden { get; set; }
         public virtual Service Service { get; set; }
