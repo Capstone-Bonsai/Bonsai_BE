@@ -9,5 +9,6 @@ namespace Application.Repositories
 {
     public interface ICategoryExpectedPriceRepository : IGenericRepository<CategoryExpectedPrice>
     {
+        public double GetExpectedPrice(float height);
     }
 }

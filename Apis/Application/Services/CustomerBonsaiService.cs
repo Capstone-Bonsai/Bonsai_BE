@@ -125,5 +125,13 @@ namespace Application.Services
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted, includes: includes);
             return bonsais;
         }
+        public async Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId)
+        {
+            List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
+                                 x => x.Bonsai.BonsaiImages
+                                    };
+            var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.Id == customerBonsaiId && !x.IsDeleted, includes: includes);
+            return bonsais.Items[0];
+        }
     }
 }

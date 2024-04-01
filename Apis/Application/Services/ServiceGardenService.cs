@@ -64,6 +64,7 @@ namespace Application.Services
                     await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
                     await _unitOfWork.SaveChangeAsync();
                     //implement add time
+                    serviceGarden.TemporaryPrice = _unitOfWork.CategoryExpectedPriceRepository.GetExpectedPrice(customerBonsai.Bonsai.Height ?? 0);
                     return serviceGarden;
                 }
             }

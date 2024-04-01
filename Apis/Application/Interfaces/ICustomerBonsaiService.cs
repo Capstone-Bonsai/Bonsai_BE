@@ -14,5 +14,6 @@ namespace Application.Interfaces
         Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId);
         Task CreateBonsai(Guid gardenId, BonsaiModelForCustomer bonsaiModelForCustomer);
         Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId);
+        Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId);
     }
 }

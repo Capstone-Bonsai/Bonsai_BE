@@ -50,11 +50,26 @@ namespace WebAPI.Controllers
             return Ok();
         }
         [HttpGet("CustomerGarden/{gardenId}")]
+        [Authorize(Roles = "Manager,Customer")]
         public async Task<IActionResult> Post([FromRoute] Guid gardenId)
         {
             try
             {
                 var bonsai = await _customerBonsaiService.GetBonsaiOfGarden(gardenId);
+                return Ok(bonsai);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            try
+            {
+                var bonsai = await _customerBonsaiService.GetCustomerBonsaiById(id);
                 return Ok(bonsai);
             }
             catch (Exception ex)
