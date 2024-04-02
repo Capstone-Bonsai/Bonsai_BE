@@ -68,6 +68,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPut("acception/{customerGardenId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> AcceptServiceGarden([FromBody] Guid customerGardenId)
+        {
+            try
+            {
+                await _serviceGardenService.AcceptServiceGarden(customerGardenId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpPut("negation/{customerGardenId}")]
         [Authorize(Roles = "Staff,Manager")]
         public async Task<IActionResult> DenyServiceGarden([FromBody] Guid customerGardenId)

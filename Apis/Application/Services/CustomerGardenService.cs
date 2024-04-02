@@ -159,7 +159,8 @@ namespace Application.Services
         public async Task<Pagination<CustomerGarden>> GetPaginationForAdmin(int pageIndex, int pageSize)
         {
             List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
-                                 x => x.Customer.ApplicationUser
+                                 x => x.Customer.ApplicationUser,
+                                 x => x.CustomerGardenImages
                                     };
             var customerGardens = await _unitOfWork.CustomerGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return customerGardens;

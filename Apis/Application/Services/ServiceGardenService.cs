@@ -39,6 +39,7 @@ namespace Application.Services
             
             var serviceGarden = _mapper.Map<ServiceGarden>(serviceGardenModel);
             serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.UnAccepted;
+            var distance = await _deliveryFeeService.GetDistanse(garden.Address);
             if (service.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
                 if (serviceGardenModel.CustomerBonsaiId == null || serviceGardenModel.CustomerBonsaiId.Equals("00000000-0000-0000-0000-000000000000"))
@@ -47,32 +48,43 @@ namespace Application.Services
                 }
                 else
                 {
-                    CustomerBonsai customerBonsai = new CustomerBonsai();
-                    customerBonsai = await _unitOfWork.CustomerBonsaiRepository
-                        .GetAllQueryable()
-                        .AsNoTracking()
-                        .Include(x => x.Bonsai)
-                        .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGardenModel.CustomerBonsaiId);
-                    if (customerBonsai == null)
+                    try
                     {
-                        throw new Exception("Không tìm thấy bonsai!");
+                        CustomerBonsai customerBonsai = new CustomerBonsai();
+                        customerBonsai = await _unitOfWork.CustomerBonsaiRepository
+                            .GetAllQueryable()
+                            .AsNoTracking()
+                            .Include(x => x.Bonsai)
+                            .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGardenModel.CustomerBonsaiId);
+                        if (customerBonsai == null)
+                        {
+                            throw new Exception("Không tìm thấy bonsai!");
+                        }
+                        if (customerBonsai.CustomerGardenId != serviceGardenModel.CustomerGardenId)
+                        {
+                            throw new Exception("Bonsai không ở trong vườn!");
+                        }
+                        await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
+                        await _unitOfWork.SaveChangeAsync();
+                        serviceGarden.TemporaryPrice = _unitOfWork.CategoryExpectedPriceRepository.GetExpectedPrice(customerBonsai.Bonsai.Height ?? 0);
+                        //The default number gardener is 2
+                        serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString())) * 2;
+                        serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
+                        await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
+                        await _unitOfWork.SaveChangeAsync();
+                        return serviceGarden;
                     }
-                    if (customerBonsai.CustomerGardenId != serviceGardenModel.CustomerGardenId)
+                    catch (Exception)
                     {
-                        throw new Exception("Bonsai không ở trong vườn!");
+                        throw new Exception("Đã xảy ra lỗi trong quá trình khởi tạo!");
                     }
-                    await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
-                    await _unitOfWork.SaveChangeAsync();
-                    //implement add time
-                    serviceGarden.TemporaryPrice = _unitOfWork.CategoryExpectedPriceRepository.GetExpectedPrice(customerBonsai.Bonsai.Height ?? 0);
-                    return serviceGarden;
                 }
             }
-            var distance = await _deliveryFeeService.GetDistanse(garden.Address);
             serviceGarden.TemporaryPrice = garden.Square * service.StandardPrice;
-            serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString()));
+            double expectedNumberGardeners = garden.Square / 100;
+            int roundedExpectedNumberGardeners = (int)Math.Ceiling(expectedNumberGardeners);
+            serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString())) * roundedExpectedNumberGardeners;
             serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
-            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Waiting;
             await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
             return serviceGarden;
@@ -101,6 +113,17 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy đơn đặt dịch vụ");
             }
             serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Denied;
+            _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
+            await _unitOfWork.SaveChangeAsync();
+        }
+        public async Task AcceptServiceGarden(Guid serviceGardenId)
+        {
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(serviceGardenId);
+            if (serviceGarden == null)
+            {
+                throw new Exception("Không tìm thấy đơn đặt dịch vụ");
+            }
+            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Waiting;
             _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
         }
