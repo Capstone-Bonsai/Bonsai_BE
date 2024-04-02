@@ -10,5 +10,4 @@ namespace Domain.Enums
     {
         UnAccepted = 1,Waiting = 2, OnGoing = 3, Finished = 4, Denied = 5, Cancel = 6
     }
-
 }
