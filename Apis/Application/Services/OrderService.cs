@@ -263,7 +263,7 @@ namespace Application.Services
                 .Where(x => x.Customer.UserId.ToLower() == userId).OrderByDescending(y => y.CreationDate).ToListAsync();
             else if (isAdmin || isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
-                   .Include(x => x.Customer)
+                   .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
                .ThenInclude(x => x.Bonsai)
                .OrderByDescending(y => y.CreationDate).ToListAsync();
