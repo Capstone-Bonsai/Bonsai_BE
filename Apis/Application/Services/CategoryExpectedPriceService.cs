@@ -18,5 +18,11 @@ namespace Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+        public double GetPrice(float height )
+        {
+            var price = _unitOfWork.CategoryExpectedPriceRepository.GetExpectedPrice(height);
+            return price;
+
+        }
     }
 }

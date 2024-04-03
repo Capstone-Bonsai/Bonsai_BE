@@ -9,7 +9,7 @@ namespace Domain.Entities
 {
     public class CategoryExpectedPrice : BaseEntity
     {
-        public float MinHeight { get; set; }
+        public float? MaxHeight { get; set; }
         public double ExpectedPrice { get; set; }
     }
 }

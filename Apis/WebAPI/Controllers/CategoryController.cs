@@ -12,12 +12,14 @@ namespace WebAPI.Controllers
     {
         private readonly ICategoryService _categoryService;
         private readonly IClaimsService _claims;
+        private readonly ICategoryExpectedPriceService _categoryExpectedPriceService;
 
-        public CategoryController(ICategoryService categoryService,
+        public CategoryController(ICategoryService categoryService, ICategoryExpectedPriceService categoryExpectedPriceService,
             IClaimsService claimsService)
         {
             _categoryService = categoryService;
             _claims = claimsService;
+            _categoryExpectedPriceService = categoryExpectedPriceService;
         }
         [HttpGet]
         public async Task<IActionResult> Get()
