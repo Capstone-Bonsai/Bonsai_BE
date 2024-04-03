@@ -14,6 +14,9 @@ namespace Application.ViewModels.ContractViewModels
         public Guid ServiceGardenId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public double StandardPrice { get; set; }
+        public double SurchargePrice { get; set; }
         public double ServicePrice { get; set; }
+        public int NumberOfGardener { get; set; }
     }
 }

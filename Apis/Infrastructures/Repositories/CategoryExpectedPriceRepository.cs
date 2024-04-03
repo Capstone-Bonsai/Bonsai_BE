@@ -21,6 +21,10 @@ namespace Infrastructures.Repositories
         public double GetExpectedPrice(float height)
         {
             var price =  _dbSet.OrderBy(c => c.MinHeight).FirstOrDefault(c => c.MinHeight <= height);
+            if (price == null)
+            {
+                return 0;
+            }
             return price.ExpectedPrice;
         }
     }

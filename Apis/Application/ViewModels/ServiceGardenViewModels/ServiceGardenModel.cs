@@ -11,6 +11,8 @@ namespace Application.ViewModels.ServiceGardenViewModels
         public Guid CustomerGardenId { get; set; }
         public Guid? CustomerBonsaiId { get; set; }
         public Guid ServiceId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public string? Note { get; set; }
     }
 }

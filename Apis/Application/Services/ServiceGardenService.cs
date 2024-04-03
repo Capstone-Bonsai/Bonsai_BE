@@ -64,26 +64,26 @@ namespace Application.Services
                         {
                             throw new Exception("Bonsai không ở trong vườn!");
                         }
-                        await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
-                        await _unitOfWork.SaveChangeAsync();
                         serviceGarden.TemporaryPrice = _unitOfWork.CategoryExpectedPriceRepository.GetExpectedPrice(customerBonsai.Bonsai.Height ?? 0);
-                        //The default number gardener is 2
-                        serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString())) * 2;
+                        serviceGarden.TemporaryGardener = 2;
+                        serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString())) * serviceGarden.TemporaryGardener;
                         serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
                         await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
                         await _unitOfWork.SaveChangeAsync();
                         return serviceGarden;
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
-                        throw new Exception("Đã xảy ra lỗi trong quá trình khởi tạo!");
+                        throw new Exception(ex.Message);
                     }
                 }
             }
             serviceGarden.TemporaryPrice = garden.Square * service.StandardPrice;
-            double expectedNumberGardeners = garden.Square / 100;
-            int roundedExpectedNumberGardeners = (int)Math.Ceiling(expectedNumberGardeners);
-            serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString())) * roundedExpectedNumberGardeners;
+            TimeSpan duration = serviceGarden.EndDate - serviceGarden.StartDate;
+            int daysDifference = duration.Days;
+            double expectedNumberGardeners = garden.Square / 20 / daysDifference;
+            serviceGarden.TemporaryGardener = (int)Math.Ceiling(expectedNumberGardeners);
+            serviceGarden.TemporarySurchargePrice = await _serviceSurchargeService.GetPriceByDistance(float.Parse(distance.rows[0].elements[0].distance.value.ToString())) * serviceGarden.TemporaryGardener * daysDifference;
             serviceGarden.TemporaryTotalPrice = serviceGarden.TemporaryPrice + serviceGarden.TemporarySurchargePrice;
             await _unitOfWork.ServiceGardenRepository.AddAsync(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
