@@ -1,4 +1,6 @@
 ﻿using Application.Interfaces;
+using Application.Services.Momo;
+using Application.Services;
 using Application.ViewModels.ContractViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -84,6 +86,38 @@ namespace WebAPI.Controllers
             {
                 var contracts = await _contractService.GetContractById(id);
                 return Ok(contracts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("IpnHandler")]
+        public async Task<IActionResult> IpnAsync([FromBody] MomoRedirect momo)
+        {
+            try
+            {
+                await _contractService.HandleIpnAsync(momo);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("Payment")]
+        public async Task<IActionResult> Payment(Guid ContractId)
+        {
+            try
+            {
+                Guid userId = _claims.GetCurrentUserId;
+                
+                var linkPayment = await _contractService.PaymentContract(ContractId, userId.ToString().ToLower() );
+                if (linkPayment == null)
+                    return BadRequest("Không tìm thấy");
+                else
+                    return Ok(linkPayment);
             }
             catch (Exception ex)
             {

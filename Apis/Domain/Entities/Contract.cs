@@ -24,7 +24,7 @@ namespace Domain.Entities
         public double SurchargePrice { get; set; }
         public double ServicePrice { get; set; }
         public double TotalPrice { get; set; }
-        public ContractStatus ContractStatus { get; set; }
+        public ContractStatus ContractStatus { get; set; } = ContractStatus.Waiting;
         public ServiceType ServiceType { get; set; }
         public int NumberOfGardener { get; set; }
         public virtual ServiceGarden ServiceGarden { get; set; }
