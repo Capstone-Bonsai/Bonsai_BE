@@ -40,11 +40,11 @@ namespace WebAPI.Controllers
         }
         [HttpGet("customerGardenId")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize, Guid customerGardenId)
+        public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize)
         {
             try
             {
-                var result = await _serviceGardenService.GetServiceGardenByGardenId(customerGardenId, pageIndex, pageSize);
+                var result = await _serviceGardenService.GetServiceGardenByGardenId(_claimsService.GetCurrentUserId, pageIndex, pageSize);
                 if (result != null)
                     return Ok(result);
                 else return BadRequest(result);
