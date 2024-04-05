@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Application.Commons;
+using Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,5 +11,6 @@ namespace Application.Interfaces
     public interface ICategoryExpectedPriceService
     {
         public double GetPrice(float height);
+        Task<Pagination<CategoryExpectedPrice>> Get();
     }
 }

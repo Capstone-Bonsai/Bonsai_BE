@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
         }
         [HttpGet("customerGardenId")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize, [FromBody] Guid customerGardenId)
+        public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize, Guid customerGardenId)
         {
             try
             {
@@ -54,13 +54,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPut("cancellation/{customerGardenId}")]
+        [HttpPut("cancellation/{serviceGardenId}")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> CancelServiceGarden([FromBody] Guid customerGardenId)
+        public async Task<IActionResult> CancelServiceGarden([FromRoute] Guid serviceGardenId)
         {
             try
             {
-                await _serviceGardenService.CancelServiceGarden(customerGardenId);
+                await _serviceGardenService.CancelServiceGarden(serviceGardenId);
                 return Ok();
             }
             catch (Exception ex)
@@ -68,13 +68,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPut("acception/{customerGardenId}")]
+        [HttpPut("acception/{serviceGardenId}")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> AcceptServiceGarden([FromBody] Guid customerGardenId)
+        public async Task<IActionResult> AcceptServiceGarden([FromRoute] Guid serviceGardenId)
         {
             try
             {
-                await _serviceGardenService.AcceptServiceGarden(customerGardenId);
+                await _serviceGardenService.AcceptServiceGarden(serviceGardenId);
                 return Ok();
             }
             catch (Exception ex)
@@ -82,13 +82,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPut("negation/{customerGardenId}")]
+        [HttpPut("negation/{serviceGardenId}")]
         [Authorize(Roles = "Staff,Manager")]
-        public async Task<IActionResult> DenyServiceGarden([FromBody] Guid customerGardenId)
+        public async Task<IActionResult> DenyServiceGarden([FromRoute] Guid serviceGardenId)
         {
             try
             {
-                await _serviceGardenService.DenyServiceGarden(customerGardenId);
+                await _serviceGardenService.DenyServiceGarden(serviceGardenId);
                 return Ok();
             }
             catch (Exception ex)
