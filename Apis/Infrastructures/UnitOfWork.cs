@@ -34,7 +34,9 @@ namespace Infrastructures
         private readonly IServiceSurchargeRepository _serviceSurchargeRepository;
         private readonly IContractGardenerRepository _contractGardenerRepository;
         private readonly ICategoryExpectedPriceRepository _categoryExpectedPriceRepository;
-        
+        private readonly IContractTransactionRepository _contractTransactionRepository;
+
+
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -45,7 +47,7 @@ namespace Infrastructures
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
             IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository, IServiceSurchargeRepository serviceSurchargeRepository, IContractGardenerRepository contractGardenerRepository,
-            ICategoryExpectedPriceRepository categoryExpectedPriceRepository
+            ICategoryExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository
          )
         {
             _dbContext = dbContext;
@@ -74,6 +76,7 @@ namespace Infrastructures
             _serviceSurchargeRepository = serviceSurchargeRepository;
             _contractGardenerRepository = contractGardenerRepository;
             _categoryExpectedPriceRepository = categoryExpectedPriceRepository;
+            _contractTransactionRepository = contractTransactionRepository; 
         }
 
 
@@ -126,6 +129,8 @@ namespace Infrastructures
         public IContractGardenerRepository ContractGardenerRepository => _contractGardenerRepository;
 
         public ICategoryExpectedPriceRepository CategoryExpectedPriceRepository => _categoryExpectedPriceRepository;
+
+        public IContractTransactionRepository ContractTransactionRepository => _contractTransactionRepository;
 
         public async Task<int> SaveChangeAsync()
         {

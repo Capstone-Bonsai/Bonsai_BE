@@ -1,5 +1,6 @@
-﻿using Application.Commons;
+using Application.Commons;
 using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,7 @@ namespace Application.Interfaces
     {
         public double GetPrice(float height);
         Task<Pagination<CategoryExpectedPrice>> Get();
+        Task CreateAsync(IFormFile file);
+        Task UpdateAsync(IFormFile file);
     }
 }

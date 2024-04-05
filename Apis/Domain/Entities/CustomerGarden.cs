@@ -18,6 +18,6 @@ namespace Domain.Entities
         public virtual Customer Customer { get; set; }
         public IList<CustomerBonsai > CustomerBonsais { get; set; }
         public IList<CustomerGardenImage> CustomerGardenImages { get; set; }
-        public IList<ServiceGarden> CustomerGardenServices { get; set; }
+        public IList<ServiceGarden> ServiceGarden { get; set; }
     }
 }

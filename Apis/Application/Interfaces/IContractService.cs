@@ -1,4 +1,5 @@
 ﻿using Application.Commons;
+using Application.Services.Momo;
 using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
 using Domain.Entities;
@@ -16,5 +17,7 @@ namespace Application.Interfaces
         Task AddContractGardener(ContractGardenerModel contractGardenerModel);
         Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id);
         Task<ContractViewModel> GetContractById(Guid id);
+        Task HandleIpnAsync(MomoRedirect momo);
+        Task<string> PaymentContract(Guid contractId, string userId);
     }
 }
