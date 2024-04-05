@@ -8,6 +8,7 @@ using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Contracts;
+using System.Linq.Expressions;
 
 namespace Application.Services
 {
@@ -95,7 +96,10 @@ namespace Application.Services
         public async Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerId, int pageIndex, int pageSize)
         {
             var customer = await GetCustomerAsync(customerId);
-            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGarden.CustomerId == customer.Id, orderBy: query => query.OrderByDescending(x => x.CreationDate));
+            List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
+                                 x => x.CustomerGarden,
+                                    };
+            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGarden.CustomerId == customer.Id, orderBy: query => query.OrderByDescending(x => x.CreationDate), includes: includes);
             return serviceGardens;
         }
         public async Task CancelServiceGarden(Guid serviceGardenId)
@@ -133,7 +137,10 @@ namespace Application.Services
         }
         public async Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize)
         {
-            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted);
+            List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
+                                 x => x.CustomerGarden,
+                                    };
+            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return serviceGarden;
         }
         private async Task<Customer> GetCustomerAsync(Guid id)

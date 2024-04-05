@@ -98,11 +98,13 @@ namespace Application.Services
             var customer = await GetCustomerAsync(id);
             var customerGardenQuery = _unitOfWork.CustomerGardenRepository
                 .GetAllQueryable()
+                .Where(x => x.CustomerId == customer.Id)
                 .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted))
                 .Skip(pageIndex * pageSize)
                 .Take(pageSize);
             var count = _unitOfWork.CustomerGardenRepository
                .GetAllQueryable()
+               .Where(x => x.CustomerId == customer.Id)
                .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted)).Count();
 
             var customerGardens = await customerGardenQuery.ToListAsync();
@@ -133,6 +135,7 @@ namespace Application.Services
             var customer = await GetCustomerAsync(id);
             var customerGardenQuery = _unitOfWork.CustomerGardenRepository
                 .GetAllQueryable()
+                .Where(x => x.CustomerId == customer.Id)
                 .Include(x => x.CustomerGardenImages.Where(y => !y.IsDeleted));
 
             var customerGardens = await customerGardenQuery.ToListAsync();

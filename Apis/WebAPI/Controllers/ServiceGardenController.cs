@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("customerGardenId")]
+        [HttpGet]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize)
         {
@@ -116,5 +116,6 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+     
     }
 }
