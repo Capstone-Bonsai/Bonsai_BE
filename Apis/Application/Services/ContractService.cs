@@ -65,12 +65,15 @@ namespace Application.Services
                 contract.Address = customerGarden.Address;
                 contract.CustomerPhoneNumber = customerGarden.Customer.ApplicationUser.PhoneNumber;
                 var distance = await _deliveryFeeService.GetDistanse(contract.Address);
-                contract.Distance = distance.rows[0].elements[0].distance.value;
-                contract.StartDate = contractModel.StartDate;
-                contract.EndDate = contractModel.EndDate;
+                contract.Distance = distance.rows[0].elements[0].distance.value; 
+                contract.StartDate = contractModel.StartDate ?? serviceGarden.StartDate;
+                contract.EndDate = contractModel.EndDate ?? serviceGarden.EndDate;
                 contract.GardenSquare = customerGarden.Square;
-                contract.StandardPrice = serviceGarden.TemporaryPrice ?? 0;
-                contract.ServicePrice = contractModel.ServicePrice;
+                contract.StandardPrice = contractModel.StandardPrice ?? serviceGarden.TemporaryPrice ?? 0;
+                contract.SurchargePrice =  contractModel.SurchargePrice ?? serviceGarden.TemporarySurchargePrice ?? 0;
+                contract.ServicePrice = contractModel.ServicePrice ?? 0;
+                contract.NumberOfGardener = contractModel.NumberOfGardener ?? serviceGarden.TemporaryGardener ?? 2;
+                contract.TotalPrice = contract.StandardPrice + contract.SurchargePrice + contract.ServicePrice;
                 contract.ServiceType = _service.ServiceType;
                 await _unitOfWork.ContractRepository.AddAsync(contract);
                 if (contract.ServiceType == Domain.Enums.ServiceType.GardenCare)
