@@ -44,7 +44,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var result = await _serviceGardenService.GetServiceGardenByGardenId(_claimsService.GetCurrentUserId, pageIndex, pageSize);
+                var result = await _serviceGardenService.GetServiceGardenByCustomerId(_claimsService.GetCurrentUserId, pageIndex, pageSize);
                 if (result != null)
                     return Ok(result);
                 else return BadRequest(result);

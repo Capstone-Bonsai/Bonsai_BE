@@ -99,7 +99,7 @@ namespace Application.Services
             await _unitOfWork.SaveChangeAsync();
             return serviceGarden;
         }
-        public async Task<Pagination<ServiceGarden>> GetServiceGardenByGardenId(Guid customerId, int pageIndex, int pageSize)
+        public async Task<Pagination<ServiceGarden>> GetServiceGardenByCustomerId(Guid customerId, int pageIndex, int pageSize)
         {
             var customer = await GetCustomerAsync(customerId);
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
@@ -145,6 +145,7 @@ namespace Application.Services
         {
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
+                                 x => x.CustomerGarden.Customer.ApplicationUser
                                     };
             var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return serviceGarden;
@@ -153,6 +154,7 @@ namespace Application.Services
         {
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
+                                 x => x.CustomerGarden.Customer.ApplicationUser
                                     };
             var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == Id,
                 isDisableTracking: true, includes: includes);
