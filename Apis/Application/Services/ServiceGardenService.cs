@@ -149,6 +149,15 @@ namespace Application.Services
             var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return serviceGarden;
         }
+        public async Task<ServiceGarden> GetServiceGardenById(Guid Id)
+        {
+            List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
+                                 x => x.CustomerGarden,
+                                    };
+            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == Id,
+                isDisableTracking: true, includes: includes);
+            return serviceGardens.Items[0];
+        }
         private async Task<Customer> GetCustomerAsync(Guid id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());

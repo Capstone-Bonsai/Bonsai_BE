@@ -57,5 +57,32 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> PostAsync(IFormFile file)
+        {
+            try
+            {
+                await _categoryExpectedPriceService.CreateAsync(file);
+                return Ok("Thêm bảng giá dịch vụ chăm sóc cây thành công.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+        [HttpPut]
+        public async Task<IActionResult> PutAsync(IFormFile file)
+        {
+            try
+            {
+                await _categoryExpectedPriceService.UpdateAsync(file);
+                return Ok("Cập nhật bảng giá dịch vụ chăm sóc cây từ file Excel thành công!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

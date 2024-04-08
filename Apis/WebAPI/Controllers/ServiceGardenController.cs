@@ -97,6 +97,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("Pagination")]
+        [Authorize]
         public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
         {
             try
@@ -116,6 +117,17 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-     
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Get([FromRoute] Guid id)
+        {
+            var serviceGarden = await _serviceGardenService.GetServiceGardenById(id);
+            if (serviceGarden == null)
+            {
+                return NotFound();
+            }
+            return Ok(serviceGarden);
+        }
+
     }
 }

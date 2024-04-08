@@ -53,19 +53,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost("ContractGardener")]
-        public async Task<IActionResult> Post([FromBody] ContractGardenerModel contractGardenerModel)
-        {
-            try
-            {
-                await _contractService.AddContractGardener(contractGardenerModel);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+       
         [HttpGet("WorkingCalendar")]
         public async Task<IActionResult> GetWorkingCalendar(int month, int year)
         {

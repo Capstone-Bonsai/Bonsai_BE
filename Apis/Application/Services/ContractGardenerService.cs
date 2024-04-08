@@ -73,6 +73,30 @@ namespace Application.Services
             _unitOfWork.ContractGardenerRepository.SoftRemove(contractGardener.Items[0]);
             await _unitOfWork.SaveChangeAsync();
         }
+        public async Task AddContractGardener(ContractGardenerModel contractGardenerModel)
+        {
+            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractGardenerModel.ContractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng");
+            }
+            List<ContractGardener> contractGardeners = new List<ContractGardener>();
+            foreach (Guid id in contractGardenerModel.GardenerIds)
+            {
+                var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ContractId == contract.Id && !x.IsDeleted);
+                if (contractGardener.Items.Count == 0)
+                {
+                    contractGardeners.Add(new ContractGardener()
+                    {
+                        ContractId = contract.Id,
+                        GardenerId = id,
+                        HasRequest = false,
+                    });
+                }
+            }
+            await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
+            await _unitOfWork.SaveChangeAsync();
+        }
         private async Task<Gardener> GetGardenerAsync(Guid id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());

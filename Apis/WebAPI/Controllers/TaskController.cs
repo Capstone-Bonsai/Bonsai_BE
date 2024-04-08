@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Application.ViewModels.TaskViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("Progress")]
+        [Authorize(Roles = "Gardener")]
         public async Task<IActionResult> Post(TaskModel taskModel)
         {
             try

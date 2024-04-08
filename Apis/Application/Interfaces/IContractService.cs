@@ -14,7 +14,6 @@ namespace Application.Interfaces
     {
         Task CreateContract(ContractModel contractModel);
         Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize);
-        Task AddContractGardener(ContractGardenerModel contractGardenerModel);
         Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id);
         Task<ContractViewModel> GetContractById(Guid id);
         Task HandleIpnAsync(MomoRedirect momo);

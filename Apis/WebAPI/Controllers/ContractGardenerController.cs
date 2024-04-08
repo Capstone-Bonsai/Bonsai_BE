@@ -19,8 +19,8 @@ namespace WebAPI.Controllers
             _contractGardenerService = contractGardenerService;
             _claims = claimsService;
         }
-        [HttpGet("GardenerOfContract")]
-        public async Task<IActionResult> GetGardenerOfContract(int pageIndex, int pageSize, Guid contractId)
+        [HttpGet("{contractId}")]
+        public async Task<IActionResult> GetGardenerOfContract([FromQuery] int pageIndex, int pageSize,[FromRoute] Guid contractId)
         {
             try
             {
@@ -38,6 +38,19 @@ namespace WebAPI.Controllers
             try
             {
                 await _contractGardenerService.DeleteContractGardener(contractId, gardenerId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] ContractGardenerModel contractGardenerModel)
+        {
+            try
+            {
+                await _contractGardenerService.AddContractGardener(contractGardenerModel);
                 return Ok();
             }
             catch (Exception ex)

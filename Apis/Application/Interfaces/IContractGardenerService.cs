@@ -1,4 +1,5 @@
 ﻿using Application.Commons;
+using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.UserViewModels;
 using System;
 using System.Collections.Generic;
@@ -12,5 +13,6 @@ namespace Application.Interfaces
     {
         Task<Pagination<UserViewModel>> GetGardenerOfContract(int pageIndex, int pageSize, Guid contractId);
         Task DeleteContractGardener(Guid contractId, Guid gardenerId);
+        Task AddContractGardener(ContractGardenerModel contractGardenerModel);
     }
 }
