@@ -31,7 +31,7 @@ namespace Application
         public IContractTransactionRepository ContractTransactionRepository { get; }
 
 
-        public ICategoryExpectedPriceRepository CategoryExpectedPriceRepository { get; }
+        public IBonsaiExpectedPriceRepository CategoryExpectedPriceRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();

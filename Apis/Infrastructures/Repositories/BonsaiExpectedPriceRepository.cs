@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace Infrastructures.Repositories
 {
-    public class CategoryExpectedPriceRepository : GenericRepository<CategoryExpectedPrice>, ICategoryExpectedPriceRepository
+    public class BonsaiExpectedPriceRepository : GenericRepository<BonsaiExpectedPrice>, IBonsaiExpectedPriceRepository
     {
-        protected DbSet<CategoryExpectedPrice> _dbSet;
-        public CategoryExpectedPriceRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
+        protected DbSet<BonsaiExpectedPrice> _dbSet;
+        public BonsaiExpectedPriceRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {
 
-            _dbSet = context.Set<CategoryExpectedPrice>();
+            _dbSet = context.Set<BonsaiExpectedPrice>();
         }
         public double GetExpectedPrice(float height)
         {

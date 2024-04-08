@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Repositories
 {
-    public interface ICategoryExpectedPriceRepository : IGenericRepository<CategoryExpectedPrice>
+    public interface IBonsaiExpectedPriceRepository : IGenericRepository<BonsaiExpectedPrice>
     {
         public double GetExpectedPrice(float height);
     }

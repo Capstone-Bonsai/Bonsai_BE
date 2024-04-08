@@ -33,7 +33,7 @@ namespace Infrastructures
         private readonly IBonsaiCareStepRepository _bonsaiCareStepRepository;
         private readonly IServiceSurchargeRepository _serviceSurchargeRepository;
         private readonly IContractGardenerRepository _contractGardenerRepository;
-        private readonly ICategoryExpectedPriceRepository _categoryExpectedPriceRepository;
+        private readonly IBonsaiExpectedPriceRepository _categoryExpectedPriceRepository;
         private readonly IContractTransactionRepository _contractTransactionRepository;
 
 
@@ -47,7 +47,7 @@ namespace Infrastructures
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
             IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository, IServiceSurchargeRepository serviceSurchargeRepository, IContractGardenerRepository contractGardenerRepository,
-            ICategoryExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository
+            IBonsaiExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository
          )
         {
             _dbContext = dbContext;
@@ -128,7 +128,7 @@ namespace Infrastructures
 
         public IContractGardenerRepository ContractGardenerRepository => _contractGardenerRepository;
 
-        public ICategoryExpectedPriceRepository CategoryExpectedPriceRepository => _categoryExpectedPriceRepository;
+        public IBonsaiExpectedPriceRepository CategoryExpectedPriceRepository => _categoryExpectedPriceRepository;
 
         public IContractTransactionRepository ContractTransactionRepository => _contractTransactionRepository;
 

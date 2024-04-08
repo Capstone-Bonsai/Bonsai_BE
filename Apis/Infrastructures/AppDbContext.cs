@@ -30,7 +30,7 @@ namespace Infrastructures
         public DbSet<CustomerBonsai> CustomerBonsai { get; set; }
         public DbSet<CustomerGarden> CustomerGarden { get; set; }
         public DbSet<CustomerGardenImage> CustomerGardenImage { get; set; }
-        public DbSet<CategoryExpectedPrice> CategoryExpectedPrice { get; set; }
+        public DbSet<BonsaiExpectedPrice> BonsaiExpectedPrice { get; set; }
         public DbSet<CareStep> CareStep { get; set; }
         public DbSet<Contract> Contract { get; set; }
         public DbSet<ContractImage> ContractImage { get; set; }
