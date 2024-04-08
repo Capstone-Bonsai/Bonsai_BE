@@ -159,7 +159,7 @@ namespace Application.Services
             await _unitOfWork.SaveChangeAsync();
         }
 
-        public async Task<Pagination<CustomerGarden>> GetPaginationForAdmin(int pageIndex, int pageSize)
+        public async Task<Pagination<CustomerGarden>> GetPaginationForManager(int pageIndex, int pageSize)
         {
             List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
                                  x => x.Customer.ApplicationUser,

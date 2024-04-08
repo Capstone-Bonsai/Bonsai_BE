@@ -11,11 +11,11 @@ namespace WebAPI.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
-        private readonly IClaimsService _claims;
 
-        public CategoryController(ICategoryService categoryService, IClaimsService claimsService)
+        public CategoryController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
+ 
   
         }
         [HttpGet]

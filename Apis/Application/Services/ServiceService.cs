@@ -297,7 +297,6 @@ namespace Application.Services
             service.StandardPrice = model.StandardPrice;
             if (Image != null)
                 service.Image = Image;
-            service.IsDisable = model.IsDisable;
             _unit.ServiceRepository.Update(service);
 
         }

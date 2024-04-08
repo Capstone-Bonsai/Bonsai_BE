@@ -15,6 +15,6 @@ namespace Application.Interfaces
         Task<Pagination<CustomerGarden>> GetByCustomerId(int pageIndex, int pageSize, Guid id);
         Task<Pagination<CustomerGarden>> GetAllByCustomerId(Guid id);
         Task Delete(Guid id);
-        Task<Pagination<CustomerGarden>> GetPaginationForAdmin(int pageIndex, int pageSize);
+        Task<Pagination<CustomerGarden>> GetPaginationForManager(int pageIndex, int pageSize);
     }
 }

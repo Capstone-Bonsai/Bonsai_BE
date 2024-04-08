@@ -61,6 +61,7 @@ namespace Application.Services
                     .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceGarden.CustomerGardenId);
                 Contract contract = new Contract();
                 contract.ServiceGardenId = serviceGarden.Id;
+                contract.CustomerBonsaiId = serviceGarden.CustomerBonsaiId;
                 contract.CustomerName = customerGarden.Customer.ApplicationUser.Fullname;
                 contract.Address = customerGarden.Address;
                 contract.CustomerPhoneNumber = customerGarden.Customer.ApplicationUser.PhoneNumber;

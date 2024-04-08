@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +17,11 @@ namespace WebAPI.Controllers
             _deliveryFeeService = deliveryFeeService;
         }
         [HttpPost]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> PostAsync(IFormFile file)
         {
             try
-            {
-                
+            { 
                 await _deliveryFeeService.CreateAsync(file);
                 return Ok("Thêm bảng giá phí giao hàng từ file Excel thành công!");
             }
@@ -31,6 +32,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> PutAsync(IFormFile file)
         {
             try

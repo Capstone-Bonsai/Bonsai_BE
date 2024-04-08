@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -58,6 +59,8 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
+        [Authorize(Roles = "Manager")]
+
         public async Task<IActionResult> PostAsync(IFormFile file)
         {
             try
@@ -72,6 +75,7 @@ namespace WebAPI.Controllers
 
         }
         [HttpPut]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> PutAsync(IFormFile file)
         {
             try

@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet]
+        [HttpGet("Pagination")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize)
         {
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("Pagination")]
+        [HttpGet("Manager/Pagination")]
         [Authorize]
         public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
         {
