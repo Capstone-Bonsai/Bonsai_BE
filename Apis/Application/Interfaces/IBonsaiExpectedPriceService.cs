@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface ICategoryExpectedPriceService
+    public interface IBonsaiExpectedPriceService
     {
         public double GetPrice(float height);
-        Task<Pagination<CategoryExpectedPrice>> Get();
+        Task<Pagination<BonsaiExpectedPrice>> Get();
         Task CreateAsync(IFormFile file);
         Task UpdateAsync(IFormFile file);
     }

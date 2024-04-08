@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class CategoryExpectedPrice : BaseEntity
+    public class BonsaiExpectedPrice : BaseEntity
     {
         public float? MaxHeight { get; set; }
         public double ExpectedPrice { get; set; }

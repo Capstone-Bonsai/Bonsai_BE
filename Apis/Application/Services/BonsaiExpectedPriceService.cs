@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class CategoryExpectedPriceService : ICategoryExpectedPriceService
+    public class BonsaiExpectedPriceService : IBonsaiExpectedPriceService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CategoryExpectedPriceService(IUnitOfWork unitOfWork, IMapper mapper)
+        public BonsaiExpectedPriceService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -29,7 +29,7 @@ namespace Application.Services
             return price;
 
         }
-        public async Task<Pagination<CategoryExpectedPrice>> Get()
+        public async Task<Pagination<BonsaiExpectedPrice>> Get()
         {
             var price = await _unitOfWork.CategoryExpectedPriceRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted);
             return price;
@@ -54,7 +54,7 @@ namespace Application.Services
                         var worksheet = package.Workbook.Worksheets[0];
                         //Điếm số hàng có giá trị
                         int rowCount = worksheet.Dimension.Rows;
-                        var listPrice = new List<CategoryExpectedPrice>();
+                        var listPrice = new List<BonsaiExpectedPrice>();
                         try
                         {
                             for (int row = 2; row <= rowCount; row++) // Bắt đầu từ hàng thứ 2 để bỏ qua tiêu đề
@@ -64,14 +64,14 @@ namespace Application.Services
                                 try
                                 {
                                     maxHeight = float.Parse( worksheet.Cells[row, 1].Value.ToString());
-                                    CategoryExpectedPrice fee = new CategoryExpectedPrice() { MaxHeight = maxHeight,ExpectedPrice = price };
+                                    BonsaiExpectedPrice fee = new BonsaiExpectedPrice() { MaxHeight = maxHeight,ExpectedPrice = price };
                                     listPrice.Add( fee );
 
                                 }
                                 catch (Exception ex)
                                 {
                                     if (row != rowCount) throw new Exception("File không đúng yêu cầu.");
-                                    CategoryExpectedPrice fee = new CategoryExpectedPrice() {  ExpectedPrice = price };
+                                    BonsaiExpectedPrice fee = new BonsaiExpectedPrice() {  ExpectedPrice = price };
                                     listPrice.Add(fee);
                                 }
                                

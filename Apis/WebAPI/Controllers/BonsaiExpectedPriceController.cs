@@ -6,12 +6,12 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryExpectedPriceController : ControllerBase
+    public class BonsaiExpectedPriceController : ControllerBase
     {
         private readonly IClaimsService _claims;
-        private readonly ICategoryExpectedPriceService _categoryExpectedPriceService;
+        private readonly IBonsaiExpectedPriceService _categoryExpectedPriceService;
 
-        public CategoryExpectedPriceController(ICategoryExpectedPriceService categoryExpectedPriceService,
+        public BonsaiExpectedPriceController(IBonsaiExpectedPriceService categoryExpectedPriceService,
             IClaimsService claimsService)
         {
             _claims = claimsService;
