@@ -35,8 +35,8 @@ namespace Infrastructures
         private readonly IContractGardenerRepository _contractGardenerRepository;
         private readonly IBonsaiExpectedPriceRepository _categoryExpectedPriceRepository;
         private readonly IContractTransactionRepository _contractTransactionRepository;
-
-
+        private readonly IComplaintRepository _complaintRepository;
+        private readonly IComplaintImageRepository _complaintImageRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -47,7 +47,8 @@ namespace Infrastructures
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
             IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository, IServiceSurchargeRepository serviceSurchargeRepository, IContractGardenerRepository contractGardenerRepository,
-            IBonsaiExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository
+            IBonsaiExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository,
+            IComplaintRepository complaintRepository, IComplaintImageRepository complaintImageRepository
          )
         {
             _dbContext = dbContext;
@@ -76,7 +77,9 @@ namespace Infrastructures
             _serviceSurchargeRepository = serviceSurchargeRepository;
             _contractGardenerRepository = contractGardenerRepository;
             _categoryExpectedPriceRepository = categoryExpectedPriceRepository;
-            _contractTransactionRepository = contractTransactionRepository; 
+            _contractTransactionRepository = contractTransactionRepository;
+            _complaintRepository = complaintRepository;
+            _complaintImageRepository = complaintImageRepository;
         }
 
 
@@ -131,6 +134,10 @@ namespace Infrastructures
         public IBonsaiExpectedPriceRepository CategoryExpectedPriceRepository => _categoryExpectedPriceRepository;
 
         public IContractTransactionRepository ContractTransactionRepository => _contractTransactionRepository;
+
+        public IComplaintImageRepository ComplaintImageRepository => _complaintImageRepository;
+
+        public IComplaintRepository ComplaintRepository => _complaintRepository;
 
         public async Task<int> SaveChangeAsync()
         {

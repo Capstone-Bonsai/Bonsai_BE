@@ -4,6 +4,7 @@ using Application.Services;
 using Application.ViewModels.ContractViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
@@ -85,7 +86,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var contracts = await _contractService.GetContractById(id);
+                var userId = _claims.GetCurrentUserId.ToString().ToLower().Trim();
+                var contracts = await _contractService.GetContractById(id,userId);
                 return Ok(contracts);
             }
             catch (Exception ex)

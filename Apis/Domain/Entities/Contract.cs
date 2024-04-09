@@ -35,6 +35,8 @@ namespace Domain.Entities
         public IList<ContractGardener> ContractGardeners { get; set; }
 
         public IList<ContractTransaction> ContractTransactions { get; set; }
+        public IList<Complaint> Complaints{ get; set; }
+
 
 
     }
