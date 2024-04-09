@@ -11,5 +11,6 @@ namespace Application.Interfaces
     {
         Task<TaskViewModel> GetTasksOfContract(Guid contractId);
         Task UpdateProgress(TaskModel taskModel);
+        Task ClearProgress(Guid contractId);
     }
 }

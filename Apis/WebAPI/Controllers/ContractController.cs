@@ -67,6 +67,19 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("TodayProject")]
+        public async Task<IActionResult> GetTodayProject()
+        {
+            try
+            {
+                var contracts = await _contractService.GetTodayProject(_claims.GetCurrentUserId);
+                return Ok(contracts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {

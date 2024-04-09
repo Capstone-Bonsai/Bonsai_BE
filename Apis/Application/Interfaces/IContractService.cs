@@ -18,5 +18,6 @@ namespace Application.Interfaces
         Task<ContractViewModel> GetContractById(Guid id);
         Task HandleIpnAsync(MomoRedirect momo);
         Task<string> PaymentContract(Guid contractId, string userId);
+        Task<List<ContractViewModel>> GetTodayProject(Guid id);
     }
 }

@@ -13,6 +13,7 @@ namespace Application.ViewModels.ContractViewModels
     public class ContractViewModel
     {
         public Guid Id { get; set; }
+        public Guid CustomerBonsaiId { get; set; }
         public string CustomerName { get; set; }
         public string CustomerPhoneNumber { get; set; }
         public DateTime StartDate { get; set; }

@@ -65,6 +65,7 @@ namespace WebAPI.Controllers
 
         }
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
             try

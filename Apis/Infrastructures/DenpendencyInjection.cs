@@ -37,7 +37,6 @@ namespace Infrastructures
             services.AddScoped<IContractGardenerService, ContractGardenerService>();
             services.AddScoped<ICustomerBonsaiService, CustomerBonsaiService>();
             services.AddScoped<IBonsaiExpectedPriceService, BonsaiExpectedPriceService>();
-
             
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();

@@ -66,12 +66,12 @@ namespace Application.Services
                 contract.Address = customerGarden.Address;
                 contract.CustomerPhoneNumber = customerGarden.Customer.ApplicationUser.PhoneNumber;
                 var distance = await _deliveryFeeService.GetDistanse(contract.Address);
-                contract.Distance = distance.rows[0].elements[0].distance.value; 
+                contract.Distance = distance.rows[0].elements[0].distance.value;
                 contract.StartDate = contractModel.StartDate ?? serviceGarden.StartDate;
                 contract.EndDate = contractModel.EndDate ?? serviceGarden.EndDate;
                 contract.GardenSquare = customerGarden.Square;
                 contract.StandardPrice = contractModel.StandardPrice ?? serviceGarden.TemporaryPrice ?? 0;
-                contract.SurchargePrice =  contractModel.SurchargePrice ?? serviceGarden.TemporarySurchargePrice ?? 0;
+                contract.SurchargePrice = contractModel.SurchargePrice ?? serviceGarden.TemporarySurchargePrice ?? 0;
                 contract.ServicePrice = contractModel.ServicePrice ?? 0;
                 contract.NumberOfGardener = contractModel.NumberOfGardener ?? serviceGarden.TemporaryGardener ?? 2;
                 contract.TotalPrice = contract.StandardPrice + contract.SurchargePrice + contract.ServicePrice;
@@ -137,7 +137,7 @@ namespace Application.Services
             var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize);
             return contracts;
         }
-     
+
         public async Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id)
         {
             var gardener = await GetGardenerAsync(id);
@@ -152,11 +152,33 @@ namespace Application.Services
                 .GetAllQueryable()
                 .Where(x => x.ContractGardeners.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= endDate && x.EndDate >= startDate)
                 .ToListAsync();
-            if(contracts.Count == 0)
+            if (contracts.Count == 0)
             {
                 return new List<ContractViewModel>();
             }
-            foreach(Contract contract in contracts)
+            foreach (Contract contract in contracts)
+            {
+                contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
+            }
+            return contractViewModels;
+        }
+        public async Task<List<ContractViewModel>> GetTodayProject(Guid id)
+        {
+            var gardener = await GetGardenerAsync(id);
+            if (gardener == null)
+            {
+                throw new Exception("Không tìm thấy gardener!");
+            }
+            List<ContractViewModel> contractViewModels = new List<ContractViewModel>();
+            var contracts = await _unitOfWork.ContractRepository
+                .GetAllQueryable()
+                .Where(x => x.ContractGardeners.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= DateTime.Today && x.EndDate >= DateTime.Today)
+                .ToListAsync();
+            if (contracts.Count == 0)
+            {
+                return new List<ContractViewModel>();
+            }
+            foreach (Contract contract in contracts)
             {
                 contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
             }
@@ -178,70 +200,38 @@ namespace Application.Services
         public async Task<ContractViewModel> GetContractById(Guid id)
         {
             var contract = await _unitOfWork.ContractRepository.GetByIdAsync(id);
-            if (contract ==  null)
+            if (contract == null)
             {
                 throw new Exception("Không tồn tại hợp đồng");
             }
-           
             var contractViewModel = _mapper.Map<ContractViewModel>(contract);
             var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(contract.ServiceGardenId);
-            if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
+            var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGarden.CustomerGardenId && !x.IsDeleted);
+            if (customerGardenImage.Items.Count > 0)
             {
-                if (serviceGarden.CustomerBonsaiId == null || serviceGarden.CustomerBonsaiId.Equals("00000000-0000-0000-0000-000000000000"))
+                List<string> images = new List<string>();
+                foreach (CustomerGardenImage image in customerGardenImage.Items)
                 {
-                    throw new Exception("Đơn yêu cầu chưa bao gồm bonsai");
+                    images.Add(image.Image);
                 }
-                var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetByIdAsync(serviceGarden.CustomerBonsaiId.Value);
-                if (customerBonsai == null)
-                {
-                    throw new Exception("Không tìm thấy bonsai");
-                }
-                var bonsai  = await _unitOfWork.BonsaiRepository.GetByIdAsync(customerBonsai.BonsaiId);
-                if (bonsai == null)
-                {
-                    throw new Exception("Không tìm thấy bonsai");
-                }
-                contractViewModel.Bonsai = bonsai;
-                var bonsaiImage = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => x.BonsaiId == bonsai.Id && !x.IsDeleted);
-                if (bonsaiImage.Items.Count > 0)
-                {
-                    List<string> images = new List<string>();
-                    foreach (BonsaiImage image in bonsaiImage.Items)
-                    {
-                        images.Add(image.ImageUrl);
-                    }
-                    contractViewModel.Image = images;
-                }        
+                contractViewModel.Image = images;
             }
-            else
-            {
-                var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGarden.CustomerGardenId && !x.IsDeleted);
-                if (customerGardenImage.Items.Count > 0)
-                {
-                    List<string> images = new List<string>();
-                    foreach (CustomerGardenImage image in customerGardenImage.Items)
-                    {
-                        images.Add(image.Image);
-                    }
-                    contractViewModel.Image = images;
-                }
-            }     
             return contractViewModel;
         }
         public async Task<string> PaymentContract(Guid contractId, string userId)
         {
             //check co phai user ko
-            var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x=>x.ServiceGarden.CustomerGarden).ThenInclude(x=>x.Customer.ApplicationUser).FirstOrDefaultAsync(x => x.Id == contractId);
+            var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x => x.ServiceGarden.CustomerGarden).ThenInclude(x => x.Customer.ApplicationUser).FirstOrDefaultAsync(x => x.Id == contractId);
             if (contract == null)
                 throw new Exception("Không tìm thấy hợp đồng bạn yêu cầu");
-            if(!contract.ServiceGarden.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))
+            if (!contract.ServiceGarden.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))
                 throw new Exception("Bạn không có quyền truy cập vào hợp đồng này");
             // check status
-           /* if(contract.ContractStatus != Domain.Enums.ContractStatus.Waiting)
-                throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");*/
+            /* if(contract.ContractStatus != Domain.Enums.ContractStatus.Waiting)
+                 throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");*/
 
             // 
-            
+
             double totalPrice = Math.Round(contract.TotalPrice);
             string endpoint = _configuration["MomoServices:endpoint"];
             string partnerCode = _configuration["MomoServices:partnerCode"];
@@ -373,7 +363,7 @@ namespace Application.Services
                 contract.ContractStatus = contractStatus;
                 _unitOfWork.ContractRepository.Update(contract);
                 await _unitOfWork.SaveChangeAsync();
-                
+
             }
             catch (Exception exx)
             {

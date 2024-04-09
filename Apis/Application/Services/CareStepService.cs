@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Application.ViewModels.CareStepViewModels;
 using Application.ViewModels.CategoryViewModels;
+using Application.ViewModels.DeliveryFeeViewModels;
 using AutoMapper;
 using Domain.Entities;
 using System;
@@ -26,30 +27,24 @@ namespace Application.Services
         {
             try
             {
-                var last = await _unitOfWork.CareStepRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == careStepModel.CategoryId, orderBy: x => x.OrderByDescending(x => x.OrderStep));
-                int currentStep;
-                if (last.Items.Count > 0)
-                {
-                    currentStep = last.Items[0].OrderStep + 1;
-                }
-                else
-                {
-                    currentStep = 1;
-                }
+                _unitOfWork.BeginTransaction();
+                var result = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == careStepModel.CategoryId && !x.IsDeleted);
+                _unitOfWork.CareStepRepository.SoftRemoveRange(result.Items);
                 List<CareStep> careSteps = new List<CareStep>();
-                for (int i = currentStep; i < currentStep + careStepModel.CareSteps.Count; i++)
+                for (int i = 1; i < 1 + careStepModel.CareSteps.Count; i++)
                 {
                     careSteps.Add(new CareStep()
                     {
                         CategoryId = careStepModel.CategoryId,
                         OrderStep = i,
-                        Step = careStepModel.CareSteps[i - currentStep]
+                        Step = careStepModel.CareSteps[i - 1]
                     });
                 }
                 await _unitOfWork.CareStepRepository.AddRangeAsync(careSteps);
-                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.CommitTransactionAsync();
             } catch(Exception)
             {
+                _unitOfWork.RollbackTransaction();
                 throw;
             }
         }

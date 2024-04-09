@@ -19,14 +19,15 @@ namespace Application.Services
         private readonly IServiceSurchargeService _serviceSurchargeService;
         private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IServiceSurchargeService serviceSurchargeService, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager)
+        private readonly ICustomerBonsaiService _customerBonsaiService;
+        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IServiceSurchargeService serviceSurchargeService, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, ICustomerBonsaiService customerBonsaiService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _serviceSurchargeService = serviceSurchargeService;
             _deliveryFeeService = deliveryFeeService;
             _userManager = userManager;
+            _customerBonsaiService = customerBonsaiService;
         }
         public async Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel)
         {
@@ -50,8 +51,17 @@ namespace Application.Services
                 {
                     throw new Exception("Dịch vụ chăm sóc bonsai phải bao gồm bonsai");
                 }
-                else
+                var bonsai = await _customerBonsaiService.GetCustomerBonsaiById(serviceGardenModel.CustomerBonsaiId.Value);
+                var tasks = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == bonsai.Bonsai.CategoryId && !x.IsDeleted);
+                if (tasks.Items.Count == 0)
                 {
+                    throw new Exception("Phân loại này chưa sẵn sàng cho dịch vụ.");
+                }
+                var existedServiceBonsai = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceGardenModel.CustomerBonsaiId.Value && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.OnGoing);
+                if (existedServiceBonsai.Items.Count > 0)
+                {
+                    throw new Exception("Đã tồn tại đơn đăng ký thuộc về bonsai này");
+                }
                     try
                     {
                         CustomerBonsai customerBonsai = new CustomerBonsai();
@@ -86,7 +96,12 @@ namespace Application.Services
                     {
                         throw new Exception(ex.Message);
                     }
-                }
+                
+            }
+            var existedServiceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGardenModel.CustomerGardenId && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.OnGoing);
+            if (existedServiceGarden.Items.Count > 0)
+            {
+                throw new Exception("Đã tồn tại đơn đăng ký thuộc về bonsai này");
             }
             serviceGarden.TemporaryPrice = garden.Square * service.StandardPrice;
             TimeSpan duration = serviceGarden.EndDate - serviceGarden.StartDate;

@@ -164,5 +164,37 @@ namespace Application.Services
                 await _unitOfWork.SaveChangeAsync();
             }
         }
+        public async Task ClearProgress(Guid contractId)
+        {
+            var contract = await _unitOfWork.ContractRepository
+                  .GetAllQueryable()
+                  .AsNoTracking()
+                  .Include(x => x.ServiceGarden)
+                  .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng!");
+            }
+            if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
+            {
+                var tasks = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contractId);
+                foreach(BonsaiCareStep bonsaiCareStep in tasks.Items)
+                {
+                    bonsaiCareStep.CompletedTime = null;
+                }
+                _unitOfWork.BonsaiCareStepRepository.UpdateRange(tasks.Items);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            else
+            {
+                var tasks = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contractId);
+                foreach (GardenCareTask gardenCareTask in tasks.Items)
+                {
+                    gardenCareTask.CompletedTime = null;
+                }
+                _unitOfWork.GardenCareTaskRepository.UpdateRange(tasks.Items);
+                await _unitOfWork.SaveChangeAsync();
+            }
+        }
     }
 }

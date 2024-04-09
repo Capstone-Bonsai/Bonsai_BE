@@ -20,6 +20,7 @@ namespace WebAPI.Controllers
             _claims = claimsService;
         }
         [HttpGet("{contractId}")]
+        [Authorize]
         public async Task<IActionResult> Get(Guid contractId)
         {
             try
@@ -46,6 +47,19 @@ namespace WebAPI.Controllers
             try
             {
                 await _taskService.UpdateProgress(taskModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("ClearProgess/{contractId}")]
+        public async Task<IActionResult> Put(Guid contractId)
+        {
+            try
+            {
+                await _taskService.ClearProgress(contractId);
                 return Ok();
             }
             catch (Exception ex)
