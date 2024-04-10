@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services;
+using Application.Utils;
 using Domain.Entities;
 using Infrastructures.Mappers;
 using Infrastructures.Repositories;
@@ -68,7 +69,7 @@ namespace Infrastructures
 
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddSingleton<FirebaseService>();
-
+            services.AddScoped<IdUtil>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<ICurrentTime, CurrentTime>();
             services.AddHttpClient<IDeliveryFeeService, DeliveryFeeService>();

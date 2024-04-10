@@ -168,5 +168,18 @@ namespace Application.Services
             var customerGardens = await _unitOfWork.CustomerGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return customerGardens;
         }
+        public async Task<CustomerGarden> GetById(Guid id, Guid customerId, bool isCustomer)
+        {
+            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(id);
+            if (customerGarden == null)
+            {
+                throw new Exception("Không tìm thấy");
+            }
+            if (isCustomer == true && customerGarden.CustomerId != customerId)
+            {
+                throw new Exception("Bạn không có quyền truy cập vườn này");
+            }
+            return customerGarden;
+        }
     }
 }

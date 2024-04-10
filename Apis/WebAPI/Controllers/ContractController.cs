@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var contracts = await _contractService.GetContracts(pageIndex, pageSize);
+                var contracts = await _contractService.GetContracts(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId);
                 if (contracts.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");

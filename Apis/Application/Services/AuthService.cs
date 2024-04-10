@@ -177,12 +177,16 @@ namespace Application.Services
             if (signInResult.Succeeded)
             {
                 var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
+                var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
                 var roles = await _userManager.GetRolesAsync(user);
                 List<Claim> authClaims = new List<Claim>();
                 authClaims.Add(new Claim(ClaimTypes.Email, user.Email));
                 authClaims.Add(new Claim("userId", user.Id));
                 authClaims.Add(new Claim(ClaimTypes.Name, user.UserName));
                 authClaims.Add(new Claim("isAdmin", isAdmin.ToString()));
+                authClaims.Add(new Claim("isCustomer", isCustomer.ToString()));
+
+
 
                 authClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
                 foreach (var item in roles)

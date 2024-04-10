@@ -7,7 +7,7 @@ namespace Application.Interfaces
 {
     public interface IServiceGardenService
     {
-        Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel);
+        Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel, Guid userId, bool isCustomer);
         Task<Pagination<ServiceGarden>> GetServiceGardenByCustomerId(Guid customerId, int pageIndex, int pageSize);
         Task CancelServiceGarden(Guid serviceGardenId);
         Task DenyServiceGarden(Guid serviceGardenId);

@@ -29,7 +29,7 @@ namespace Application.Services
             _userManager = userManager;
             _customerBonsaiService = customerBonsaiService;
         }
-        public async Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel)
+        public async Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel, Guid userId, bool isCustomer)
         {
             var garden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(serviceGardenModel.CustomerGardenId);
             if (garden == null)
@@ -51,7 +51,7 @@ namespace Application.Services
                 {
                     throw new Exception("Dịch vụ chăm sóc bonsai phải bao gồm bonsai");
                 }
-                var bonsai = await _customerBonsaiService.GetCustomerBonsaiById(serviceGardenModel.CustomerBonsaiId.Value);
+                var bonsai = await _customerBonsaiService.GetCustomerBonsaiById(serviceGardenModel.CustomerBonsaiId.Value, userId, isCustomer);
                 var tasks = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == bonsai.Bonsai.CategoryId && !x.IsDeleted);
                 if (tasks.Items.Count == 0)
                 {

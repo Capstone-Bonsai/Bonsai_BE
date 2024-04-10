@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
+using Application.Utils;
 using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
 using AutoMapper;
@@ -9,6 +10,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualBasic;
@@ -30,14 +32,16 @@ namespace Application.Services
         private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly IdUtil _idUtil;
 
-        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager)
+        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _deliveryFeeService = deliveryFeeService;
             _userManager = userManager;
-            _configuration = configuration; ;
+            _configuration = configuration;
+            _idUtil = idUtil;
         }
         public async Task CreateContract(ContractModel contractModel)
         {
@@ -132,10 +136,19 @@ namespace Application.Services
                 throw;
             }
         }
-        public async Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize)
+        public async Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id)
         {
-            var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize);
-            return contracts;
+            if (isCustomer)
+            {
+                var customer = await _idUtil.GetCustomerAsync(id);
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.ServiceGarden.CustomerGarden.CustomerId == customer.Id, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus));
+                return contracts;
+            }
+            else
+            {
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus));
+                return contracts;
+            }    
         }
 
         public async Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id)

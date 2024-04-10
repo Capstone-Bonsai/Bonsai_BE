@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Utils;
 
 namespace Application.Services
 {
@@ -21,14 +22,18 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IBonsaiService _bonsaiService;
         private readonly FirebaseService _fireBaseService;
+        private readonly IdUtil _idUtil;
+  
 
-        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService)
+        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService, IdUtil idUtil)
 
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _bonsaiService = bonsaiService;
             _fireBaseService = fireBaseService;
+            _idUtil = idUtil;
+
         }
         public async Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId)
         {
@@ -125,12 +130,21 @@ namespace Application.Services
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted, includes: includes);
             return bonsais;
         }
-        public async Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId)
+        public async Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer)
         {
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
-                                 x => x.Bonsai.BonsaiImages
+                                 x => x.Bonsai.BonsaiImages,
+                                 x => x.CustomerGarden
                                     };
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.Id == customerBonsaiId && !x.IsDeleted, includes: includes);
+            if (isCustomer == true)
+            {
+                var customer = await _idUtil.GetCustomerAsync(userId);
+                if (bonsais.Items[0].CustomerGarden.CustomerId == customer.Id)
+                {
+                    throw new Exception("Bạn không có quyền truy cập vào bonsai này");
+                }
+            }
             return bonsais.Items[0];
         }
     }

@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var bonsai = await _customerBonsaiService.GetCustomerBonsaiById(id);
+                var bonsai = await _customerBonsaiService.GetCustomerBonsaiById(id, _claims.GetCurrentUserId, _claims.GetIsCustomer);
                 return Ok(bonsai);
             }
             catch (Exception ex)

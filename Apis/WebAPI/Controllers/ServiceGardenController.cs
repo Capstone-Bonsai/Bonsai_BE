@@ -28,7 +28,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var result = await _serviceGardenService.AddServiceGarden(serviceGardenModel);
+                var result = await _serviceGardenService.AddServiceGarden(serviceGardenModel, _claimsService.GetCurrentUserId, _claimsService.GetIsCustomer);
                 if (result != null)
                     return Ok(result);
                 else return BadRequest(result);

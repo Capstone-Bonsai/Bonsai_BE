@@ -13,7 +13,7 @@ namespace Application.Interfaces
     public interface IContractService
     {
         Task CreateContract(ContractModel contractModel);
-        Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize);
+        Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id);
         Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id);
         Task<ContractViewModel> GetContractById(Guid id);
         Task HandleIpnAsync(MomoRedirect momo);
