@@ -102,7 +102,6 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("IpnHandler")]
-        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> IpnAsync([FromBody] MomoRedirect momo)
         {
             try
