@@ -33,5 +33,19 @@ namespace Application.Utils
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return customer;
         }
+
+        public async Task<Gardener> GetGardenerAsync(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                throw new Exception("Không tìm thấy người dùng!");
+            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
+            if (!isGardener)
+                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
+            var gardener = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
+            if (gardener == null)
+                throw new Exception("Không tìm thấy thông tin người dùng");
+            return gardener;
+        }
     }
 }

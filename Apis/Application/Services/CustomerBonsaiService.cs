@@ -140,7 +140,7 @@ namespace Application.Services
             if (isCustomer == true)
             {
                 var customer = await _idUtil.GetCustomerAsync(userId);
-                if (bonsais.Items[0].CustomerGarden.CustomerId == customer.Id)
+                if (bonsais.Items[0].CustomerGarden.CustomerId != customer.Id)
                 {
                     throw new Exception("Bạn không có quyền truy cập vào bonsai này");
                 }

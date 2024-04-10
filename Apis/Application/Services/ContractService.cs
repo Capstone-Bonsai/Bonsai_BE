@@ -31,16 +31,14 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IDeliveryFeeService _deliveryFeeService;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
         private readonly IdUtil _idUtil;
 
-        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, IdUtil idUtil)
+        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _deliveryFeeService = deliveryFeeService;
-            _userManager = userManager;
             _configuration = configuration;
             _idUtil = idUtil;
         }
@@ -154,7 +152,7 @@ namespace Application.Services
 
         public async Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id)
         {
-            var gardener = await GetGardenerAsync(id);
+            var gardener = await _idUtil.GetGardenerAsync(id);
             if (gardener == null)
             {
                 throw new Exception("Không tìm thấy gardener!");
@@ -178,7 +176,7 @@ namespace Application.Services
         }
         public async Task<List<ContractViewModel>> GetTodayProject(Guid id)
         {
-            var gardener = await GetGardenerAsync(id);
+            var gardener = await _idUtil.GetGardenerAsync(id);
             if (gardener == null)
             {
                 throw new Exception("Không tìm thấy gardener!");
@@ -197,19 +195,6 @@ namespace Application.Services
                 contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
             }
             return contractViewModels;
-        }
-        private async Task<Gardener> GetGardenerAsync(Guid id)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                throw new Exception("Không tìm thấy người làm vườn!");
-            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
-            if (!isGardener)
-                throw new Exception("Chỉ người làm vườn mới có thể thêm vào dự án!");
-            var gardener = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
-            if (gardener == null)
-                throw new Exception("Không tìm thấy thông tin người dùng");
-            return gardener;
         }
         public async Task<ContractViewModel> GetContractByIdForGardener(Guid id)
         {

@@ -17,7 +17,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
-using Application.Utils;
+
 namespace Application.Services
 {
     public class BonsaiService : IBonsaiService
@@ -25,14 +25,14 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly FirebaseService _fireBaseService;
         private readonly IMapper _mapper;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IdUtil _idUtil;
 
-        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
+        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fireBaseService = fireBaseService;
-            _userManager = userManager;
+            _idUtil = idUtil;
         }
 
         public async Task<Pagination<Bonsai>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false)
@@ -292,7 +292,7 @@ namespace Application.Services
         }
         public async Task<Pagination<Bonsai>> GetBoughtBonsai(Guid id)
         {
-            var customer = await GetCustomerAsync(id);
+            var customer = await _idUtil.GetCustomerAsync(id);
             var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(isTakeAll: true, expression: x => x.Order.CustomerId == customer.Id && x.Order.OrderStatus == Domain.Enums.OrderStatus.Delivered);
             if (orderDetails.Items.Count == 0)
             {
@@ -308,19 +308,6 @@ namespace Application.Services
                                     };
             var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.OrderDetails.Any(y => orderDetailsId.Contains(y.Id)) && x.CustomerBonsai == null, includes: includes);
             return bonsais;
-        }
-        private async Task<Customer> GetCustomerAsync(Guid id)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                throw new Exception("Không tìm thấy!");
-            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-            if (!isCustomer)
-                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
-            var customer = await _unitOfWork.CustomerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
-            if (customer == null)
-                throw new Exception("Không tìm thấy thông tin người dùng");
-            return customer;
         }
         private async Task<string> generateCode(Guid categoryId)
         {
