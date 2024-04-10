@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -210,21 +211,11 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return gardener;
         }
-        public async Task<ContractViewModel> GetContractById(Guid id, string userId)
+        public async Task<ContractViewModel> GetContractByIdForGardener(Guid id)
         {
             var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x=>x.ServiceGarden.CustomerGarden.Customer).FirstOrDefaultAsync(x=>x.Id == id);
             if (contract == null)
                 throw new Exception("Không tồn tại hợp đồng");
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-                throw new Exception("Không tìm thấy người dùng!");
-            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-            var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
-            var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
-            if (isCustomer && !isAdmin && !isStaff)
-            {
-                if (!contract.ServiceGarden.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower())) throw new Exception("Bạn không có quyền truy cập vào hợp đồng này");
-            }
             var contractViewModel = _mapper.Map<ContractViewModel>(contract);
             var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(contract.ServiceGardenId);
             var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGarden.CustomerGardenId && !x.IsDeleted);
@@ -391,6 +382,30 @@ namespace Application.Services
                 throw new Exception($"tạo Transaction lỗi: {exx.Message}");
             }
         }
-
+        public async Task<Contract> GetContractById(Guid id, bool isCustomer, Guid userId)
+        {
+            List<Expression<Func<Contract, object>>> includes = new List<Expression<Func<Contract, object>>>{
+                                 x => x.ContractImages,
+                                    };
+            if (isCustomer)
+            {
+                var customer = await _idUtil.GetCustomerAsync(userId);
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceGarden.CustomerGarden.CustomerId == customer.Id && x.Id == id, includes: includes);
+                if (contracts.Items.Count == 0)
+                {
+                    throw new Exception("Không tìm thấy contract");
+                }
+                return contracts.Items[0];
+            }
+            else
+            {
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.Id == id, includes: includes);
+                if (contracts.Items.Count == 0)
+                {
+                    throw new Exception("Không tìm thấy contract");
+                }
+                return contracts.Items[0];
+            }
+        }
     }
 }

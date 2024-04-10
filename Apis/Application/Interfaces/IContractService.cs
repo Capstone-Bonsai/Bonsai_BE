@@ -15,9 +15,10 @@ namespace Application.Interfaces
         Task CreateContract(ContractModel contractModel);
         Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id);
         Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id);
-        Task<ContractViewModel> GetContractById(Guid id, string userId);
+        Task<ContractViewModel> GetContractByIdForGardener(Guid id);
         Task HandleIpnAsync(MomoRedirect momo);
         Task<string> PaymentContract(Guid contractId, string userId);
         Task<List<ContractViewModel>> GetTodayProject(Guid id);
+        Task<Contract> GetContractById(Guid id, bool isCustomer, Guid userId);
     }
 }

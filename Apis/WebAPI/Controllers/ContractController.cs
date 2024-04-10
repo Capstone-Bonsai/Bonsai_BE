@@ -5,6 +5,7 @@ using Application.ViewModels.ContractViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
@@ -22,6 +23,7 @@ namespace WebAPI.Controllers
             _claims = claimsService;
         }
         [HttpGet("Pagination")]
+        [Authorize]
         public async Task<IActionResult> Get([FromRoute] int pageIndex, int pageSize)
         {
             try
@@ -42,6 +44,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
+        [Authorize(Roles = "Staff")]
         public async Task<IActionResult> Post([FromBody] ContractModel contractModel)
         {
             try
@@ -56,6 +59,7 @@ namespace WebAPI.Controllers
         }
        
         [HttpGet("WorkingCalendar")]
+        [Authorize(Roles = "Gardener")]
         public async Task<IActionResult> GetWorkingCalendar(int month, int year)
         {
             try
@@ -69,6 +73,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("TodayProject")]
+        [Authorize(Roles = "Gardener")]
         public async Task<IActionResult> GetTodayProject()
         {
             try
@@ -81,13 +86,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        [HttpGet("Gardener/{id}")]
+        [Authorize(Roles = "Gardener")]
+        public async Task<IActionResult> GetByIdForGardener(Guid id)
         {
             try
             {
-                var userId = _claims.GetCurrentUserId.ToString().ToLower().Trim();
-                var contracts = await _contractService.GetContractById(id,userId);
+                var contracts = await _contractService.GetContractByIdForGardener(id);
                 return Ok(contracts);
             }
             catch (Exception ex)
@@ -97,6 +102,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("IpnHandler")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> IpnAsync([FromBody] MomoRedirect momo)
         {
             try
@@ -110,6 +116,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("Payment")]
+        [Authorize(Roles = "Customer")]
         public async Task<IActionResult> Payment(Guid ContractId)
         {
             try
@@ -121,6 +128,20 @@ namespace WebAPI.Controllers
                     return BadRequest("Không tìm thấy");
                 else
                     return Ok(linkPayment);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            try
+            {
+                var contracts = await _contractService.GetContractById(id, _claims.GetIsCustomer, _claims.GetCurrentUserId);
+                return Ok(contracts);
             }
             catch (Exception ex)
             {

@@ -24,7 +24,7 @@ namespace Application.Utils
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null)
-                throw new Exception("Không tìm thấy!");
+                throw new Exception("Không tìm thấy người dùng!");
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
             if (!isCustomer)
                 throw new Exception("Bạn không có quyền để thực hiện hành động này!");
