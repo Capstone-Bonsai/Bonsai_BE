@@ -42,6 +42,8 @@ namespace Infrastructures
         public DbSet<GardenCareTask> GardenCareTask { get; set; }
         public DbSet<ServiceBaseTask> ServiceBaseTask { get; set; }
         public DbSet<ServiceSurcharge> ServiceSurcharge { get; set; }
+        public DbSet<Complaint> Complaint { get; set; }
+        public DbSet<ComplaintImage> ComplaintImage { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             var cascadeFKs = builder.Model.GetEntityTypes()
