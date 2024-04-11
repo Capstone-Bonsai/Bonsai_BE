@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         }
         [HttpGet("Pagination")]
         [Authorize]
-        public async Task<IActionResult> Get([FromRoute] int pageIndex, int pageSize)
+        public async Task<IActionResult> Get([FromQuery] int pageIndex, int pageSize)
         {
             try
             {

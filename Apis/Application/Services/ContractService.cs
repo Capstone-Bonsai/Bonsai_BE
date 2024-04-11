@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
 using Application.Utils;
+using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
 using AutoMapper;
@@ -33,14 +34,16 @@ namespace Application.Services
         private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly IConfiguration _configuration;
         private readonly IdUtil _idUtil;
+        private readonly FirebaseService _fireBaseService;
 
-        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, IdUtil idUtil)
+        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _deliveryFeeService = deliveryFeeService;
             _configuration = configuration;
             _idUtil = idUtil;
+            _fireBaseService = fireBaseService;
         }
         public async Task CreateContract(ContractModel contractModel)
         {
@@ -147,7 +150,7 @@ namespace Application.Services
             {
                 var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus));
                 return contracts;
-            }    
+            }
         }
 
         public async Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id)
@@ -198,7 +201,7 @@ namespace Application.Services
         }
         public async Task<ContractViewModel> GetContractByIdForGardener(Guid id)
         {
-            var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x=>x.ServiceGarden.CustomerGarden.Customer).FirstOrDefaultAsync(x=>x.Id == id);
+            var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x => x.ServiceGarden.CustomerGarden.Customer).FirstOrDefaultAsync(x => x.Id == id);
             if (contract == null)
                 throw new Exception("Không tồn tại hợp đồng");
             var contractViewModel = _mapper.Map<ContractViewModel>(contract);
@@ -390,6 +393,55 @@ namespace Application.Services
                     throw new Exception("Không tìm thấy contract");
                 }
                 return contracts.Items[0];
+            }
+        }
+        public async Task AddContractImage(ContractImageModel contractImageModel)
+        {
+            if (contractImageModel == null)
+                throw new ArgumentNullException(nameof(contractImageModel), "Vui lòng nhập đúng thông tin!");
+            if (contractImageModel.Image == null || contractImageModel.Image.Count == 0)
+            {
+                throw new Exception("Không có hình ảnh!");
+            }
+            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractImageModel.ContractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng!");
+            }
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                var images = await _unitOfWork.ContractImageRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contractImageModel.ContractId && !x.IsDeleted, isDisableTracking: true);
+                _unitOfWork.ContractImageRepository.SoftRemoveRange(images.Items);
+                foreach (var singleImage in contractImageModel.Image.Select((image, index) => (image, index)))
+                {
+                    string newImageName = contract.Id + "_i" + singleImage.index;
+                    string folderName = $"contract/{contract.Id}/Image";
+                    string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                    string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                    const long maxFileSize = 20 * 1024 * 1024;
+                    if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                    {
+                        throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                    }
+                    var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                    if (url == null)
+                        throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                    ContractImage contractImage = new ContractImage()
+                    {
+                        ContractId = contract.Id,
+                        Image = url
+                    };
+
+                    await _unitOfWork.ContractImageRepository.AddAsync(contractImage);
+                }
+
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

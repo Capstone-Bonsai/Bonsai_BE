@@ -127,15 +127,6 @@ namespace Application.Services
             await _unitOfWork.SaveChangeAsync();
             return serviceGarden;
         }
-        public async Task<Pagination<ServiceGarden>> GetServiceGardenByCustomerId(Guid customerId, int pageIndex, int pageSize)
-        {
-            var customer = await _idUtil.GetCustomerAsync(customerId);
-            List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
-                                 x => x.CustomerGarden,
-                                    };
-            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGarden.CustomerId == customer.Id, orderBy: query => query.OrderByDescending(x => x.CreationDate), includes: includes);
-            return serviceGardens;
-        }
         public async Task CancelServiceGarden(Guid serviceGardenId)
         {
             var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(serviceGardenId);
@@ -169,24 +160,52 @@ namespace Application.Services
             _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
         }
-        public async Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize)
+        public async Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize, bool isCustomer, Guid id)
         {
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
                                  x => x.CustomerGarden.Customer.ApplicationUser
                                     };
-            var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
-            return serviceGarden;
+            if (isCustomer)
+            {
+                var customer = await _idUtil.GetCustomerAsync(id);
+                var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGarden.CustomerId == customer.Id, orderBy: query => query.OrderByDescending(x => x.CreationDate), includes: includes);
+                return serviceGardens;
+            }
+            else
+            {
+              
+                var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.ServiceGardenStatus != Domain.Enums.ServiceGardenStatus.UnAccepted, orderBy: query => query.OrderByDescending(x => x.CreationDate), includes: includes);
+                return serviceGardens;
+            }
         }
-        public async Task<ServiceGarden> GetServiceGardenById(Guid Id)
+        public async Task<ServiceGarden> GetServiceGardenById(Guid id, bool isCustomer, Guid userId)
         {
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
                                  x => x.CustomerGarden.Customer.ApplicationUser
                                     };
-            var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == Id,
-                isDisableTracking: true, includes: includes);
-            return serviceGardens.Items[0];
+
+            if (isCustomer)
+            {
+                var customer = await _idUtil.GetCustomerAsync(userId);
+                var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGarden.CustomerId == customer.Id && x.Id == id, includes: includes);
+                if (serviceGardens.Items.Count == 0)
+                {
+                    throw new Exception("Không tìm thấy contract");
+                }
+                return serviceGardens.Items[0];
+            }
+            else
+            {
+                var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x =>  x.ServiceGardenStatus != Domain.Enums.ServiceGardenStatus.UnAccepted && x.Id == id,
+                    isDisableTracking: true, includes: includes);
+                if (serviceGardens.Items.Count == 0)
+                {
+                    throw new Exception("Không tìm thấy contract");
+                }
+                return serviceGardens.Items[0];
+            }
         }
     }
 }

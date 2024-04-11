@@ -8,11 +8,10 @@ namespace Application.Interfaces
     public interface IServiceGardenService
     {
         Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel, Guid userId, bool isCustomer);
-        Task<Pagination<ServiceGarden>> GetServiceGardenByCustomerId(Guid customerId, int pageIndex, int pageSize);
         Task CancelServiceGarden(Guid serviceGardenId);
         Task DenyServiceGarden(Guid serviceGardenId);
-        Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize);
+        Task<Pagination<ServiceGarden>> GetServiceGarden(int pageIndex, int pageSize, bool isCustomer, Guid id);
         Task AcceptServiceGarden(Guid serviceGardenId);
-        Task<ServiceGarden> GetServiceGardenById(Guid Id);
+        Task<ServiceGarden> GetServiceGardenById(Guid Id, bool isCustomer, Guid userIds);
     }
 }

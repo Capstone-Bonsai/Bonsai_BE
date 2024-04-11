@@ -29,9 +29,9 @@ namespace Application
         public IServiceSurchargeRepository ServiceSurchargeRepository { get; }
         public IContractGardenerRepository ContractGardenerRepository { get; }
         public IContractTransactionRepository ContractTransactionRepository { get; }
-
         public IComplaintImageRepository ComplaintImageRepository { get; }
         public IComplaintRepository ComplaintRepository { get; }
+        public IContractImageRepository ContractImageRepository { get; }
 
         public IBonsaiExpectedPriceRepository CategoryExpectedPriceRepository { get; }
         public Task<int> SaveChangeAsync();

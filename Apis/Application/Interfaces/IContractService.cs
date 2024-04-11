@@ -20,5 +20,6 @@ namespace Application.Interfaces
         Task<string> PaymentContract(Guid contractId, string userId);
         Task<List<ContractViewModel>> GetTodayProject(Guid id);
         Task<Contract> GetContractById(Guid id, bool isCustomer, Guid userId);
+        Task AddContractImage(ContractImageModel contractImageModel);
     }
 }

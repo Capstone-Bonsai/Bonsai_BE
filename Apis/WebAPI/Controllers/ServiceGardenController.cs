@@ -38,22 +38,6 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("Pagination")]
-        [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> GetOrderAsync([FromQuery] int pageIndex, int pageSize)
-        {
-            try
-            {
-                var result = await _serviceGardenService.GetServiceGardenByCustomerId(_claimsService.GetCurrentUserId, pageIndex, pageSize);
-                if (result != null)
-                    return Ok(result);
-                else return BadRequest(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
         [HttpPut("cancellation/{serviceGardenId}")]
         [Authorize(Roles = "Customer")]
         public async Task<IActionResult> CancelServiceGarden([FromRoute] Guid serviceGardenId)
@@ -96,13 +80,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("Manager/Pagination")]
+        [HttpGet("Pagination")]
         [Authorize]
         public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
         {
             try
             {
-                var pagination = await _serviceGardenService.GetServiceGarden(pageIndex, pageSize);
+                var pagination = await _serviceGardenService.GetServiceGarden(pageIndex, pageSize, _claimsService.GetIsCustomer, _claimsService.GetCurrentUserId);
                 if (pagination.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");
@@ -121,7 +105,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var serviceGarden = await _serviceGardenService.GetServiceGardenById(id);
+            var serviceGarden = await _serviceGardenService.GetServiceGardenById(id, _claimsService.GetIsCustomer, _claimsService.GetCurrentUserIds);
             if (serviceGarden == null)
             {
                 return NotFound();
