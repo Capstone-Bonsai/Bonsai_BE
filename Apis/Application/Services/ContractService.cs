@@ -238,7 +238,7 @@ namespace Application.Services
             string accessKey = _configuration["MomoServices:accessKey"];
             string serectkey = _configuration["MomoServices:secretKey"];
             string orderInfo = "Thanh toán hóa đơn hàng tại Thanh Sơn Garden.";
-            string redirectUrl = _configuration["MomoServices:redirectUrl"];
+            string redirectUrl = _configuration["MomoServices:redirectContractUrl"];
             string ipnUrl = _configuration["MomoServices:serviceIpnUrl"];
             string requestType = "captureWallet";
             string amount = totalPrice.ToString();
@@ -298,7 +298,7 @@ namespace Application.Services
         {
             string accessKey = _configuration["MomoServices:accessKey"];
             string IpnUrl = _configuration["MomoServices:serviceIpnUrl"];
-            string redirectUrl = _configuration["MomoServices:redirectUrl"];
+            string redirectUrl = _configuration["MomoServices:redirectContractUrl"];
             string partnerCode = _configuration["MomoServices:partnerCode"];
             string endpoint = _configuration["MomoServices:endpoint"];
 
