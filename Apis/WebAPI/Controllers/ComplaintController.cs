@@ -25,6 +25,10 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromForm] ComplaintModel model)
         {
+            if(model.ListImage == null || model.ListImage.Count == 0)
+            {
+                return BadRequest("Vui lòng thêm hình ảnh.");
+            }
             try
             {
                 var userId = _claimsService.GetCurrentUserId.ToString().ToLower().Trim();

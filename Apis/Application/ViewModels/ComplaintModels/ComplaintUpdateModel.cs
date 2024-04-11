@@ -10,7 +10,7 @@ namespace Application.ViewModels.ComplaintModels
     public class ComplaintUpdateModel
     {
         public Guid ComplaintId { get; set; }
-        public ComplaintStatus ComplaintStatus { get; }
-        public string? CancelReason { get;}
+        public ComplaintStatus ComplaintStatus { get; set; }
+        public string? CancelReason { get; set; }
     }
 }

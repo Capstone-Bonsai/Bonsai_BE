@@ -11,6 +11,6 @@ namespace Application.ViewModels.ComplaintModels
     {
         public Guid ContractId { get; set; }
         public string Detail { get; set; }
-        public IList<FormFile> ListImage { get; set; } 
+        public List<IFormFile>? ListImage { get; set; } 
     }
 }
