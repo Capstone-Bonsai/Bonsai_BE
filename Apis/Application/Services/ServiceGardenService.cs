@@ -1,6 +1,10 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
 using Application.Repositories;
+using Application.Utils;
+using Application.Validations.Bonsai;
+using Application.Validations.ServiceGarden;
+using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.ServiceGardenViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -20,7 +24,8 @@ namespace Application.Services
         private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICustomerBonsaiService _customerBonsaiService;
-        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IServiceSurchargeService serviceSurchargeService, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, ICustomerBonsaiService customerBonsaiService)
+        private readonly IdUtil _idUtil;
+        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IServiceSurchargeService serviceSurchargeService, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, ICustomerBonsaiService customerBonsaiService, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -28,6 +33,7 @@ namespace Application.Services
             _deliveryFeeService = deliveryFeeService;
             _userManager = userManager;
             _customerBonsaiService = customerBonsaiService;
+            _idUtil = idUtil;
         }
         public async Task<ServiceGarden> AddServiceGarden(ServiceGardenModel serviceGardenModel, Guid userId, bool isCustomer)
         {
@@ -41,7 +47,14 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy dịch vụ");
             }
-
+            var validationRules = new ServiceGardenModelValidator();
+            var resultBonsaiInfo = await validationRules.ValidateAsync(serviceGardenModel);
+            if (!resultBonsaiInfo.IsValid)
+            {
+                var errors = resultBonsaiInfo.Errors.Select(x => x.ErrorMessage);
+                string errorMessage = string.Join(Environment.NewLine, errors);
+                throw new Exception(errorMessage);
+            }
             var serviceGarden = _mapper.Map<ServiceGarden>(serviceGardenModel);
             serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.UnAccepted;
             var distance = await _deliveryFeeService.GetDistanse(garden.Address);
@@ -57,7 +70,7 @@ namespace Application.Services
                 {
                     throw new Exception("Phân loại này chưa sẵn sàng cho dịch vụ.");
                 }
-                var existedServiceBonsai = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceGardenModel.CustomerBonsaiId.Value && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.OnGoing);
+                var existedServiceBonsai = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceGardenModel.CustomerBonsaiId.Value && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.StaffAccepted);
                 if (existedServiceBonsai.Items.Count > 0)
                 {
                     throw new Exception("Đã tồn tại đơn đăng ký thuộc về bonsai này");
@@ -98,7 +111,7 @@ namespace Application.Services
                     }
                 
             }
-            var existedServiceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGardenModel.CustomerGardenId && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.OnGoing);
+            var existedServiceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGardenModel.CustomerGardenId && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.StaffAccepted);
             if (existedServiceGarden.Items.Count > 0)
             {
                 throw new Exception("Đã tồn tại đơn đăng ký thuộc về bonsai này");
@@ -116,7 +129,7 @@ namespace Application.Services
         }
         public async Task<Pagination<ServiceGarden>> GetServiceGardenByCustomerId(Guid customerId, int pageIndex, int pageSize)
         {
-            var customer = await GetCustomerAsync(customerId);
+            var customer = await _idUtil.GetCustomerAsync(customerId);
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
                                     };
@@ -152,7 +165,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy đơn đặt dịch vụ");
             }
-            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Waiting;
+            serviceGarden.ServiceGardenStatus = Domain.Enums.ServiceGardenStatus.Accepted;
             _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             await _unitOfWork.SaveChangeAsync();
         }
@@ -174,19 +187,6 @@ namespace Application.Services
             var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == Id,
                 isDisableTracking: true, includes: includes);
             return serviceGardens.Items[0];
-        }
-        private async Task<Customer> GetCustomerAsync(Guid id)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                throw new Exception("Không tìm thấy!");
-            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-            if (!isCustomer)
-                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
-            var customer = await _unitOfWork.CustomerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
-            if (customer == null)
-                throw new Exception("Không tìm thấy thông tin người dùng");
-            return customer;
         }
     }
 }

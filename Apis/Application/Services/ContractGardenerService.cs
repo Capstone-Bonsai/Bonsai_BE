@@ -1,5 +1,6 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Utils;
 using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
@@ -15,12 +16,14 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IdUtil _idUtil;
 
-        public ContractGardenerService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager)
+        public ContractGardenerService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManager = userManager;
+            _idUtil = idUtil;
         }
         public async Task<Pagination<UserViewModel>> GetGardenerOfContract(int pageIndex, int pageSize, Guid contractId)
         {
@@ -45,7 +48,7 @@ namespace Application.Services
 
             foreach (var item in paginationList.Items)
             {
-                var gardener = await GetGardenerAsync(Guid.Parse(item.Id));
+                var gardener = await _idUtil.GetGardenerAsync(Guid.Parse(item.Id));
                 var contracts = _unitOfWork.ContractRepository
                     .GetAllQueryable()
                     .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ContractGardeners.Any(y => y.GardenerId == gardener.Id));
@@ -80,6 +83,10 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng");
             }
+            if (contract.NumberOfGardener != contractGardenerModel.GardenerIds.Count)
+            {
+                throw new Exception("Phải thêm đúng " + contract.NumberOfGardener + " người");
+            }
             List<ContractGardener> contractGardeners = new List<ContractGardener>();
             foreach (Guid id in contractGardenerModel.GardenerIds)
             {
@@ -96,19 +103,6 @@ namespace Application.Services
             }
             await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
             await _unitOfWork.SaveChangeAsync();
-        }
-        private async Task<Gardener> GetGardenerAsync(Guid id)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                throw new Exception("Không tìm thấy người làm vườn!");
-            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
-            if (!isGardener)
-                throw new Exception("Chỉ người làm vườn mới có thể thêm vào dự án!");
-            var gardener = await _unitOfWork.GardenerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
-            if (gardener == null)
-                throw new Exception("Không tìm thấy thông tin người dùng");
-            return gardener;
         }
     }
 }

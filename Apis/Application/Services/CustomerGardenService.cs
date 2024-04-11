@@ -1,5 +1,6 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
+using Application.Utils;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CustomerGardenViewModels;
 using AutoMapper;
@@ -22,13 +23,15 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly FirebaseService _fireBaseService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IdUtil _idUtil;
 
-        public CustomerGardenService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
+        public CustomerGardenService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fireBaseService = fireBaseService;
             _userManager = userManager;
+            _idUtil = idUtil;
         }
 
         public async Task AddCustomerGarden(CustomerGardenModel customerGardenModel, Guid id)
@@ -38,7 +41,7 @@ namespace Application.Services
                 throw new Exception("Không có thông tin vườn");
             }
             var customerGarden = _mapper.Map<CustomerGarden>(customerGardenModel);
-            var customer = await GetCustomerAsync(id);
+            var customer = await _idUtil.GetCustomerAsync(id);
             customerGarden.CustomerId = customer.Id;
             try
             {
@@ -80,22 +83,9 @@ namespace Application.Services
             }
 
         }
-        private async Task<Customer> GetCustomerAsync(Guid id)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-                throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
-            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-            if (!isCustomer)
-                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
-            var customer = await _unitOfWork.CustomerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
-            if (customer == null)
-                throw new Exception("Không tìm thấy thông tin người dùng");
-            return customer;
-        }
         public async Task<Pagination<CustomerGarden>> GetByCustomerId(int pageIndex, int pageSize, Guid id)
         {
-            var customer = await GetCustomerAsync(id);
+            var customer = await _idUtil.GetCustomerAsync(id);
             var customerGardenQuery = _unitOfWork.CustomerGardenRepository
                 .GetAllQueryable()
                 .Where(x => x.CustomerId == customer.Id)
@@ -132,7 +122,7 @@ namespace Application.Services
         }
         public async Task<Pagination<CustomerGarden>> GetAllByCustomerId(Guid id)
         {
-            var customer = await GetCustomerAsync(id);
+            var customer = await _idUtil.GetCustomerAsync(id);
             var customerGardenQuery = _unitOfWork.CustomerGardenRepository
                 .GetAllQueryable()
                 .Where(x => x.CustomerId == customer.Id)

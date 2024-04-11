@@ -8,6 +8,6 @@ namespace Domain.Enums
 {
     public enum ServiceGardenStatus
     {
-        UnAccepted = 1,Waiting = 2, OnGoing = 3, Finished = 4, Denied = 5, Cancel = 6
+        UnAccepted = 1, Accepted = 2, StaffAccepted = 3, Denied = 4, Cancel = 5, Finished = 6
     }
 }

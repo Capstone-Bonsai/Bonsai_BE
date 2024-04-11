@@ -131,6 +131,10 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
             }
+            if (contract.ContractStatus != Domain.Enums.ContractStatus.Processing || contract.ContractStatus != Domain.Enums.ContractStatus.ProcessingComplaint)
+            {
+                throw new Exception("Đang không trong thời gian cập nhật tiến độ công việc!");
+            }
             if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
                 List<BonsaiCareStep> tasks = new List<BonsaiCareStep>();
@@ -145,6 +149,12 @@ namespace Application.Services
                     tasks.Add(task);
                 }
                 _unitOfWork.BonsaiCareStepRepository.UpdateRange(tasks);
+                var unfinishedTask = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.CompletedTime == null);
+                if (unfinishedTask.Items.Count == 0)
+                {
+                    contract.ContractStatus = Domain.Enums.ContractStatus.TaskFinished;
+                    _unitOfWork.ContractRepository.Update(contract);
+                }
                 await _unitOfWork.SaveChangeAsync();
             }
             else
@@ -161,6 +171,12 @@ namespace Application.Services
                     tasks.Add(task);
                 }
                 _unitOfWork.GardenCareTaskRepository.UpdateRange(tasks);
+                var unfinishedTask = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.CompletedTime == null);
+                if (unfinishedTask.Items.Count == 0)
+                {
+                    contract.ContractStatus = Domain.Enums.ContractStatus.TaskFinished;
+                    _unitOfWork.ContractRepository.Update(contract);
+                }
                 await _unitOfWork.SaveChangeAsync();
             }
         }
