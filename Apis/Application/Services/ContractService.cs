@@ -140,15 +140,18 @@ namespace Application.Services
         }
         public async Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id)
         {
+            List<Expression<Func<Contract, object>>> includes = new List<Expression<Func<Contract, object>>>{
+                                 x => x.ContractGardeners,
+                                    };
             if (isCustomer)
             {
                 var customer = await _idUtil.GetCustomerAsync(id);
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.ServiceGarden.CustomerGarden.CustomerId == customer.Id, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus));
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.ServiceGarden.CustomerGarden.CustomerId == customer.Id, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), includes: includes);
                 return contracts;
             }
             else
             {
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus));
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), includes: includes);
                 return contracts;
             }
         }

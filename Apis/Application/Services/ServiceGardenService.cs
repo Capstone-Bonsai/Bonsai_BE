@@ -164,7 +164,8 @@ namespace Application.Services
         {
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
-                                 x => x.CustomerGarden.Customer.ApplicationUser
+                                 x => x.CustomerGarden.Customer.ApplicationUser,
+                                 x => x.Service
                                     };
             if (isCustomer)
             {
@@ -183,7 +184,8 @@ namespace Application.Services
         {
             List<Expression<Func<ServiceGarden, object>>> includes = new List<Expression<Func<ServiceGarden, object>>>{
                                  x => x.CustomerGarden,
-                                 x => x.CustomerGarden.Customer.ApplicationUser
+                                 x => x.CustomerGarden.Customer.ApplicationUser,
+                                 x => x.Service
                                     };
 
             if (isCustomer)
