@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
@@ -16,6 +17,7 @@ namespace Domain.Entities
         public Guid GardenerId { get; set; }
         public bool HasRequest { get; set; }
         public string? Note { get; set; }
+        [JsonIgnore]
         public virtual Contract Contract { get; set; }
         public virtual Gardener Gardener { get; set; }  
     }

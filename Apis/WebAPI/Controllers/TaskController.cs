@@ -55,11 +55,26 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPut("ClearProgess/{contractId}")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Put(Guid contractId)
         {
             try
             {
                 await _taskService.ClearProgress(contractId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("UpdateNote")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> UpdateNote(UpdateNoteModel updateNoteModel)
+        {
+            try
+            {
+                await _taskService.UpdateNote(updateNoteModel);
                 return Ok();
             }
             catch (Exception ex)

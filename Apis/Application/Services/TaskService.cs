@@ -212,5 +212,46 @@ namespace Application.Services
                 await _unitOfWork.SaveChangeAsync();
             }
         }
+
+        public async Task UpdateNote(UpdateNoteModel updateNoteModel)
+        {
+            var contract = await _unitOfWork.ContractRepository
+                  .GetAllQueryable()
+                  .AsNoTracking()
+                  .Include(x => x.ServiceGarden)
+                  .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == updateNoteModel.ContractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng!");
+            }
+            if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
+            {         
+                foreach (TaskNote taskNote in updateNoteModel.TaskNotes)
+                {
+                    var task = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == updateNoteModel.ContractId && x.Id == taskNote.TaskId);
+                    if (task == null)
+                    {
+                        throw new Exception("Không tìm thấy công việc!");
+                    }
+                    task.Items[0].Note = taskNote.Note;
+                    _unitOfWork.BonsaiCareStepRepository.Update(task.Items[0]);
+                }
+                await _unitOfWork.SaveChangeAsync();
+            }
+            else
+            {
+                foreach (TaskNote taskNote in updateNoteModel.TaskNotes)
+                {
+                    var task = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == updateNoteModel.ContractId && x.Id == taskNote.TaskId);
+                    if (task == null)
+                    {
+                        throw new Exception("Không tìm thấy công việc!");
+                    }
+                    task.Items[0].Note = taskNote.Note;
+                    _unitOfWork.GardenCareTaskRepository.Update(task.Items[0]);
+                }
+                await _unitOfWork.SaveChangeAsync();
+            }
+        }
     }
 }
