@@ -67,10 +67,6 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _bonsaiService.GetByFilter(pageIndex, pageSize, filterBonsaiModel, _claims.GetIsAdmin);
-                if (products.Items.Count == 0)
-                {
-                    return NotFound("Không tìm thấy!");
-                }
                 return Ok(products);
             }
             catch (Exception ex)
