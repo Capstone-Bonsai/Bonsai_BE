@@ -12,7 +12,7 @@ namespace Application.Interfaces
     public interface IContractGardenerService
     {
         Task<Pagination<UserViewModel>> GetGardenerOfContract(int pageIndex, int pageSize, Guid contractId);
-        Task DeleteContractGardener(Guid contractId, Guid gardenerId);
+        Task ChangeContractGardener(Guid contractId, ChangeGardenerViewModel changeGardenerViewModel);
         Task AddContractGardener(ContractGardenerModel contractGardenerModel);
     }
 }

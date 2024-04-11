@@ -66,14 +66,20 @@ namespace Application.Services
             }
             return paginationList;
         }
-        public async Task DeleteContractGardener(Guid contractId, Guid gardenerId)
+        public async Task ChangeContractGardener(Guid contractId, ChangeGardenerViewModel changeGardenerViewModel)
         {
-            var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == gardenerId && x.ContractId == contractId && !x.IsDeleted);
+            var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == changeGardenerViewModel.OldGardenerIds && x.ContractId == contractId && !x.IsDeleted);
             if (contractGardener == null)
             {
                 throw new Exception("Người làm vườn chưa làm cho dịch vụ này");
             }
-            _unitOfWork.ContractGardenerRepository.SoftRemove(contractGardener.Items[0]);
+            var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(changeGardenerViewModel.NewGardenerIds);
+            if (gardener == null)
+            {
+                throw new Exception("Không tìm thấy người được thêm vào");
+            }
+            contractGardener.Items[0].GardenerId = changeGardenerViewModel.NewGardenerIds;
+            _unitOfWork.ContractGardenerRepository.Update(contractGardener.Items[0]);
             await _unitOfWork.SaveChangeAsync();
         }
         public async Task AddContractGardener(ContractGardenerModel contractGardenerModel)
@@ -90,6 +96,11 @@ namespace Application.Services
             List<ContractGardener> contractGardeners = new List<ContractGardener>();
             foreach (Guid id in contractGardenerModel.GardenerIds)
             {
+                var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(id);
+                if(gardener == null)
+                {
+                    throw new Exception("Không tìm thấy người được thêm vào");
+                }
                 var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ContractId == contract.Id && !x.IsDeleted);
                 if (contractGardener.Items.Count == 0)
                 {
@@ -99,6 +110,10 @@ namespace Application.Services
                         GardenerId = id,
                         HasRequest = false,
                     });
+                }
+                else
+                {
+                    throw new Exception("Dịch vụ này đã thêm đủ người!");
                 }
             }
             await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);

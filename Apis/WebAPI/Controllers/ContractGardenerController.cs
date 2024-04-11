@@ -32,12 +32,12 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpDelete]
-        public async Task<IActionResult> Post([FromBody] Guid contractId, Guid gardenerId)
+        [HttpPut("ChangeGardener/{contractId}")]
+        public async Task<IActionResult> Post([FromRoute] Guid contractId,[FromBody] ChangeGardenerViewModel changeGardenerViewModel)
         {
             try
             {
-                await _contractGardenerService.DeleteContractGardener(contractId, gardenerId);
+                await _contractGardenerService.ChangeContractGardener(contractId, changeGardenerViewModel);
                 return Ok();
             }
             catch (Exception ex)
