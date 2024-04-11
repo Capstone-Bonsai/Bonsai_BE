@@ -74,7 +74,7 @@ namespace Application.Services
 
             return bonsais;
         }
-        public async Task<Pagination<Bonsai>> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false)
+        public async Task<Pagination<Bonsai>?> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false)
         {
             var filter = new List<Expression<Func<Bonsai, bool>>>();
             filter.Add(x => !x.IsDeleted);
