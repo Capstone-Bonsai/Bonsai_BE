@@ -105,7 +105,7 @@ namespace WebAPI.Controllers
         [Authorize]
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var serviceGarden = await _serviceGardenService.GetServiceGardenById(id, _claimsService.GetIsCustomer, _claimsService.GetCurrentUserIds);
+            var serviceGarden = await _serviceGardenService.GetServiceGardenById(id, _claimsService.GetIsCustomer, _claimsService.GetCurrentUserId);
             if (serviceGarden == null)
             {
                 return NotFound();
