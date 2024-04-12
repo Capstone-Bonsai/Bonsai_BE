@@ -587,6 +587,16 @@ namespace Application.Services
             }
             contract.ContractStatus = contractStatus;
             _unitOfWork.ContractRepository.Update(contract);
+            if(contractStatus == ContractStatus.Completed)
+            {
+                var serviceGarden = await _unitOfWork.ServiceGardenRepository.GetByIdAsync(contract.ServiceGardenId);
+                if (serviceGarden == null)
+                {
+                    throw new Exception("Không tìm thấy đơn đăng ký!");
+                }
+                serviceGarden.ServiceGardenStatus = ServiceGardenStatus.Finished;s
+                _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
+            }
             await _unitOfWork.SaveChangeAsync();
         }
     }
