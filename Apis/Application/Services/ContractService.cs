@@ -179,7 +179,8 @@ namespace Application.Services
             }
             foreach (Contract contract in contracts)
             {
-                contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
+                if(contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint)
+                    contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
             }
             return contractViewModels;
         }
