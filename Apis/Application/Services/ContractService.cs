@@ -20,6 +20,7 @@ using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Math.EC.Multiplier;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
@@ -381,7 +382,7 @@ namespace Application.Services
         {
             List<Expression<Func<Contract, object>>> includes = new List<Expression<Func<Contract, object>>>{
                                  x => x.ContractImages,
-                                 x => x.Complaints
+                                 x => x.Complaints,
                                     };
             Pagination<Contract>? contracts;
             if (isCustomer)
@@ -404,6 +405,10 @@ namespace Application.Services
             OverallContractViewModel overallContractViewModel = _mapper.Map<OverallContractViewModel>(contracts.Items[0]);
             overallContractViewModel.TaskOfContracts = await GetTasksAsync(id, overallContractViewModel.ServiceType == ServiceType.BonsaiCare ? true : false);
             overallContractViewModel.GardenersOfContract = await GetGardenerOfContract(id);
+            foreach(Complaint complaint in overallContractViewModel.Complaints)
+            {
+                complaint.ComplaintImages = await GetIMageAsync(complaint.Id);
+            }
             return overallContractViewModel;   
         }
     private async Task<List<TaskOfContract>> GetTasksAsync(Guid contractId, bool isBonsaiCare)
@@ -511,6 +516,16 @@ namespace Application.Services
                 item.Role = role;
             }
             return gardenerList;
+        }
+        private async Task<List<ComplaintImage>> GetIMageAsync(Guid complaintId)
+        {
+
+            var imageList = await _unitOfWork.ComplaintImageRepository.GetAsync(isTakeAll: true, expression: x => x.ComplaintId == complaintId && !x.IsDeleted);
+            if(imageList.Items.Count == 0)
+            {
+                return new List<ComplaintImage>();
+            }
+            return imageList.Items;
         }
         public async Task AddContractImage(Guid contractId, ContractImageModel contractImageModel)
         {
