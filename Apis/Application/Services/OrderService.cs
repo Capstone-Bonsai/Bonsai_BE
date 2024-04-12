@@ -184,7 +184,7 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     orderStatus = OrderStatus.Paid;
                 }
-                var order = await _unit.OrderRepository.GetByIdAsync(orderId);
+                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().FirstOrDefaultAsync(x=>x.Id == orderId);
                 if (order == null)
                     throw new Exception("Không tìm thấy đơn hàng.");
                 var orderTransaction = new OrderTransaction();
@@ -209,6 +209,21 @@ namespace Application.Services
                 // Tạo transaction
                 orderTransaction.Signature = momo.signature;
                 await _unit.OrderTransactionRepository.AddAsync(orderTransaction);
+                
+                if(momo.resultCode != 0)
+                {
+                    var lists = new List<Bonsai>();    
+                    var listBonsai = await _unit.OrderDetailRepository.GetAllQueryable().Include(x=>x.Bonsai).Where(x=>x.IsDeleted == false && x.OrderId == orderId).ToListAsync();
+                    foreach (var item in listBonsai)
+                    {
+                        item.Bonsai.isSold = false;
+                        item.Bonsai.isDisable = false;
+                        lists.Add(item.Bonsai);
+                    }
+                    _unit.ClearTrack();
+                    _unit.BonsaiRepository.UpdateRange(lists);
+                    await _unit.SaveChangeAsync();
+                }
                 //Update Order Status
                 order.OrderStatus = orderStatus;
                 _unit.OrderRepository.Update(order);

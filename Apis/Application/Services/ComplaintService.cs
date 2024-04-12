@@ -32,9 +32,10 @@ namespace Application.Services
         {
             var contract = await _unitOfWork.ContractRepository.GetAllQueryable().AsNoTracking().Include(x => x.ServiceGarden.CustomerGarden.Customer).Include(x=>x.Complaints).FirstOrDefaultAsync(x => x.Id == model.ContractId);
             if (contract == null)throw new Exception("Không tìm thấy hợp đồng bạn yêu cầu");
+            if(contract.ContractStatus == Domain.Enums.ContractStatus.Completed) throw new Exception("Hợp đồng này đã hoàn thành nên không thể khiếu nại.");
             if (!contract.ServiceGarden.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))throw new Exception("Bạn không có quyền truy cập vào hợp đồng này");
-            if (contract.ContractStatus == Domain.Enums.ContractStatus.TaskFinished || contract.ContractStatus == Domain.Enums.ContractStatus.Completed || contract.ContractStatus == Domain.Enums.ContractStatus.ProcessedComplaint) { }else throw new Exception("Hợp đồng này đang được xử lý nên không thể gửi khiếu nại.");
-            if(contract.EndDate.AddDays(7) < DateTime.Now) throw new Exception("Hợp đồng này đã quá thời gian khiếu nại");
+            if (contract.ContractStatus == Domain.Enums.ContractStatus.TaskFinished || contract.ContractStatus == Domain.Enums.ContractStatus.ProcessedComplaint) { }else throw new Exception("Hợp đồng này đang được xử lý nên không thể gửi khiếu nại.");
+            if(contract.EndDate.AddDays(3) < DateTime.Now) throw new Exception("Hợp đồng này đã quá thời gian khiếu nại");
             _unitOfWork.BeginTransaction();
             if (model.ListImage == null || model.ListImage.Count == 0)
                 throw new Exception("Vui lòng thêm hình ảnh khiếu nại.");

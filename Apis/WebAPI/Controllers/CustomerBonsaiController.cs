@@ -50,7 +50,7 @@ namespace WebAPI.Controllers
             return Ok();
         }
         [HttpGet("CustomerGarden/{gardenId}")]
-        [Authorize(Roles = "Manager,Customer")]
+        [Authorize(Roles = "Manager,Customer,Staff")]
         public async Task<IActionResult> Post([FromRoute] Guid gardenId)
         {
             try

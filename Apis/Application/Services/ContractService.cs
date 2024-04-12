@@ -39,7 +39,7 @@ namespace Application.Services
         private readonly FirebaseService _fireBaseService;
         private readonly UserManager<ApplicationUser> _userManager;
         public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper,
-            IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService , UserManager<ApplicationUser> userManager)
+            IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -158,7 +158,7 @@ namespace Application.Services
             }
             else
             {
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus),expression: x=>x.ContractStatus > ContractStatus.Canceled, includes: includes);
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), expression: x => x.ContractStatus > ContractStatus.Canceled, includes: includes);
                 return contracts;
             }
         }
@@ -183,7 +183,7 @@ namespace Application.Services
             }
             foreach (Contract contract in contracts)
             {
-                if(contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint)
+                if (contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint)
                     contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
             }
             return contractViewModels;
@@ -408,20 +408,20 @@ namespace Application.Services
             OverallContractViewModel overallContractViewModel = _mapper.Map<OverallContractViewModel>(contracts.Items[0]);
             overallContractViewModel.TaskOfContracts = await GetTasksAsync(id, overallContractViewModel.ServiceType == ServiceType.BonsaiCare ? true : false);
             overallContractViewModel.GardenersOfContract = await GetGardenerOfContract(id);
-            foreach(Complaint complaint in overallContractViewModel.Complaints)
+            foreach (Complaint complaint in overallContractViewModel.Complaints)
             {
                 complaint.ComplaintImages = await GetIMageAsync(complaint.Id);
             }
-            return overallContractViewModel;   
+            return overallContractViewModel;
         }
-    private async Task<List<TaskOfContract>> GetTasksAsync(Guid contractId, bool isBonsaiCare)
-    {
-        List<TaskOfContract> tasks = new List<TaskOfContract>();
-        var contract = await _unitOfWork.ContractRepository
-                .GetAllQueryable()
-                .AsNoTracking()
-                .Include(x => x.ServiceGarden)
-                .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contractId);
+        private async Task<List<TaskOfContract>> GetTasksAsync(Guid contractId, bool isBonsaiCare)
+        {
+            List<TaskOfContract> tasks = new List<TaskOfContract>();
+            var contract = await _unitOfWork.ContractRepository
+                    .GetAllQueryable()
+                    .AsNoTracking()
+                    .Include(x => x.ServiceGarden)
+                    .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contractId);
             if (isBonsaiCare)
             {
                 CustomerBonsai? customerBonsai = new CustomerBonsai();
@@ -486,11 +486,11 @@ namespace Application.Services
                 else
                 {
                     throw new Exception("Không tìm thấy dịch vụ");
-                }      
+                }
             }
             return tasks;
         }
-        private async Task<List<UserViewModel>> GetGardenerOfContract (Guid contractId)
+        private async Task<List<UserViewModel>> GetGardenerOfContract(Guid contractId)
         {
             var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
             if (contract == null)
@@ -524,7 +524,7 @@ namespace Application.Services
         {
 
             var imageList = await _unitOfWork.ComplaintImageRepository.GetAsync(isTakeAll: true, expression: x => x.ComplaintId == complaintId && !x.IsDeleted);
-            if(imageList.Items.Count == 0)
+            if (imageList.Items.Count == 0)
             {
                 return new List<ComplaintImage>();
             }

@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("Manager/Pagination")]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager,Staff")]
         public async Task<IActionResult> GetForAdmin([FromQuery] int pageIndex, int pageSize)
         {
             try
