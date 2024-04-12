@@ -134,6 +134,9 @@ namespace Application.Services
                     }
                     await _unitOfWork.BonsaiCareStepRepository.AddRangeAsync(bonsaiCareSteps);
                 }
+                serviceGarden.ServiceGardenStatus = ServiceGardenStatus.StaffAccepted;
+                _unitOfWork.ClearTrack();
+                _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
@@ -155,7 +158,7 @@ namespace Application.Services
             }
             else
             {
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), includes: includes);
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus),expression: x=>x.ContractStatus > ContractStatus.Canceled, includes: includes);
                 return contracts;
             }
         }
@@ -568,7 +571,7 @@ namespace Application.Services
 
                     await _unitOfWork.ContractImageRepository.AddAsync(contractImage);
                 }
-
+                await _unitOfWork.SaveChangeAsync();
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)

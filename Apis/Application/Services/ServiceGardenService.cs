@@ -70,7 +70,8 @@ namespace Application.Services
                 {
                     throw new Exception("Phân loại này chưa sẵn sàng cho dịch vụ.");
                 }
-                var existedServiceBonsai = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceGardenModel.CustomerBonsaiId.Value && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.StaffAccepted);
+                var existedServiceBonsai = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceGardenModel.CustomerBonsaiId.Value
+                &&( x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.StaffAccepted &&  x.ServiceGardenStatus !=Domain.Enums.ServiceGardenStatus.Cancel));
                 if (existedServiceBonsai.Items.Count > 0)
                 {
                     throw new Exception("Đã tồn tại đơn đăng ký thuộc về bonsai này");
@@ -111,7 +112,8 @@ namespace Application.Services
                     }
                 
             }
-            var existedServiceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGardenModel.CustomerGardenId && x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.StaffAccepted);
+            var existedServiceGarden = await _unitOfWork.ServiceGardenRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceGardenModel.CustomerGardenId &&
+            (x.ServiceGardenStatus <= Domain.Enums.ServiceGardenStatus.StaffAccepted && x.ServiceGardenStatus != Domain.Enums.ServiceGardenStatus.Cancel));
             if (existedServiceGarden.Items.Count > 0)
             {
                 throw new Exception("Đã tồn tại đơn đăng ký thuộc về bonsai này");

@@ -148,8 +148,8 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("Image/{contractId}")]
-        [Authorize(Roles = "Staff")]
-        public async Task<IActionResult> AddIMage([FromRoute] Guid contractId, [FromBody] ContractImageModel contractImageModel)
+        [Authorize(Roles = "Staff,Manager")]
+        public async Task<IActionResult> AddIMage([FromRoute] Guid contractId, [FromForm] ContractImageModel contractImageModel)
         {
             try
             {
