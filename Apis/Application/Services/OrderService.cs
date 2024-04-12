@@ -512,6 +512,7 @@ namespace Application.Services
             {
                 throw new Exception("Trạng thái không hợp lệ.");
             }
+            if(order.OrderStatus == OrderStatus.Delivered || order.OrderStatus == OrderStatus.Canceled || order.OrderStatus == OrderStatus.Failed) throw new Exception("Đơn hàng này đã kết thúc nên không thể cập nhật trạng thái.");
             order.OrderStatus = orderStatus;
             _unit.OrderRepository.Update(order);
             await _unit.SaveChangeAsync();
