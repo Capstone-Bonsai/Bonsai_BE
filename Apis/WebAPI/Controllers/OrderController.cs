@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
 
         }
 
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager,Staff")]
         [HttpPut("{orderId}")]
         [Authorize]
         public async Task<IActionResult> UpdateStatusAsync(Guid orderId, OrderStatus orderStatus)
@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager,Staff")]
         [HttpGet("OrderStatus")]
         [Authorize]
         public async Task<IActionResult> GetOrderStatusAsync()
@@ -126,8 +126,5 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
-
-
     }
 }
