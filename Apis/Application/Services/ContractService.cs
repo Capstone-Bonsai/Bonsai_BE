@@ -6,6 +6,7 @@ using Application.Utils;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
+using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
@@ -35,8 +36,9 @@ namespace Application.Services
         private readonly IConfiguration _configuration;
         private readonly IdUtil _idUtil;
         private readonly FirebaseService _fireBaseService;
-
-        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper,
+            IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService , UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -44,6 +46,7 @@ namespace Application.Services
             _configuration = configuration;
             _idUtil = idUtil;
             _fireBaseService = fireBaseService;
+            _userManager = userManager;
         }
         public async Task CreateContract(ContractModel contractModel)
         {
@@ -176,7 +179,8 @@ namespace Application.Services
             }
             foreach (Contract contract in contracts)
             {
-                contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
+                if(contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint)
+                    contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
             }
             return contractViewModels;
         }
@@ -373,32 +377,142 @@ namespace Application.Services
                 throw new Exception($"tạo Transaction lỗi: {exx.Message}");
             }
         }
-        public async Task<Contract> GetContractById(Guid id, bool isCustomer, Guid userId)
+        public async Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId)
         {
             List<Expression<Func<Contract, object>>> includes = new List<Expression<Func<Contract, object>>>{
                                  x => x.ContractImages,
+                                 x => x.Complaints
                                     };
+            Pagination<Contract>? contracts;
             if (isCustomer)
             {
                 var customer = await _idUtil.GetCustomerAsync(userId);
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceGarden.CustomerGarden.CustomerId == customer.Id && x.Id == id, includes: includes);
+                contracts = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceGarden.CustomerGarden.CustomerId == customer.Id && x.Id == id, includes: includes);
                 if (contracts.Items.Count == 0)
                 {
                     throw new Exception("Không tìm thấy contract");
                 }
-                return contracts.Items[0];
             }
             else
             {
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.Id == id, includes: includes);
+                contracts = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.Id == id, includes: includes);
                 if (contracts.Items.Count == 0)
                 {
                     throw new Exception("Không tìm thấy contract");
                 }
-                return contracts.Items[0];
             }
+            OverallContractViewModel overallContractViewModel = _mapper.Map<OverallContractViewModel>(contracts.Items[0]);
+            overallContractViewModel.TaskOfContracts = await GetTasksAsync(id, overallContractViewModel.ServiceType == ServiceType.BonsaiCare ? true : false);
+            overallContractViewModel.GardenersOfContract = await GetGardenerOfContract(id);
+            return overallContractViewModel;   
         }
-        public async Task AddContractImage(ContractImageModel contractImageModel)
+    private async Task<List<TaskOfContract>> GetTasksAsync(Guid contractId, bool isBonsaiCare)
+    {
+        List<TaskOfContract> tasks = new List<TaskOfContract>();
+        var contract = await _unitOfWork.ContractRepository
+                .GetAllQueryable()
+                .AsNoTracking()
+                .Include(x => x.ServiceGarden)
+                .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contractId);
+            if (isBonsaiCare)
+            {
+                CustomerBonsai? customerBonsai = new CustomerBonsai();
+                customerBonsai = await _unitOfWork.CustomerBonsaiRepository
+                    .GetAllQueryable()
+                    .AsNoTracking()
+                    .Include(x => x.Bonsai)
+                    .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contract.CustomerBonsaiId);
+                if (customerBonsai == null)
+                {
+                    throw new Exception("Không tìm thấy bonsai");
+                }
+                List<Expression<Func<BonsaiCareStep, object>>> includes = new List<Expression<Func<BonsaiCareStep, object>>>{
+                                 x => x.CareStep
+                                    };
+                var bonsaiCareSteps = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.ContractId == contractId, includes: includes);
+                if (bonsaiCareSteps.Items.Count == 0)
+                {
+                    throw new Exception("Không tìm thấy bất cứ công việc nào của phân loại này");
+                }
+                foreach (BonsaiCareStep bonsaiCareStep in bonsaiCareSteps.Items)
+                {
+                    tasks.Add(new TaskOfContract()
+                    {
+                        Id = bonsaiCareStep.Id,
+                        Name = bonsaiCareStep.CareStep.Step,
+                        CompletedTime = bonsaiCareStep.CompletedTime,
+                        Note = bonsaiCareStep.Note,
+                    });
+                }
+            }
+            else
+            {
+                Service? service = new Service();
+                service = await _unitOfWork.ServiceRepository
+                    .GetAllQueryable()
+                    .AsNoTracking()
+                    .Include(x => x.ServiceBaseTasks)
+                .ThenInclude(x => x.BaseTask)
+                    .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contract.ServiceGarden.ServiceId);
+                if (service != null)
+                {
+                    List<Expression<Func<GardenCareTask, object>>> includes = new List<Expression<Func<GardenCareTask, object>>>{
+                                 x => x.BaseTask
+                                    };
+                    var gardenCareTasks = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.ContractId == contractId, includes: includes);
+                    if (gardenCareTasks.Items.Count == 0)
+                    {
+                        throw new Exception("Không tìm thấy bất cứ công việc nào của phân loại này");
+                    }
+                    foreach (GardenCareTask gardenCareTask in gardenCareTasks.Items)
+                    {
+                        tasks.Add(new TaskOfContract()
+                        {
+                            Id = gardenCareTask.Id,
+                            Name = gardenCareTask.BaseTask.Name,
+                            CompletedTime = gardenCareTask.CompletedTime,
+                            Note = gardenCareTask.Note,
+                        });
+                    }
+                }
+                else
+                {
+                    throw new Exception("Không tìm thấy dịch vụ");
+                }      
+            }
+            return tasks;
+        }
+        private async Task<List<UserViewModel>> GetGardenerOfContract (Guid contractId)
+        {
+            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng!");
+            }
+            var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(y => y.ContractId == contractId)).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
+            var gardenerList = _mapper.Map<List<UserViewModel>>(listUser);
+
+            foreach (var item in gardenerList)
+            {
+                var gardener = await _idUtil.GetGardenerAsync(Guid.Parse(item.Id));
+                var contracts = _unitOfWork.ContractRepository
+                    .GetAllQueryable()
+                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ContractGardeners.Any(y => y.GardenerId == gardener.Id));
+                var user = await _userManager.FindByIdAsync(item.Id);
+                var isLockout = await _userManager.IsLockedOutAsync(user);
+                var roles = await _userManager.GetRolesAsync(user);
+                string role = "";
+                if (roles != null && roles.Count > 0)
+                {
+                    role = roles[0];
+                }
+                item.Id = gardener.Id.ToString();
+                item.IsLockout = isLockout;
+                item.Role = role;
+            }
+            return gardenerList;
+        }
+        public async Task AddContractImage(Guid contractId, ContractImageModel contractImageModel)
         {
             if (contractImageModel == null)
                 throw new ArgumentNullException(nameof(contractImageModel), "Vui lòng nhập đúng thông tin!");
@@ -406,7 +520,7 @@ namespace Application.Services
             {
                 throw new Exception("Không có hình ảnh!");
             }
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractImageModel.ContractId);
+            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
@@ -414,7 +528,7 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                var images = await _unitOfWork.ContractImageRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contractImageModel.ContractId && !x.IsDeleted, isDisableTracking: true);
+                var images = await _unitOfWork.ContractImageRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contractId && !x.IsDeleted, isDisableTracking: true);
                 _unitOfWork.ContractImageRepository.SoftRemoveRange(images.Items);
                 foreach (var singleImage in contractImageModel.Image.Select((image, index) => (image, index)))
                 {
@@ -433,7 +547,7 @@ namespace Application.Services
 
                     ContractImage contractImage = new ContractImage()
                     {
-                        ContractId = contract.Id,
+                        ContractId = contractId,
                         Image = url
                     };
 

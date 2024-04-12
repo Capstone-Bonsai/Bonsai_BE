@@ -19,7 +19,7 @@ namespace Application.Interfaces
         Task HandleIpnAsync(MomoRedirect momo);
         Task<string> PaymentContract(Guid contractId, string userId);
         Task<List<ContractViewModel>> GetTodayProject(Guid id);
-        Task<Contract> GetContractById(Guid id, bool isCustomer, Guid userId);
-        Task AddContractImage(ContractImageModel contractImageModel);
+        Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId);
+        Task AddContractImage(Guid contractId, ContractImageModel contractImageModel);
     }
 }
