@@ -45,6 +45,7 @@ namespace Infrastructures.Mappers
             CreateMap<ServiceViewModel, Service>();
             CreateMap<Service, ServiceViewModel>().ForMember(dest => dest.ServiceBaseTasks, opt => opt.MapFrom(src => src.ServiceBaseTasks));
             CreateMap<ServiceModel, Service>().ReverseMap();
+            CreateMap<Contract, OverallContractViewModel>();
         }
     }
 }

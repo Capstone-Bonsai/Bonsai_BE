@@ -10,7 +10,6 @@ namespace Application.ViewModels.ContractViewModels
 {
     public class ContractImageModel
     {
-        public Guid ContractId { get; set; }
         public List<IFormFile>? Image { get; set; } = default!;
     }
 }

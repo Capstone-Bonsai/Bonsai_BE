@@ -147,5 +147,19 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost("Image/{contractId}")]
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> AddIMage([FromRoute] Guid contractId, [FromBody] ContractImageModel contractImageModel)
+        {
+            try
+            {
+                await _contractService.AddContractImage(contractId, contractImageModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
