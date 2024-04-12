@@ -178,7 +178,7 @@ namespace Application.Services
             else
             {
               
-                var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.ServiceGardenStatus != Domain.Enums.ServiceGardenStatus.UnAccepted, orderBy: query => query.OrderByDescending(x => x.CreationDate), includes: includes);
+                var serviceGardens = await _unitOfWork.ServiceGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.ServiceGardenStatus != Domain.Enums.ServiceGardenStatus.UnAccepted || x.ServiceGardenStatus != Domain.Enums.ServiceGardenStatus.Cancel, orderBy: query => query.OrderByDescending(x => x.CreationDate), includes: includes);
                 return serviceGardens;
             }
         }
