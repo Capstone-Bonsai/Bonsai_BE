@@ -86,6 +86,7 @@ namespace Application.Services
                 contract.NumberOfGardener = contractModel.NumberOfGardener ?? serviceGarden.TemporaryGardener ?? 2;
                 contract.TotalPrice = contract.StandardPrice + contract.SurchargePrice + contract.ServicePrice;
                 contract.ServiceType = _service.ServiceType;
+                contract.ContractStatus = ContractStatus.Waiting;
                 await _unitOfWork.ContractRepository.AddAsync(contract);
                 if (contract.ServiceType == Domain.Enums.ServiceType.GardenCare)
                 {
@@ -135,7 +136,6 @@ namespace Application.Services
                     await _unitOfWork.BonsaiCareStepRepository.AddRangeAsync(bonsaiCareSteps);
                 }
                 serviceGarden.ServiceGardenStatus = ServiceGardenStatus.StaffAccepted;
-                _unitOfWork.ClearTrack();
                 _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
                 await _unitOfWork.CommitTransactionAsync();
             }
@@ -158,7 +158,7 @@ namespace Application.Services
             }
             else
             {
-                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), expression: x => x.ContractStatus > ContractStatus.Canceled, includes: includes);
+                var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), includes: includes);
                 return contracts;
             }
         }
