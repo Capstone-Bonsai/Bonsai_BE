@@ -118,7 +118,7 @@ namespace Application.Services
             }
             await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
             contract.ContractStatus = Domain.Enums.ContractStatus.Processing;
-            await _unitOfWork.ContractRepository.Update(contract);
+            _unitOfWork.ContractRepository.Update(contract);
             await _unitOfWork.SaveChangeAsync();
         }
     }
