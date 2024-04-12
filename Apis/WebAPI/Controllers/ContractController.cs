@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Services;
 using Microsoft.AspNetCore.Authorization;
+using Domain.Enums;
 
 namespace WebAPI.Controllers
 {
@@ -155,6 +156,22 @@ namespace WebAPI.Controllers
             {
                 await _contractService.AddContractImage(contractId, contractImageModel);
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        
+        [HttpPut("{contractId}")]
+        [Authorize(Roles = "Manager,Staff")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStatusAsync(Guid contractId, ContractStatus contractStatus)
+        {
+            try
+            {
+                await _contractService.UpdateContractStatus(contractId, contractStatus);
+                return Ok("Cập nhật trạng thái hóa đơn thành công.");
             }
             catch (Exception ex)
             {

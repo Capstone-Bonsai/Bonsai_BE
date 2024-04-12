@@ -571,13 +571,23 @@ namespace Application.Services
 
                     await _unitOfWork.ContractImageRepository.AddAsync(contractImage);
                 }
-                await _unitOfWork.SaveChangeAsync();
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
                 throw;
             }
+        }
+        public async Task UpdateContractStatus(Guid contractId, ContractStatus contractStatus)
+        {
+            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+            if (contract == null)
+            {
+                throw new Exception("Không tìm thấy hợp đồng!");
+            }
+            contract.ContractStatus = contractStatus;
+            _unitOfWork.ContractRepository.Update(contract);
+            await _unitOfWork.SaveChangeAsync();
         }
     }
 }
