@@ -50,7 +50,7 @@ namespace Application.Services
             
             try
             {
-                var complaint = new Complaint { Detail = model.Detail, ContractId = model.ContractId };
+                var complaint = new Complaint{ Detail = model.Detail, ContractId = model.ContractId };
                 try
                 {
                     await _unitOfWork.ComplaintRepository.AddAsync(complaint);

@@ -594,7 +594,7 @@ namespace Application.Services
                 {
                     throw new Exception("Không tìm thấy đơn đăng ký!");
                 }
-                serviceGarden.ServiceGardenStatus = ServiceGardenStatus.Finished;s
+                serviceGarden.ServiceGardenStatus = ServiceGardenStatus.Finished;
                 _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             }
             await _unitOfWork.SaveChangeAsync();
