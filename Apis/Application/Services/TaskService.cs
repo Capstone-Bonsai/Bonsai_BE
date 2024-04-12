@@ -131,10 +131,6 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
             }
-            if (contract.ContractStatus != Domain.Enums.ContractStatus.Processing || contract.ContractStatus != Domain.Enums.ContractStatus.ProcessingComplaint)
-            {
-                throw new Exception("Đang không trong thời gian cập nhật tiến độ công việc!");
-            }
             if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare)
             {
                 List<BonsaiCareStep> tasks = new List<BonsaiCareStep>();
