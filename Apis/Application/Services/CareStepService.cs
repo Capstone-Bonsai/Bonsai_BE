@@ -29,7 +29,8 @@ namespace Application.Services
             {
                 _unitOfWork.BeginTransaction();
                 var result = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == careStepModel.CategoryId && !x.IsDeleted);
-                _unitOfWork.CareStepRepository.SoftRemoveRange(result.Items);
+                if(result.Items.Count > 0)
+                    _unitOfWork.CareStepRepository.SoftRemoveRange(result.Items);
                 List<CareStep> careSteps = new List<CareStep>();
                 for (int i = 1; i < 1 + careStepModel.CareSteps.Count; i++)
                 {
