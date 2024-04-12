@@ -3,6 +3,7 @@ using Application.Services.Momo;
 using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.TaskViewModels;
 using Domain.Entities;
+using Domain.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,5 +22,6 @@ namespace Application.Interfaces
         Task<List<ContractViewModel>> GetTodayProject(Guid id);
         Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId);
         Task AddContractImage(Guid contractId, ContractImageModel contractImageModel);
+        Task UpdateContractStatus(Guid contractId, ContractStatus contractStatus);
     }
 }
