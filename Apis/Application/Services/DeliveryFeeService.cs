@@ -29,7 +29,7 @@ namespace Application.Services
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
-        public DeliveryFeeService(IUnitOfWork unit, HttpClient httpClient,IConfiguration configuration)
+        public DeliveryFeeService(IUnitOfWork unit, HttpClient httpClient, IConfiguration configuration)
         {
             _unit = unit;
             _httpClient = httpClient;
@@ -127,27 +127,91 @@ namespace Application.Services
             await CreateAsync(file);
 
         }
-
-        public async Task<DeliveryFeeViewModel> GetAllAsync()
+        public string FormatMoney(double price)
+        {
+            string formattedAmount = string.Format("{0:N0}", price);
+            return formattedAmount.Replace(",", ".");
+        }
+        public async Task<DeliveryFeeDisplayModel> GetAllAsync()
         {
             var list = new List<DeliveryFee>();
-            var deliveryModel = new DeliveryFeeViewModel();
             List<string> listMaxDistance = new List<string>();
 
-            var temp = await _unit.DeliveryFeeRepository.GetAllQueryable().Select(x => x.MaxDistance).Distinct().ToListAsync();
-            foreach (var item in temp)
+            var table = new DeliveryFeeDisplayModel();
+            table.Rows = new List<ItemDeliveryFee>();
+
+            var tempDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance != null).OrderBy(x => x.MaxDistance).Select(x => x.MaxDistance).Distinct().ToListAsync();
+            if (tempDistance == null || tempDistance.Count() == 0)
+                throw new Exception("Hiện chưa có bảng giá vận chuyển Bonsai");
+            var tempPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxPrice != null).OrderBy(x => x.MaxPrice).Select(x => x.MaxPrice).Distinct().ToListAsync();
+            int maxRow = 4;
+
+            var check = 1;
+            for (int i = 0; i < maxRow; i++)
             {
-                if (item != null)
+                var listItem = new ItemDeliveryFee();
+                listItem.Items = new List<string>();
+                if (i == 0)
                 {
-                    listMaxDistance.Add(item.ToString());
+                    listItem.Items.Add("Khoảng cách (km)");
+                    listItem.Items.Add("Xe bán tải hoặc ba gác");
+                    listItem.Items.Add("Xe tải nhỏ");
+                    listItem.Items.Add("Xe tải lớn");
+                    table.Rows.Add(listItem);
+                }
+                else if (i == 1)
+                {
+                    listItem.Items.Add("Giới hạn giá loại xe");
+                    for (int j = 0; j < tempPrice.Count; j++)
+                    {
+                        var amount = FormatMoney(tempPrice[j].Value);
+                        listItem.Items.Add(amount+ " VND");
+                    }
+                    var price = FormatMoney(tempPrice[tempPrice.Count - 1].Value);
+                    listItem.Items.Add("Lớn hơn " + price + " VND");
+                    table.Rows.Add(listItem);
+                }
+                else if (i == maxRow - 1)
+                {
+                    var listPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null).OrderBy(x => x.DeliveryType).Select(x => x.Fee).ToListAsync();
+                    for (int j = 0; j < listPrice.Count + 1; j++)
+                    {
+                        if (j == 0)
+                        {
+                            listItem.Items.Add("Lớn hơn " + tempDistance.Last() + " km");
+                        }
+                        else
+                        {
+                            var price = FormatMoney(listPrice[j - 1]);
+                            listItem.Items.Add(price + " VND");
+                        }
+                    }
+                    table.Rows.Add(listItem);
                 }
                 else
                 {
-                    var last = temp.Last();
-                    listMaxDistance.Add($"Lớn hơn {last.ToString()}");
+                    for (int a = 0; a < tempDistance.Count; a++)
+                    {
+                        var listPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == tempDistance[a]).OrderBy(x => x.DeliveryType).Select(e =>  e.Fee ).ToListAsync();
+                        var items = new ItemDeliveryFee();
+                        items.Items = new List<string>();
+                        for (int j = 0; j < listPrice.Count + 1; j++)
+                        {
+                            if (j == 0)
+                            {
+                                items.Items.Add(tempDistance[a] + " km");
+                            }
+                            else
+                            {
+                                var price = FormatMoney(listPrice[j - 1]);
+                                items.Items.Add(price + " VND");
+                            }
+                        }
+                        table.Rows.Add(items);
+                    }
                 }
             }
-            return deliveryModel;
+            return table;
         }
 
         public async Task<AddressModel> GetGeocoding(string address)
@@ -162,7 +226,7 @@ namespace Application.Services
                 {
                     var addressModel = new AddressModel();
                     addressModel.Address = res.results[0].formatted_address;
-                    addressModel.Geocoding = res.results[0].geometry.location.lat.ToString()+"," + res.results[0].geometry.location.lng.ToString();
+                    addressModel.Geocoding = res.results[0].geometry.location.lat.ToString() + "," + res.results[0].geometry.location.lng.ToString();
                     return addressModel;
                 }
                 else
@@ -185,7 +249,7 @@ namespace Application.Services
             {
                 string content = await response.Content.ReadAsStringAsync();
                 var res = JsonConvert.DeserializeObject<DistanceResponse>(content);
-                if(res != null && res.rows != null && res.rows.Count > 0)
+                if (res != null && res.rows != null && res.rows.Count > 0)
                 {
                     distance = res.rows.FirstOrDefault().elements.FirstOrDefault().distance.value / 1000;
                 }
@@ -233,7 +297,7 @@ namespace Application.Services
 
                 throw new Exception("Chưa cập nhật bảng giá vẫn chuyển");
             }
-            
+
         }
 
         public async Task<DistanceResponse> GetDistanse(string destination)

@@ -72,21 +72,21 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        /*
-                [HttpGet]
-                public async Task<IActionResult> GetAsync()
-                {
-                    try
-                    {
 
-                        var list = await _deliveryFeeService.GetAllAsync();
-                        return Ok(list);
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(ex.Message);
-                    }
-                }*/
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+            try
+            {
+
+                var list = await _deliveryFeeService.GetAllAsync();
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

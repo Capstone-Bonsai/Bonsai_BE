@@ -20,7 +20,6 @@ namespace WebAPI.Controllers
             _complaintService = complaintService;
             _claimsService= claimsService;
         }
-
         [Authorize(Roles ="Customer")]
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromForm] ComplaintModel model)
@@ -40,7 +39,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager,Staff")]
         [HttpPut]
         public async Task<IActionResult> PutAsync([FromBody] ComplaintUpdateModel model)
         {
@@ -49,6 +48,20 @@ namespace WebAPI.Controllers
                 
                 await _complaintService.ReplyComplaint( model);
                 return Ok("Cập nhật trạng thái kiếu nại thành công thành công.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [Authorize(Roles = "Manager,Staff")]
+        [HttpGet]
+        public async Task<IActionResult> GetAsync()
+        {
+            try
+            {
+                var list = await _complaintService.GetList();
+                return Ok(list);
             }
             catch (Exception ex)
             {
