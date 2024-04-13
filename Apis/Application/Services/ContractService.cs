@@ -183,7 +183,7 @@ namespace Application.Services
             }
             foreach (Contract contract in contracts)
             {
-                if (contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint) {
+                if (contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint || contract.ContractStatus == ContractStatus.TaskFinished || contract.ContractStatus == ContractStatus.DoneTaskComplaint) {
                     if(contract.ContractStatus == ContractStatus.ProcessingComplaint)
                     {
                         contract.EndDate.AddDays(5);

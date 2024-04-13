@@ -148,7 +148,14 @@ namespace Application.Services
                 var unfinishedTask = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.CompletedTime == null);
                 if (unfinishedTask.Items.Count == 0)
                 {
-                    contract.ContractStatus = Domain.Enums.ContractStatus.TaskFinished;
+                    if (contract.ContractStatus == Domain.Enums.ContractStatus.ProcessingComplaint)
+                    {
+                        contract.ContractStatus = Domain.Enums.ContractStatus.DoneTaskComplaint;
+                    }
+                    else
+                    {
+                        contract.ContractStatus = Domain.Enums.ContractStatus.TaskFinished;
+                    } 
                     _unitOfWork.ContractRepository.Update(contract);
                 }
                 await _unitOfWork.SaveChangeAsync();
