@@ -152,9 +152,11 @@ namespace Application.Services
                     if (contract.ContractStatus == Domain.Enums.ContractStatus.ProcessingComplaint)
                     {
                         contract.ContractStatus = Domain.Enums.ContractStatus.DoneTaskComplaint;
-                        var complaint = await _unitOfWork.ComplaintRepository.GetAsync(isTakeAll: true, expression: x => x.Id == contract.Id && x.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing);
-                        complaint.Items[0].ComplaintStatus = Domain.Enums.ComplaintStatus.Completed;
-                        _unitOfWork.ComplaintRepository.Update(complaint.Items[0]);
+                          var complaint = await _unitOfWork.ComplaintRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing);
+                        if (complaint.Items.Count != 0) {
+                            complaint.Items[0].ComplaintStatus = Domain.Enums.ComplaintStatus.Completed;
+                            _unitOfWork.ComplaintRepository.Update(complaint.Items[0]);
+                        }     
                     }
                     else
                     {
