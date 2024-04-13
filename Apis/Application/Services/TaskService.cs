@@ -145,12 +145,16 @@ namespace Application.Services
                     tasks.Add(task);
                 }
                 _unitOfWork.BonsaiCareStepRepository.UpdateRange(tasks);
+                await _unitOfWork.SaveChangeAsync();
                 var unfinishedTask = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.CompletedTime == null);
                 if (unfinishedTask.Items.Count == 0)
                 {
                     if (contract.ContractStatus == Domain.Enums.ContractStatus.ProcessingComplaint)
                     {
                         contract.ContractStatus = Domain.Enums.ContractStatus.DoneTaskComplaint;
+                        var complaint = await _unitOfWork.ComplaintRepository.GetAsync(isTakeAll: true, expression: x => x.Id == contract.Id && x.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing);
+                        complaint.Items[0].ComplaintStatus = Domain.Enums.ComplaintStatus.Completed;
+                        _unitOfWork.ComplaintRepository.Update(complaint.Items[0]);
                     }
                     else
                     {
@@ -174,13 +178,21 @@ namespace Application.Services
                     tasks.Add(task);
                 }
                 _unitOfWork.GardenCareTaskRepository.UpdateRange(tasks);
+                await _unitOfWork.SaveChangeAsync();
                 var unfinishedTask = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.CompletedTime == null);
                 if (unfinishedTask.Items.Count == 0)
                 {
-                    contract.ContractStatus = Domain.Enums.ContractStatus.TaskFinished;
+                    if (contract.ContractStatus == Domain.Enums.ContractStatus.ProcessingComplaint)
+                    {
+                        contract.ContractStatus = Domain.Enums.ContractStatus.DoneTaskComplaint;
+                    }
+                    else
+                    {
+                        contract.ContractStatus = Domain.Enums.ContractStatus.TaskFinished;
+                    }
                     _unitOfWork.ContractRepository.Update(contract);
+                    await _unitOfWork.SaveChangeAsync();
                 }
-                await _unitOfWork.SaveChangeAsync();
             }
         }
         public async Task ClearProgress(Guid contractId)
