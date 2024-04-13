@@ -19,6 +19,7 @@ namespace Application.ViewModels.ContractViewModels
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Address { get; set; }
+        public ContractStatus ContractStatus { get; set; }
         [NotMapped]
         public List<string> Image { get; set; } = default!;
         public ServiceType ServiceType { get; set; }
