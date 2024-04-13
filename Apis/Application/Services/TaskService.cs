@@ -180,11 +180,16 @@ namespace Application.Services
                 _unitOfWork.GardenCareTaskRepository.UpdateRange(tasks);
                 await _unitOfWork.SaveChangeAsync();
                 var unfinishedTask = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.CompletedTime == null);
-                if (unfinishedTask.Items.Count == 0)
+                if (taskModel.FinishedTasks.Count > 0 && unfinishedTask.Items.Count == 0)
                 {
                     if (contract.ContractStatus == Domain.Enums.ContractStatus.ProcessingComplaint)
                     {
                         contract.ContractStatus = Domain.Enums.ContractStatus.DoneTaskComplaint;
+                        var complaint = await _unitOfWork.ComplaintRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id && x.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing);
+                        if (complaint.Items.Count != 0) {
+                            complaint.Items[0].ComplaintStatus = Domain.Enums.ComplaintStatus.Completed;
+                            _unitOfWork.ComplaintRepository.Update(complaint.Items[0]);
+                        }     
                     }
                     else
                     {
