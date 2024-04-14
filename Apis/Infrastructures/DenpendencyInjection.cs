@@ -70,6 +70,7 @@ namespace Infrastructures
             services.AddScoped<IComplaintRepository, ComplaintRepository>();
             services.AddScoped<IComplaintImageRepository, ComplaintImageRepository>();
             services.AddScoped<IContractImageRepository, ContractImageRepository>();
+            services.AddScoped<IDeliveryImageRepository, DeliveryImageRepository>();
 
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddSingleton<FirebaseService>();

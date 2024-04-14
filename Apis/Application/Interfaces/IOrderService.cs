@@ -16,5 +16,6 @@ namespace Application.Interfaces
         public Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10);
         public  Task<Order> GetByIdAsync(string userId, Guid orderId);
         public Task UpdateOrderStatusAsync(Guid orderId, OrderStatus orderStatus);
+        Task FinishDeliveryOrder(Guid orderId, FinishDeliveryOrderModel finishDeliveryOrderModel);
     }
 }
