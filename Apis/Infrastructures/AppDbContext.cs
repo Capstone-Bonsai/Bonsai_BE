@@ -44,6 +44,7 @@ namespace Infrastructures
         public DbSet<ServiceSurcharge> ServiceSurcharge { get; set; }
         public DbSet<Complaint> Complaint { get; set; }
         public DbSet<ComplaintImage> ComplaintImage { get; set; }
+        public DbSet<DeliveryImage> DeliveryImage { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             var cascadeFKs = builder.Model.GetEntityTypes()

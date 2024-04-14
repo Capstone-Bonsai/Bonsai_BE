@@ -7,10 +7,11 @@ namespace Domain.Entities
     {
         [ForeignKey("Customer")]
         public Guid CustomerId { get; set; }
-        public Guid? StaffId { get; set; }
+        public Guid? GardenerId { get; set; }
         public string Address { get; set; }
         public DeliveryType DeliveryType { get; set; }
         public DateTime OrderDate { get; set; }
+        public DateTime? ExpectedDeliveryDate { get; set; }
         public double Price { get; set; }
         public double DeliveryPrice { get; set; }
         public double TotalPrice { get; set; }
@@ -19,5 +20,6 @@ namespace Domain.Entities
         public virtual Customer Customer { get; set; }
         public virtual OrderTransaction OrderTransaction { get; set; }
         public IList<OrderDetail> OrderDetails { get; }
+        public IList<DeliveryImage> DeliveryImages { get; }
     }
 }
