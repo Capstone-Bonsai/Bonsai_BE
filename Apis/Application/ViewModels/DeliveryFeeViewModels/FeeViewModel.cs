@@ -14,6 +14,9 @@ namespace Application.ViewModels.DeliveryFeeViewModels
         public string DeliveryType { get; set; }
         public int Distance { get; set; }
         public double Price { get; set; }
+        public int DurationHour { get; set; }
+        public int DurationMinute { get; set; }
+        public DateTime ExpectedDeliveryDate { get; set; }
         public DeliveryFee deliveryFee { get; set; } = new DeliveryFee();
     }
 }

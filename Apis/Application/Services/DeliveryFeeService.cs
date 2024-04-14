@@ -244,6 +244,7 @@ namespace Application.Services
             var finalFee = new FeeViewModel();
             var addressModel = await GetGeocoding(destination);
             string codeKey = _configuration["GoongAPI"];
+            int duration = 0;
             HttpResponseMessage response = await _httpClient.GetAsync($"https://rsapi.goong.io/DistanceMatrix?origins={origin}&destinations={addressModel.Geocoding}&vehicle=car&api_key={codeKey}");
             if (response.IsSuccessStatusCode)
             {
@@ -252,13 +253,12 @@ namespace Application.Services
                 if (res != null && res.rows != null && res.rows.Count > 0)
                 {
                     distance = res.rows.FirstOrDefault().elements.FirstOrDefault().distance.value / 1000;
+                    duration = res.rows.FirstOrDefault().elements.FirstOrDefault().duration.value;
                 }
                 else
                 {
-                    //var temp = response;
                     throw new Exception("Địa điểm giao hàng không hợp lệ.");
                 }
-
                 finalFee.Origin_addresses = "372b QL20, Liên Nghĩa, Đức Trọng, Lâm Đồng, Vietnam";
                 finalFee.Destination_addresses = addressModel.Address;
             }
@@ -285,6 +285,11 @@ namespace Application.Services
                 {
                     fee = feeWithDistance.FirstOrDefault();
                 }
+                finalFee.DurationHour = duration / 3600;
+                finalFee.DurationMinute = (duration / 60) % 60;
+                finalFee.ExpectedDeliveryDate = DateTime.Now.AddHours(finalFee.DurationHour).AddMinutes(finalFee.DurationMinute);
+                
+
                 finalPrice = fee.Fee * distance;
                 finalFee.deliveryFee = fee;
                 finalFee.DeliveryType = fee.DeliveryType.ToString();
@@ -294,11 +299,10 @@ namespace Application.Services
             }
             catch (Exception)
             {
-
-                throw new Exception("Chưa cập nhật bảng giá vẫn chuyển");
+                throw new Exception("Chưa cập nhật bảng giá vận chuyển");
             }
-
         }
+
 
         public async Task<DistanceResponse> GetDistanse(string destination)
         {
@@ -318,10 +322,8 @@ namespace Application.Services
                 }
                 else
                 {
-                    //var temp = response;
                     throw new Exception("Địa điểm giao hàng không hợp lệ.");
                 }
-
             }
             else
             {
