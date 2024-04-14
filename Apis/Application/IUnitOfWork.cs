@@ -32,7 +32,7 @@ namespace Application
         public IComplaintImageRepository ComplaintImageRepository { get; }
         public IComplaintRepository ComplaintRepository { get; }
         public IContractImageRepository ContractImageRepository { get; }
-
+        public IDeliveryImageRepository DeliveryImageRepository { get; }
         public IBonsaiExpectedPriceRepository CategoryExpectedPriceRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();

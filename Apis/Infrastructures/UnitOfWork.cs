@@ -38,6 +38,7 @@ namespace Infrastructures
         private readonly IComplaintRepository _complaintRepository;
         private readonly IComplaintImageRepository _complaintImageRepository;
         private readonly IContractImageRepository _contractImageRepository;
+        private readonly IDeliveryImageRepository _deliveryImageRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -49,7 +50,7 @@ namespace Infrastructures
             IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository, IServiceSurchargeRepository serviceSurchargeRepository, IContractGardenerRepository contractGardenerRepository,
             IBonsaiExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository,
-            IComplaintRepository complaintRepository, IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository
+            IComplaintRepository complaintRepository, IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository, IDeliveryImageRepository deliveryImageRepository
          )
         {
             _dbContext = dbContext;
@@ -82,6 +83,7 @@ namespace Infrastructures
             _complaintRepository = complaintRepository;
             _complaintImageRepository = complaintImageRepository;
             _contractImageRepository = contractImageRepository;
+            _deliveryImageRepository = deliveryImageRepository;
         }
 
 
@@ -140,6 +142,8 @@ namespace Infrastructures
         public IComplaintImageRepository ComplaintImageRepository => _complaintImageRepository;
 
         public IContractImageRepository ContractImageRepository => _contractImageRepository;
+
+        public IDeliveryImageRepository DeliveryImageRepository => _deliveryImageRepository;
 
         public IComplaintRepository ComplaintRepository => _complaintRepository;
 

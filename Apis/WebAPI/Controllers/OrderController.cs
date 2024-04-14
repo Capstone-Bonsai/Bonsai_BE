@@ -126,5 +126,21 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Authorize(Roles = "Gardener")]
+        [HttpPut("DeliveryFinishing/{orderId}")]
+        [Authorize]
+        public async Task<IActionResult> FinishDeliveryOrder(Guid orderId, [FromForm] FinishDeliveryOrderModel finishDeliveryOrderModel)
+        {
+            try
+            {
+                await _orderService.FinishDeliveryOrder(orderId, finishDeliveryOrderModel);
+                return Ok("Cập nhật trạng thái đơn hàng thành công.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

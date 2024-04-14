@@ -2,12 +2,15 @@
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
+using Application.Utils;
 using Application.Validations.Order;
+using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.DeliveryFeeViewModels;
 using Application.ViewModels.OrderViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using MailKit.Search;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,14 +27,17 @@ namespace Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IDeliveryFeeService _deliveryFeeService;
-
-        public OrderService(IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, IDeliveryFeeService deliveryFeeService)
+        private readonly FirebaseService _fireBaseService;
+        private readonly IdUtil _idUtil;
+        public OrderService(IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, IDeliveryFeeService deliveryFeeService, FirebaseService fireBaseService, IdUtil idUtil)
         {
             _configuration = configuration;
             _unit = unitOfWork;
             _userManager = userManager;
             _mapper = mapper;
             _deliveryFeeService = deliveryFeeService;
+            _fireBaseService = fireBaseService;
+            _idUtil = idUtil;
         }
         public async Task<IList<string>> ValidateOrderModel(OrderModel model, string userId)
         {
@@ -518,6 +524,48 @@ namespace Application.Services
             order.OrderStatus = orderStatus;
             _unit.OrderRepository.Update(order);
             await _unit.SaveChangeAsync();
+        }
+        public async Task FinishDeliveryOrder(Guid orderId, FinishDeliveryOrderModel finishDeliveryOrderModel)
+        {
+            var order = await _unit.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
+            }
+            try
+            {
+                _unit.BeginTransaction();
+                foreach (var singleImage in finishDeliveryOrderModel.Image.Select((image, index) => (image, index)))
+                {
+                    string newImageName = order.Id + "_i" + singleImage.index;
+                    string folderName = $"order/{order.Id}/Image";
+                    string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                    string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                    const long maxFileSize = 20 * 1024 * 1024;
+                    if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                    {
+                        throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                    }
+                    var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                    if (url == null)
+                        throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                    DeliveryImage deliveryImage = new DeliveryImage()
+                    {
+                        OrderId = order.Id,
+                        Image = url
+                    };
+                    await _unit.DeliveryImageRepository.AddAsync(deliveryImage);
+                }
+                order.OrderStatus = OrderStatus.Delivered;
+                _unit.OrderRepository.Update(order);
+                await _unit.CommitTransactionAsync();
+            }
+            catch (Exception ex)
+            {
+                _unit.RollbackTransaction();
+                throw new Exception(ex.Message);
+            }
         }
     }
 }
