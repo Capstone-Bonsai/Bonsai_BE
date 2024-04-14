@@ -490,6 +490,7 @@ namespace Application.Services
                 deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
                 order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
                 order.DeliveryPrice = deliveryPrice.Price;
+                order.ExpectedDeliveryDate = deliveryPrice.ExpectedDeliveryDate;
                 order.Price = total;
                 order.TotalPrice = total + deliveryPrice.Price;
                 _unit.ClearTrack();
