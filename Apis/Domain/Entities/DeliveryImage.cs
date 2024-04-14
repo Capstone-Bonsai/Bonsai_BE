@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class DeliveryImage : BaseTask 
+    public class DeliveryImage :  BaseEntity
     {
         [ForeignKey("Order")]
         public Guid OrderId { get; set; }
