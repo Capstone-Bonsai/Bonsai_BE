@@ -265,6 +265,7 @@ namespace Application.Services
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
             var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
+            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
             List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
 {
     x => x.Customer.ApplicationUser
@@ -276,7 +277,7 @@ namespace Application.Services
                 .Include(x => x.OrderDetails)
                 .ThenInclude(x => x.Bonsai.BonsaiImages)
                 .Where(x => x.Customer.UserId.ToLower() == userId).OrderByDescending(y => y.CreationDate).ToListAsync();
-            else if (isAdmin || isStaff)
+            else if (isAdmin || isStaff || isGardener)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                    .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
@@ -308,6 +309,7 @@ namespace Application.Services
             var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
             var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
+            var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
             var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().
                 Include(x => x.OrderTransaction).Include(x => x.Customer.ApplicationUser).Include(x => x.OrderDetails.Where(i => !i.IsDeleted)).ThenInclude(x => x.Bonsai.BonsaiImages).
                 FirstOrDefaultAsync(x => x.Id == orderId);
