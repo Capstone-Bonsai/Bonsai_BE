@@ -439,5 +439,40 @@ namespace Infrastructures.Services
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return gardener;
         }
+        public async Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize)
+        {
+            var listUser = await _userManager.Users.Where(x => x.Gardener != null).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
+            var itemCount = listUser.Count();
+            var items = listUser.Skip(pageIndex * pageSize)
+                                    .Take(pageSize)
+                                    .ToList();
+            var result = new Pagination<ApplicationUser>()
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItemsCount = itemCount,
+                Items = items,
+            };
+            var paginationList = _mapper.Map<Pagination<GardenerViewModel>>(result);
+
+            foreach (var item in paginationList.Items)
+            {
+                var gardener = await GetGardenerAsync(Guid.Parse(item.Id));
+                var user = await _userManager.FindByIdAsync(item.Id);
+                var isLockout = await _userManager.IsLockedOutAsync(user);
+                var roles = await _userManager.GetRolesAsync(user);
+                string role = "";
+                if (roles != null && roles.Count > 0)
+                {
+                    role = roles[0];
+                }
+                item.Id = gardener.Id.ToString();
+                item.CurrentService = 0;
+                item.IsLockout = isLockout;
+                item.Role = role;
+            }
+            paginationList.Items = paginationList.Items.OrderBy(x => x.CurrentService).ToList();
+            return paginationList;
+        }
     }
 }

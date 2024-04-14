@@ -10,6 +10,7 @@ using Application.ViewModels.OrderViewModels;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
+using Firebase.Auth;
 using MailKit.Search;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -283,12 +284,21 @@ namespace Application.Services
                 .Include(x => x.OrderDetails)
                 .ThenInclude(x => x.Bonsai.BonsaiImages)
                 .Where(x => x.Customer.UserId.ToLower() == userId).OrderByDescending(y => y.CreationDate).ToListAsync();
-            else if (isAdmin || isStaff || isGardener)
+            else if (isAdmin || isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                    .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
                .ThenInclude(x => x.Bonsai.BonsaiImages)
                .OrderByDescending(y => y.CreationDate).ToListAsync();
+            else if (isGardener)
+            {
+                var gardener = await _idUtil.GetGardenerAsync(Guid.Parse(userId));
+                listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
+                   .Include(x => x.Customer.ApplicationUser)
+               .Include(x => x.OrderDetails)
+               .ThenInclude(x => x.Bonsai.BonsaiImages)
+               .Where(x => x.GardenerId == gardener.Id && (x.OrderStatus == OrderStatus.Preparing || x.OrderStatus == OrderStatus.Delivering )).OrderByDescending(y => y.CreationDate).ToListAsync();
+            }
             else return null;
             var itemCount = listOrder.Count();
             var items = listOrder.OrderByDescending(x => x.CreationDate)
@@ -521,7 +531,7 @@ namespace Application.Services
             {
                 throw new Exception("Trạng thái không hợp lệ.");
             }
-            if(order.OrderStatus == OrderStatus.Delivered || order.OrderStatus == OrderStatus.Canceled || order.OrderStatus == OrderStatus.Failed) throw new Exception("Đơn hàng này đã kết thúc nên không thể cập nhật trạng thái.");
+            if(order.OrderStatus == OrderStatus.Delivered || order.OrderStatus == OrderStatus.DeliveryFailed || order.OrderStatus == OrderStatus.Failed) throw new Exception("Đơn hàng này đã kết thúc nên không thể cập nhật trạng thái.");
             order.OrderStatus = orderStatus;
             _unit.OrderRepository.Update(order);
             await _unit.SaveChangeAsync();
@@ -559,12 +569,33 @@ namespace Application.Services
                     await _unit.DeliveryImageRepository.AddAsync(deliveryImage);
                 }
                 order.OrderStatus = OrderStatus.Delivered;
+                // Add delivery date here 
+
                 _unit.OrderRepository.Update(order);
                 await _unit.CommitTransactionAsync();
             }
             catch (Exception ex)
             {
                 _unit.RollbackTransaction();
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task AddGardenerForOrder(Guid orderId, Guid gardenerId)
+        {
+            var order = await _unit.OrderRepository.GetByIdAsync(orderId);
+            if (order == null)
+            {
+                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
+            }
+            try
+            {         
+                order.GardenerId = gardenerId;
+                order.OrderStatus = OrderStatus.Preparing;
+                _unit.OrderRepository.Update(order);
+                await _unit.SaveChangeAsync();
+            }
+            catch (Exception ex)
+            {
                 throw new Exception(ex.Message);
             }
         }

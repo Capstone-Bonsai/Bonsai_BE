@@ -17,5 +17,6 @@ namespace Application.Interfaces
         public  Task<Order> GetByIdAsync(string userId, Guid orderId);
         public Task UpdateOrderStatusAsync(Guid orderId, OrderStatus orderStatus);
         Task FinishDeliveryOrder(Guid orderId, FinishDeliveryOrderModel finishDeliveryOrderModel);
+        Task AddGardenerForOrder(Guid orderId, Guid gardenerId);
     }
 }

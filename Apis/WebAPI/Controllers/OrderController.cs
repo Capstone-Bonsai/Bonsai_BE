@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
 
         }
 
-        [Authorize(Roles = "Manager,Staff")]
+        [Authorize(Roles = "Manager,Staff,Gardener")]
         [HttpPut("{orderId}")]
         [Authorize]
         public async Task<IActionResult> UpdateStatusAsync(Guid orderId, OrderStatus orderStatus)
@@ -135,6 +135,21 @@ namespace WebAPI.Controllers
             try
             {
                 await _orderService.FinishDeliveryOrder(orderId, finishDeliveryOrderModel);
+                return Ok("Cập nhật trạng thái đơn hàng thành công.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        //[Authorize(Roles = "Manager")]
+        [HttpPut("AddGardener/{orderId}")]
+        //[Authorize]
+        public async Task<IActionResult> FinishDeliveryOrder(Guid orderId, [FromBody] Guid gardenerId)
+        {
+            try
+            {
+                await _orderService.AddGardenerForOrder(orderId, gardenerId);
                 return Ok("Cập nhật trạng thái đơn hàng thành công.");
             }
             catch (Exception ex)

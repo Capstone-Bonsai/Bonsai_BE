@@ -6,7 +6,7 @@ namespace Application.ViewModels.OrderViewModels
     {
         public Guid Id { get; set; }
         public Guid CustomerId { get; set; }
-        public Guid? StaffId { get; set; }
+        public Guid? GardenerId { get; set; }
         public string Address { get; set; }
         public string DeliveryType { get; set; }
         public DateTime OrderDate { get; set; }
