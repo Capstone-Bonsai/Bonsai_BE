@@ -145,7 +145,7 @@ namespace WebAPI.Controllers
         //[Authorize(Roles = "Manager")]
         [HttpPut("AddGardener/{orderId}")]
         //[Authorize]
-        public async Task<IActionResult> FinishDeliveryOrder(Guid orderId, [FromBody] Guid gardenerId)
+        public async Task<IActionResult> FinishDeliveryOrder(Guid orderId, Guid gardenerId)
         {
             try
             {
