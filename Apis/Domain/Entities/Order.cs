@@ -9,7 +9,7 @@ namespace Domain.Entities
         public Guid CustomerId { get; set; }
         public Guid? GardenerId { get; set; }
         public string Address { get; set; }
-        public DeliveryType DeliveryType { get; set; }
+        public DeliverySize DeliverySize { get; set; }
         public DateTime OrderDate { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
