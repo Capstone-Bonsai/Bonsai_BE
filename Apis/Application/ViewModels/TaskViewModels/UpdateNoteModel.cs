@@ -8,7 +8,7 @@ namespace Application.ViewModels.TaskViewModels
 {
     public class UpdateNoteModel
     {
-        public Guid ContractId { get; set; }
+        public Guid ServiceOrderId { get; set; }
         public List<TaskNote> TaskNotes { get; set; } = default!;    
     }
     public class TaskNote

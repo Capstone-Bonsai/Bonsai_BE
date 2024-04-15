@@ -9,9 +9,9 @@ namespace Application.Interfaces
 {
     public interface ITaskService
     {
-       /* Task<TaskViewModel> GetTasksOfContract(Guid contractId);
+        Task<TaskViewModel> GetTasksOfServiceOrder(Guid serviceOrderId);
         Task UpdateProgress(TaskModel taskModel);
-        Task ClearProgress(Guid contractId);
-        Task UpdateNote(UpdateNoteModel updateNoteModel);*/
+        Task ClearProgress(Guid serviceOrderId);
+        Task UpdateNote(UpdateNoteModel updateNoteModel);
     }
 }

@@ -8,7 +8,7 @@ namespace Application.ViewModels.TaskViewModels
 {
     public class TaskViewModel
     {
-        public Guid ContractId { get; set; }
+        public Guid ServiceOrderId { get; set; }
         public string CustomerName { get; set; }
         public string PhoneNumber { get; set; }
         public string Address { get; set; }

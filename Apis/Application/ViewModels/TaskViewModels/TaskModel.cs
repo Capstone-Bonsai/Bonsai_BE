@@ -8,7 +8,7 @@ namespace Application.ViewModels.TaskViewModels
 {
     public class TaskModel
     {
-        public Guid ContractId { get; set; }
+        public Guid ServiceOrderId { get; set; }
         public List<Guid> FinishedTasks { get; set; } = default!;
     }
 }

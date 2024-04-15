@@ -48,7 +48,7 @@ namespace Application.Services
             }
             if (serviceTypeModel.Description != null && serviceTypeModel.Description != "")
             {
-                serviceType.Description = serviceType.Description;
+                serviceType.Description = serviceTypeModel.Description;
             }
             if (serviceTypeModel.Image != null)
             {
