@@ -12,6 +12,8 @@ namespace Domain.Entities
     {
         [ForeignKey("CustomerGarden")]
         public Guid CustomerGardenId { get; set; }
+        [ForeignKey("Service")]
+        public Guid ServiceId { get; set; }
         public Guid? CustomerBonsaiId { get; set; }
         public string CustomerName { get; set; }
         public string CustomerPhoneNumber { get; set; }
@@ -22,9 +24,8 @@ namespace Domain.Entities
         public string Address { get; set; }
         public double TotalPrice { get; set; }
         public ServiceOrderStatus ContractStatus { get; set; } = ServiceOrderStatus.Waiting;
-        public ServiceType ServiceType { get; set; }
-        public int NumberOfGardener { get; set; }
         public virtual CustomerGarden CustomerGarden { get; set; }
+        public virtual Service Service { get; set; }
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }
         public IList<Contract> Contract { get; set; }
         public IList<GardenCareTask> GardenCareTasks { get; set; }
