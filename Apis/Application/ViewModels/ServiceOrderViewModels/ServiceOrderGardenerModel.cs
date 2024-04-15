@@ -7,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.ViewModels.ContractViewModels
+namespace Application.ViewModels.ServiceOrderViewModels
 {
-    public class ContractGardenerModel
+    public class ServiceOrderGardenerModel
     {
-        public Guid ContractId { get; set; }
+        public Guid ServiceOrderId { get; set; }
         public List<Guid> GardenerIds { get; set; }
     }
 }

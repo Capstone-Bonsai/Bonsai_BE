@@ -9,9 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.ViewModels.ContractViewModels
+namespace Application.ViewModels.ServiceOrderViewModels
 {
-     public class OverallContractViewModel
+    public class OverallServiceOrderViewModel
     {
         public Guid Id { get; set; }
         public Guid ServiceGardenId { get; set; }
@@ -27,18 +27,18 @@ namespace Application.ViewModels.ContractViewModels
         public double SurchargePrice { get; set; }
         public double ServicePrice { get; set; }
         public double TotalPrice { get; set; }
-        public ServiceOrderStatus ContractStatus { get; set; }
+        public ServiceOrderStatus ServiceOrderStatus { get; set; }
         public ServiceType ServiceType { get; set; }
         public int NumberOfGardener { get; set; }
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }
         public IList<Contract> Contracts { get; set; }
         public IList<GardenCareTask> GardenCareTasks { get; set; }
-        public IList<ServiceOrderGardener> ContractGardeners { get; set; }
-        public IList<ServiceOrderTransaction> ContractTransactions { get; set; }
+        public IList<ServiceOrderGardener> ServiceOrderGardeners { get; set; }
+        public IList<ServiceOrderTransaction> ServiceOrderTransactions { get; set; }
         public IList<Complaint> Complaints { get; set; }
         [NotMapped]
-        public List<TaskOfContract> TaskOfContracts { get; set; } = default!;
+        public List<TaskOfServiceOrder> TaskOfServiceOrders { get; set; } = default!;
         [NotMapped]
-        public List<UserViewModel> GardenersOfContract { get; set; } = default!;
+        public List<UserViewModel> GardenersOfServiceOrder { get; set; } = default!;
     }
 }

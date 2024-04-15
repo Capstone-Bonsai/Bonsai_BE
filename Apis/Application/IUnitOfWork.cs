@@ -25,7 +25,7 @@ namespace Application
         public IContractImageRepository ContractImageRepository { get; }
         public IGardenCareTaskRepository GardenCareTaskRepository { get; }
         public IBonsaiCareStepRepository BonsaiCareStepRepository { get; }
-        public IContractGardenerRepository ContractGardenerRepository { get; }
+        public IServiceOrderGardenerRepository ServiceOrderGardenerRepository { get; }
         public IContractTransactionRepository ContractTransactionRepository { get; }
         public IComplaintImageRepository ComplaintImageRepository { get; }
         public IComplaintRepository ComplaintRepository { get; }

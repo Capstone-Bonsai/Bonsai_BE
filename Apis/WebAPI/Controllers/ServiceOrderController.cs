@@ -1,26 +1,26 @@
 ﻿using Application.Interfaces;
 using Application.Services.Momo;
 using Application.Services;
-using Application.ViewModels.ContractViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Domain.Enums;
+using Application.ViewModels.ServiceOrderViewModels;
 
 namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ContractController : ControllerBase
+    public class ServiceOrderController : ControllerBase
     {
-        /*private readonly IContractService _contractService;
+        private readonly IServiceOrderService _serviceOrderService;
         private readonly IClaimsService _claims;
 
-        public ContractController(IContractService contractService,
+        public ServiceOrderController(IServiceOrderService serviceOrderService,
             IClaimsService claimsService)
         {
-            _contractService = contractService;
+            _serviceOrderService = serviceOrderService;
             _claims = claimsService;
         }
         [HttpGet("Pagination")]
@@ -29,15 +29,15 @@ namespace WebAPI.Controllers
         {
             try
             {
-                *//* var contracts = await _contractService.GetContracts(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId);
-                 if (contracts.Items.Count == 0)
-                 {
-                     return BadRequest("Không tìm thấy");
-                 }
-                 else
-                 {
-                     return Ok(contracts);
-                 }*//*
+                var contracts = await _serviceOrderService.GetServiceOrders(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId);
+                if (contracts.Items.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy");
+                }
+                else
+                {
+                    return Ok(contracts);
+                }
                 return Ok();
             }
             catch (Exception ex)
@@ -46,12 +46,12 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost]
-        [Authorize(Roles = "Staff")]
-        public async Task<IActionResult> Post([FromBody] ContractModel contractModel)
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Post([FromBody] ServiceOrderModel serviceOrderModel)
         {
             try
             {
-                await _contractService.CreateContract(contractModel);
+                await _serviceOrderService.CreateServiceOrder(serviceOrderModel);
                 return Ok();
             }
             catch (Exception ex)
@@ -59,14 +59,28 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-       
+        [HttpPut("Update/{serviceOrderId}")]
+        [Authorize(Roles = "Staff")]
+        public async Task<IActionResult> Put(Guid serviceOrderId,[FromBody] ResponseServiceOrderModel responseServiceOrderModel)
+        {
+            try
+            {
+                await _serviceOrderService.UpdateServiceOrder(serviceOrderId, responseServiceOrderModel);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("WorkingCalendar")]
         [Authorize(Roles = "Gardener")]
         public async Task<IActionResult> GetWorkingCalendar(int month, int year)
         {
             try
             {
-                var contracts = await _contractService.GetWorkingCalendar(month, year, _claims.GetCurrentUserId);
+                var contracts = await _serviceOrderService.GetWorkingCalendar(month, year, _claims.GetCurrentUserId);
                 return Ok(contracts);
             }
             catch (Exception ex)
@@ -74,28 +88,14 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("TodayProject")]
+        [HttpGet("Gardener/{serviceOrderId}")]
         [Authorize(Roles = "Gardener")]
-        public async Task<IActionResult> GetTodayProject()
+        public async Task<IActionResult> GetByIdForGardener(Guid serviceOrderId)
         {
             try
             {
-                var contracts = await _contractService.GetTodayProject(_claims.GetCurrentUserId);
-                return Ok(contracts);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-        [HttpGet("Gardener/{id}")]
-        [Authorize(Roles = "Gardener")]
-        public async Task<IActionResult> GetByIdForGardener(Guid id)
-        {
-            try
-            {
-                var contracts = await _contractService.GetContractByIdForGardener(id);
-                return Ok(contracts);
+                var serviceOrder = await _serviceOrderService.GetServiceOrderByIdForGardener(serviceOrderId);
+                return Ok(serviceOrder);
             }
             catch (Exception ex)
             {
@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _contractService.HandleIpnAsync(momo);
+                await _serviceOrderService.HandleIpnAsync(momo);
                 return Ok();
             }
             catch (Exception ex)
@@ -123,8 +123,8 @@ namespace WebAPI.Controllers
             try
             {
                 Guid userId = _claims.GetCurrentUserId;
-                
-                var linkPayment = await _contractService.PaymentContract(ContractId, userId.ToString().ToLower() );
+
+                var linkPayment = await _serviceOrderService.PaymentContract(ContractId, userId.ToString().ToLower());
                 if (linkPayment == null)
                     return BadRequest("Không tìm thấy");
                 else
@@ -135,13 +135,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("{id}")]
+        [HttpGet("{serviceOrderId}")]
         [Authorize]
-        public async Task<IActionResult> GetById(Guid id)
+        public async Task<IActionResult> GetById(Guid serviceOrderId)
         {
             try
             {
-                var contracts = await _contractService.GetContractById(id, _claims.GetIsCustomer, _claims.GetCurrentUserId);
+                var contracts = await _serviceOrderService.GetServiceOrderById(serviceOrderId, _claims.GetIsCustomer, _claims.GetCurrentUserId);
                 return Ok(contracts);
             }
             catch (Exception ex)
@@ -149,13 +149,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost("Image/{contractId}")]
+        [HttpPost("Image/{serviceOrderId}")]
         [Authorize(Roles = "Staff,Manager")]
-        public async Task<IActionResult> AddIMage([FromRoute] Guid contractId, [FromForm] ContractImageModel contractImageModel)
+        public async Task<IActionResult> AddIMage([FromRoute] Guid serviceOrderId, [FromForm] ServiceOrderImageModel serviceOrderImageModel)
         {
             try
             {
-                await _contractService.AddContractImage(contractId, contractImageModel);
+                await _serviceOrderService.AddContractImage(serviceOrderId, serviceOrderImageModel);
                 return Ok();
             }
             catch (Exception ex)
@@ -163,21 +163,21 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
-        [HttpPut("{contractId}")]
+
+        [HttpPut("{serviceOrderId}")]
         [Authorize(Roles = "Manager,Staff")]
         [Authorize]
-        public async Task<IActionResult> UpdateStatusAsync(Guid contractId, ContractStatus contractStatus)
+        public async Task<IActionResult> UpdateStatusAsync(Guid serviceOrderId, ServiceOrderStatus serviceOrderStatus)
         {
             try
             {
-                await _contractService.UpdateContractStatus(contractId, contractStatus);
+                await _serviceOrderService.UpdateServiceOrderStatus(serviceOrderId, serviceOrderStatus);
                 return Ok("Cập nhật trạng thái hóa đơn thành công.");
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }*/
+        }
     }
 }

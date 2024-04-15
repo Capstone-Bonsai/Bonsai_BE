@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Repositories
 {
-    public interface IContractGardenerRepository : IGenericRepository<ServiceOrderGardener>
+    public interface IServiceOrderGardenerRepository : IGenericRepository<ServiceOrderGardener>
     {
     }
 }

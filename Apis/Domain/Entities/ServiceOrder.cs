@@ -23,7 +23,7 @@ namespace Domain.Entities
         public float GardenSquare { get; set; }
         public string Address { get; set; }
         public double TotalPrice { get; set; }
-        public ServiceOrderStatus ContractStatus { get; set; } = ServiceOrderStatus.Waiting;
+        public ServiceOrderStatus ServiceOrderStatus { get; set; } = ServiceOrderStatus.Pending;
         public virtual CustomerGarden CustomerGarden { get; set; }
         public virtual Service Service { get; set; }
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }

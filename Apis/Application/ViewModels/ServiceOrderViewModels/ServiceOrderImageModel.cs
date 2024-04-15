@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.ViewModels.ContractViewModels
+namespace Application.ViewModels.ServiceOrderViewModels
 {
-    public class ContractImageModel
+    public class ServiceOrderImageModel
     {
         public List<IFormFile>? Image { get; set; } = default!;
     }

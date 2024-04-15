@@ -31,9 +31,9 @@ namespace Infrastructures
             services.AddScoped<IBaseTaskService, BaseTaskService>();
             services.AddScoped<IServiceBaseTaskService, ServiceBaseTaskService>();
             services.AddScoped<IServiceService, ServiceService>();
-            services.AddScoped<IContractService, ServiceOrderService>();
+            services.AddScoped<IServiceOrderService, ServiceOrderService>();
             services.AddScoped<ITaskService, TaskService>();
-            services.AddScoped<IContractGardenerService, ContractGardenerService>();
+            services.AddScoped<IServiceOrderGardenerService, ServiceOrderGardenerService>();
             services.AddScoped<ICustomerBonsaiService, CustomerBonsaiService>();
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
@@ -60,7 +60,7 @@ namespace Infrastructures
             services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
             services.AddScoped<IBonsaiCareStepRepository, BonsaiCareStepRepository>();
             services.AddScoped<IGardenCareTaskRepository, GardenCareTaskRepository>();
-            services.AddScoped<IContractGardenerRepository, ContractGardenerRepository>();
+            services.AddScoped<IServiceOrderGardenerRepository, ServiceOrderGardenerRepository>();
             services.AddScoped<IContractTransactionRepository, ContractTransactionRepository>();
             services.AddScoped<IComplaintRepository, ComplaintRepository>();
             services.AddScoped<IComplaintImageRepository, ComplaintImageRepository>();

@@ -1,6 +1,6 @@
 ﻿using Application.Commons;
 using Application.Services.Momo;
-using Application.ViewModels.ContractViewModels;
+using Application.ViewModels.ServiceOrderViewModels;
 using Application.ViewModels.TaskViewModels;
 using Domain.Entities;
 using Domain.Enums;
@@ -11,17 +11,17 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface IContractService
-    {/*
-        Task CreateContract(ContractModel contractModel);
-        Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id);
-        Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id);
-        Task<ContractViewModel> GetContractByIdForGardener(Guid id);
+    public interface IServiceOrderService
+    {
+        Task CreateServiceOrder(ServiceOrderModel serviceOrderModel);
+        Task UpdateServiceOrder(Guid serviceOrderId, ResponseServiceOrderModel responseServiceOrderModel);
+        Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize, bool isCustomer, Guid id);
+        Task<List<ServiceOrderForGardenerViewModel>> GetWorkingCalendar(int month, int year, Guid id);
+        Task<ServiceOrderForGardenerViewModel> GetServiceOrderByIdForGardener(Guid serviceOrderId);
         Task HandleIpnAsync(MomoRedirect momo);
         Task<string> PaymentContract(Guid contractId, string userId);
-        Task<List<ContractViewModel>> GetTodayProject(Guid id);
-        Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId);
-        Task AddContractImage(Guid contractId, ContractImageModel contractImageModel);
-        Task UpdateContractStatus(Guid contractId, ContractStatus contractStatus);*/
+        Task<OverallServiceOrderViewModel> GetServiceOrderById(Guid serviceOrderId, bool isCustomer, Guid userId);
+        Task AddContractImage(Guid contractId, ServiceOrderImageModel serviceOrderImageModel);
+        Task UpdateServiceOrderStatus(Guid serviceOrderId, ServiceOrderStatus serviceOrderStatus);
     }
 }

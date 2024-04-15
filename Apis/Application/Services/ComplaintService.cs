@@ -127,23 +127,23 @@ namespace Application.Services
                 if (complaint.ComplaintStatus == Domain.Enums.ComplaintStatus.Completed) throw new Exception("Khiếu nại này đã hoàn thành nên không thể cập nhật trạng thái mới.");
 
                 if (complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Request && model.ComplaintStatus != Domain.Enums.ComplaintStatus.Completed) throw new Exception("Khiếu nại này đã được xử lý");
-                var contract = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().AsNoTracking().Include(x => x.BonsaiCareSteps).Include(x => x.GardenCareTasks).FirstOrDefaultAsync(x => x.Id == complaint.ServiceOrderId);
+                var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().AsNoTracking().Include(x => x.BonsaiCareSteps).Include(x => x.GardenCareTasks).FirstOrDefaultAsync(x => x.Id == complaint.ServiceOrderId);
                 if (model.ComplaintStatus == Domain.Enums.ComplaintStatus.Canceled && model.CancelReason == null) throw new Exception("Để hủy khiếu nại cần phải có lý do hủy.");
                 if(model.ComplaintStatus == Domain.Enums.ComplaintStatus.Canceled)
                 {
                     complaint.CancelReason = model.CancelReason;
-                    contract.ContractStatus = Domain.Enums.ServiceOrderStatus.Completed;
-                    _unitOfWork.ServiceOrderRepository.Update(contract);
+                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.Completed;
+                    _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                 }
                 else if (model.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing)
                 {
                     if(complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Request) throw new Exception("Trạng thái khiếu nại không hợp lệ.");
-                    contract.ContractStatus = Domain.Enums.ServiceOrderStatus.ProcessingComplaint;
-                    _unitOfWork.ServiceOrderRepository.Update(contract);
+                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.ProcessingComplaint;
+                    _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                     await _unitOfWork.SaveChangeAsync();
-                    /*if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare || contract.CustomerBonsaiId!=null)
+                    if (serviceOrder.CustomerBonsaiId!=null)
                     {
-                        var tasks = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId ==contract.Id);
+                        var tasks = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrder.Id);
                         foreach (BonsaiCareStep bonsaiCareStep in tasks.Items)
                         {
                             bonsaiCareStep.CompletedTime = null;
@@ -154,7 +154,7 @@ namespace Application.Services
                     }
                     else
                     {
-                        var tasks = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contract.Id);
+                        var tasks = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrder.Id);
                         foreach (GardenCareTask gardenCareTask in tasks.Items)
                         {
                             gardenCareTask.CompletedTime = null;
@@ -162,24 +162,24 @@ namespace Application.Services
                         _unitOfWork.ClearTrack();
                         _unitOfWork.GardenCareTaskRepository.UpdateRange(tasks.Items);
                         
-                    }*/
+                    }
                 }
                 else if(model.ComplaintStatus == Domain.Enums.ComplaintStatus.Completed)
                 {
                     if (complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Processing) throw new Exception("Trạng thái khiếu nại không hợp lệ.");
-                    contract.ContractStatus = Domain.Enums.ServiceOrderStatus.ProcessedComplaint;
-                    _unitOfWork.ServiceOrderRepository.Update(contract);
+                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.ProcessedComplaint;
+                    _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                     await _unitOfWork.SaveChangeAsync();
-                    if (contract.CustomerBonsaiId == null)
+                    if (serviceOrder.CustomerBonsaiId == null)
                     {
-                        foreach (var item in contract.GardenCareTasks)
+                        foreach (var item in serviceOrder.GardenCareTasks)
                         {
                             if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của hợp đồng này chưa được hoàn thành");
                         }
                     }
                     else
                     {
-                        foreach (var item in contract.GardenCareTasks)
+                        foreach (var item in serviceOrder.GardenCareTasks)
                         {
                             if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của hợp đồng này chưa được hoàn thành");
                         }

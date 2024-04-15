@@ -1,7 +1,7 @@
 ﻿using Application.Commons;
 using Application.Interfaces;
 using Application.Utils;
-using Application.ViewModels.ContractViewModels;
+using Application.ViewModels.ServiceOrderViewModels;
 using Application.ViewModels.UserViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -11,21 +11,21 @@ using System.Diagnostics.Contracts;
 
 namespace Application.Services
 {
-    public class ContractGardenerService : IContractGardenerService
+    public class ServiceOrderGardenerService : IServiceOrderGardenerService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IdUtil _idUtil;
 
-        public ContractGardenerService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IdUtil idUtil)
+        public ServiceOrderGardenerService(IUnitOfWork unitOfWork, IMapper mapper, UserManager<ApplicationUser> userManager, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _userManager = userManager;
             _idUtil = idUtil;
         }
-        public async Task<Pagination<UserViewModel>> GetGardenerOfContract(int pageIndex, int pageSize, Guid contractId)
+        public async Task<Pagination<UserViewModel>> GetGardenerOfServiceOrder(int pageIndex, int pageSize, Guid contractId)
         {
             var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             if (contract == null)
@@ -66,47 +66,27 @@ namespace Application.Services
             }
             return paginationList;
         }
-        public async Task ChangeContractGardener(Guid contractId, ChangeGardenerViewModel changeGardenerViewModel)
+        public async Task AddGardener(ServiceOrderGardenerModel serviceOrderGardenerModel)
         {
-            var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == changeGardenerViewModel.OldGardenerIds && x.ServiceOrderId == contractId && !x.IsDeleted);
-            if (contractGardener == null)
-            {
-                throw new Exception("Người làm vườn chưa làm cho dịch vụ này");
-            }
-            var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(changeGardenerViewModel.NewGardenerIds);
-            if (gardener == null)
-            {
-                throw new Exception("Không tìm thấy người được thêm vào");
-            }
-            contractGardener.Items[0].GardenerId = changeGardenerViewModel.NewGardenerIds;
-            _unitOfWork.ContractGardenerRepository.Update(contractGardener.Items[0]);
-            await _unitOfWork.SaveChangeAsync();
-        }
-        public async Task AddContractGardener(ContractGardenerModel contractGardenerModel)
-        {
-            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractGardenerModel.ContractId);
-            if (contract == null)
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(serviceOrderGardenerModel.ServiceOrderId);
+            if (serviceOrder == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng");
             }
-           /* if (contract.NumberOfGardener != contractGardenerModel.GardenerIds.Count)
-            {
-                throw new Exception("Phải thêm đúng " + contract.NumberOfGardener + " người");
-            }*/
-            List<ServiceOrderGardener> contractGardeners = new List<ServiceOrderGardener>();
-            foreach (Guid id in contractGardenerModel.GardenerIds)
+            List<ServiceOrderGardener> serviceOrderGardeners = new List<ServiceOrderGardener>();
+            foreach (Guid id in serviceOrderGardenerModel.GardenerIds)
             {
                 var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(id);
                 if(gardener == null)
                 {
                     throw new Exception("Không tìm thấy người được thêm vào");
                 }
-                var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ServiceOrderId == contract.Id && !x.IsDeleted);
-                if (contractGardener.Items.Count == 0)
+                var gardeners = await _unitOfWork.ServiceOrderGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ServiceOrderId == serviceOrder.Id && !x.IsDeleted);
+                if (gardeners.Items.Count == 0)
                 {
-                    contractGardeners.Add(new ServiceOrderGardener()
+                    serviceOrderGardeners.Add(new ServiceOrderGardener()
                     {
-                        ServiceOrderId = contract.Id,
+                        ServiceOrderId = serviceOrder.Id,
                         GardenerId = id,
                         HasRequest = false,
                     });
@@ -116,9 +96,9 @@ namespace Application.Services
                     throw new Exception("Dịch vụ này đã thêm đủ người!");
                 }
             }
-            await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
-            contract.ContractStatus = Domain.Enums.ServiceOrderStatus.Processing;
-            _unitOfWork.ServiceOrderRepository.Update(contract);
+            await _unitOfWork.ServiceOrderGardenerRepository.AddRangeAsync(serviceOrderGardeners);
+            serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.Processing;
+            _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
             await _unitOfWork.SaveChangeAsync();
         }
     }

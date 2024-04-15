@@ -3,12 +3,10 @@ using Application.Commons;
 using Application.ViewModels.BaseTaskViewTasks;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CategoryViewModels;
-using Application.ViewModels.ContractViewModels;
 using Application.ViewModels.CustomerBonsaiViewModels;
 using Application.ViewModels.CustomerGardenViewModels;
 using Application.ViewModels.OrderViewModels;
-using Application.ViewModels.ServiceGardenViewModels;
-using Application.ViewModels.ServiceSurchargeViewModels;
+using Application.ViewModels.ServiceOrderViewModels;
 using Application.ViewModels.ServiceViewModels;
 using Application.ViewModels.StyleViewModels;
 using Application.ViewModels.UserViewModels;
@@ -34,7 +32,7 @@ namespace Infrastructures.Mappers
             CreateMap<BonsaiModelForCustomer, Bonsai>();
             
 
-            CreateMap<ServiceOrder, ContractViewModel>().ReverseMap();
+            CreateMap<ServiceOrder, ServiceOrderForGardenerViewModel>().ReverseMap();
             CreateMap<OrderModel, Order>().ReverseMap();
             CreateMap<OrderViewModel, Order>();
             CreateMap<Order, OrderViewModel>().ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
@@ -44,7 +42,6 @@ namespace Infrastructures.Mappers
             CreateMap<ServiceViewModel, Service>();
             CreateMap<Service, ServiceViewModel>().ForMember(dest => dest.ServiceBaseTasks, opt => opt.MapFrom(src => src.ServiceBaseTasks));
             CreateMap<ServiceModel, Service>().ReverseMap();
-            CreateMap<ServiceOrder, OverallContractViewModel>();
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Domain.Entities;
 using Domain.Enums;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.ViewModels.ContractViewModels
+namespace Application.ViewModels.ServiceOrderViewModels
 {
-    public class ContractViewModel
+    public class ServiceOrderForGardenerViewModel
     {
         public Guid Id { get; set; }
         public Guid CustomerBonsaiId { get; set; }
@@ -19,12 +18,11 @@ namespace Application.ViewModels.ContractViewModels
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public string Address { get; set; }
-        public ServiceOrderStatus ContractStatus { get; set; }
+        public ServiceOrderStatus ServiceOrderStatus { get; set; }
         [NotMapped]
         public List<string> Image { get; set; } = default!;
         public ServiceType ServiceType { get; set; }
         [NotMapped]
         public Bonsai Bonsai { get; set; } = default!;
-
     }
 }
