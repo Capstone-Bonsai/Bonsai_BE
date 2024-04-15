@@ -569,7 +569,7 @@ namespace Application.Services
                     await _unit.DeliveryImageRepository.AddAsync(deliveryImage);
                 }
                 order.OrderStatus = OrderStatus.Delivered;
-                // Add delivery date here 
+                order.DeliveryDate = DateTime.Now;
 
                 _unit.OrderRepository.Update(order);
                 await _unit.CommitTransactionAsync();
