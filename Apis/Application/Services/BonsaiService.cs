@@ -159,6 +159,7 @@ namespace Application.Services
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.isDisable = false;
             bonsai.Code = await generateCode(bonsaiModel.CategoryId);
+            bonsai.DeliveryType = bonsaiModel.DeliveryType;
             bonsai.isSold = false;
             try
             {
@@ -213,6 +214,7 @@ namespace Application.Services
             }
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.Id = id;
+            bonsai.DeliveryType = bonsaiModel.DeliveryType;
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(bonsai.Id);
             if (result == null)
                 throw new Exception("Không tìm thấy sản phẩm!");
