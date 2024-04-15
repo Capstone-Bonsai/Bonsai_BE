@@ -9,7 +9,7 @@ namespace Application.ViewModels.ComplaintModels
 {
     public class ComplaintModel
     {
-        public Guid ContractId { get; set; }
+        public Guid ServiceOrderId { get; set; }
         public string Detail { get; set; }
         public List<IFormFile>? ListImage { get; set; } 
     }

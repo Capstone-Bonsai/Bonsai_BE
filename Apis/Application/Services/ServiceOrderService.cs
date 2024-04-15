@@ -362,7 +362,7 @@ namespace Application.Services
                 serviceOrderTransaction.ExtraData = momo.extraData;
                 // Tạo transaction
                 serviceOrderTransaction.Signature = momo.signature;
-                await _unitOfWork.ContractTransactionRepository.AddAsync(serviceOrderTransaction);
+                await _unitOfWork.ServiceOrderTransactionRepository.AddAsync(serviceOrderTransaction);
                 //Update Contract Status
                 serviceOrder.ServiceOrderStatus = serviceOrderStatus;
                 _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
@@ -538,8 +538,8 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                var images = await _unitOfWork.ContractImageRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == contractId && !x.IsDeleted, isDisableTracking: true);
-                _unitOfWork.ContractImageRepository.SoftRemoveRange(images.Items);
+                var images = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == contractId && !x.IsDeleted, isDisableTracking: true);
+                _unitOfWork.ContractRepository.SoftRemoveRange(images.Items);
                 foreach (var singleImage in serviceOrderImageModel.Image.Select((image, index) => (image, index)))
                 {
                     string newImageName = serviceOrder.Id + "_i" + singleImage.index;
@@ -561,7 +561,7 @@ namespace Application.Services
                         Image = url
                     };
 
-                    await _unitOfWork.ContractImageRepository.AddAsync(contractImage);
+                    await _unitOfWork.ContractRepository.AddAsync(contractImage);
                 }
                 await _unitOfWork.CommitTransactionAsync();
             }

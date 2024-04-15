@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -30,32 +29,32 @@ namespace Application.Services
         }
         public async Task CreateComplaint(string userId, ComplaintModel model)
         {
-           /* var contract = await _unitOfWork.ContractRepository.GetAllQueryable().AsNoTracking().Include(x => x.ServiceGarden.CustomerGarden.Customer).Include(x=>x.Complaints).FirstOrDefaultAsync(x => x.Id == model.ContractId);
-            if (contract == null)throw new Exception("Không tìm thấy hợp đồng bạn yêu cầu");
-            if(contract.ContractStatus == Domain.Enums.ContractStatus.Completed) throw new Exception("Hợp đồng này đã hoàn thành nên không thể khiếu nại.");
-            if (!contract.ServiceGarden.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))throw new Exception("Bạn không có quyền truy cập vào hợp đồng này");
-            if (contract.ContractStatus == Domain.Enums.ContractStatus.TaskFinished || contract.ContractStatus == Domain.Enums.ContractStatus.ProcessedComplaint || contract.ContractStatus == Domain.Enums.ContractStatus.DoneTaskComplaint) { }else throw new Exception("Hợp đồng này đang được xử lý nên không thể gửi khiếu nại.");
-            if(contract.EndDate.AddDays(3) < DateTime.Now) throw new Exception("Hợp đồng này đã quá thời gian khiếu nại");
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().AsNoTracking().Include(x => x.CustomerGarden.Customer).Include(x=>x.Complaints).FirstOrDefaultAsync(x => x.Id == model.ServiceOrderId);
+            if (serviceOrder == null)throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ của bạn");
+            if(serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.Completed) throw new Exception("Đơn đặt hàng dịch vụ này đã hoàn thành nên không thể khiếu nại.");
+            if (!serviceOrder.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))throw new Exception("Bạn không có quyền truy cập vào đơn đặt hàng dịch vụ này");
+            if (serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.TaskFinished || serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.ProcessedComplaint || serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.DoneTaskComplaint) { }else throw new Exception("Đơn đặt hàng dịch vụ này đang được xử lý nên không thể gửi khiếu nại.");
+            if(serviceOrder.EndDate.AddDays(3) < DateTime.Now) throw new Exception("Đơn đặt hàng dịch vụ này đã quá thời gian khiếu nại");
             _unitOfWork.BeginTransaction();
             if (model.ListImage == null || model.ListImage.Count == 0)
                 throw new Exception("Vui lòng thêm hình ảnh khiếu nại.");
              
-            if (contract.Complaints!=null && contract.Complaints.Count >= 0)
+            if (serviceOrder.Complaints!=null && serviceOrder.Complaints.Count >= 0)
             {
-                foreach (var item in contract.Complaints)
+                foreach (var item in serviceOrder.Complaints)
                 {
-                    if(item.ComplaintStatus == Domain.Enums.ComplaintStatus.Request|| item.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing) throw new Exception("Hợp đồng này hiện đâng có khiếu nại đang xử lý.");
+                    if(item.ComplaintStatus == Domain.Enums.ComplaintStatus.Request|| item.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing) throw new Exception("Đơn đặt hàng dịch vụ này hiện đâng có khiếu nại đang xử lý.");
                 }
             }
             
             try
             {
-                var complaint = new Complaint{ Detail = model.Detail, ContractId = model.ContractId };
+                var complaint = new Complaint{ Detail = model.Detail, ServiceOrderId = model.ServiceOrderId };
                 try
                 {
                     await _unitOfWork.ComplaintRepository.AddAsync(complaint);
-                    contract.ContractStatus = Domain.Enums.ContractStatus.Complained;
-                     _unitOfWork.ContractRepository.Update(contract);
+                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.Complained;
+                     _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                     await _unitOfWork.SaveChangeAsync();
                 }
                 catch (Exception)
@@ -95,7 +94,7 @@ namespace Application.Services
             {
                 _unitOfWork.RollbackTransaction();
                 throw new Exception(ex.Message);
-            }*/
+            }
         }
 
         public async Task<string> AddImageToFireBase(IFormFile file, Complaint complaint)
@@ -174,14 +173,14 @@ namespace Application.Services
                     {
                         foreach (var item in serviceOrder.GardenCareTasks)
                         {
-                            if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của hợp đồng này chưa được hoàn thành");
+                            if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của đơn đặt hàng dịch vụ này chưa được hoàn thành");
                         }
                     }
                     else
                     {
                         foreach (var item in serviceOrder.GardenCareTasks)
                         {
-                            if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của hợp đồng này chưa được hoàn thành");
+                            if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của đơn đặt hàng dịch vụ này chưa được hoàn thành");
                         }
                     }
 

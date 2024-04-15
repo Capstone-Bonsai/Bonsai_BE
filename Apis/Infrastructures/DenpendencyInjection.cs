@@ -61,10 +61,10 @@ namespace Infrastructures
             services.AddScoped<IBonsaiCareStepRepository, BonsaiCareStepRepository>();
             services.AddScoped<IGardenCareTaskRepository, GardenCareTaskRepository>();
             services.AddScoped<IServiceOrderGardenerRepository, ServiceOrderGardenerRepository>();
-            services.AddScoped<IContractTransactionRepository, ContractTransactionRepository>();
+            services.AddScoped<IServiceOrderTransactionRepository, ServiceOrderTransactionRepository>();
             services.AddScoped<IComplaintRepository, ComplaintRepository>();
             services.AddScoped<IComplaintImageRepository, ComplaintImageRepository>();
-            services.AddScoped<IContractImageRepository, ContractImageRepository>();
+            services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IDeliveryImageRepository, DeliveryImageRepository>();
             services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
             

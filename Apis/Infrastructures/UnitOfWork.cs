@@ -30,10 +30,10 @@ namespace Infrastructures
         private readonly IServiceOrderRepository _serviceOrderRepository;
         private readonly IGardenCareTaskRepository _gardenCareTaskRepository;
         private readonly IBonsaiCareStepRepository _bonsaiCareStepRepository;
-        private readonly IContractTransactionRepository _contractTransactionRepository;
+        private readonly IServiceOrderTransactionRepository _serviceOrderTransactionRepository;
         private readonly IComplaintRepository _complaintRepository;
         private readonly IComplaintImageRepository _complaintImageRepository;
-        private readonly IContractImageRepository _contractImageRepository;
+        private readonly IContractRepository _contractRepository;
         private readonly IDeliveryImageRepository _deliveryImageRepository;
         private readonly IServiceTypeRepository _serviceTypeRepository;
         private readonly IServiceOrderGardenerRepository _serviceOrderGardenerRepository;
@@ -47,8 +47,8 @@ namespace Infrastructures
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
            IServiceOrderRepository serviceOrderRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository,
-             IContractTransactionRepository contractTransactionRepository, IComplaintRepository complaintRepository, 
-             IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository, IDeliveryImageRepository deliveryImageRepository,
+             IServiceOrderTransactionRepository serviceOrderTransactionRepository, IComplaintRepository complaintRepository, 
+             IComplaintImageRepository complaintImageRepository, IContractRepository contractRepository, IDeliveryImageRepository deliveryImageRepository,
              IServiceTypeRepository serviceTypeRepository, IServiceOrderGardenerRepository serviceOrderGardenerRepository
          )
         {
@@ -74,10 +74,10 @@ namespace Infrastructures
             _serviceOrderRepository = serviceOrderRepository;
             _gardenCareTaskRepository = gardenCareTaskRepository;
             _bonsaiCareStepRepository = bonsaiCareStepRepository;
-            _contractTransactionRepository = contractTransactionRepository;
+            _serviceOrderTransactionRepository = serviceOrderTransactionRepository;
             _complaintRepository = complaintRepository;
             _complaintImageRepository = complaintImageRepository;
-            _contractImageRepository = contractImageRepository;
+            _contractRepository = contractRepository;
             _deliveryImageRepository = deliveryImageRepository;
             _serviceTypeRepository = serviceTypeRepository;
             _serviceOrderGardenerRepository = serviceOrderGardenerRepository;
@@ -126,11 +126,11 @@ namespace Infrastructures
 
         public IBonsaiCareStepRepository BonsaiCareStepRepository => _bonsaiCareStepRepository;
 
-        public IContractTransactionRepository ContractTransactionRepository => _contractTransactionRepository;
+        public IServiceOrderTransactionRepository ServiceOrderTransactionRepository => _serviceOrderTransactionRepository;
 
         public IComplaintImageRepository ComplaintImageRepository => _complaintImageRepository;
 
-        public IContractImageRepository ContractImageRepository => _contractImageRepository;
+        public IContractRepository ContractRepository => _contractRepository;
 
         public IDeliveryImageRepository DeliveryImageRepository => _deliveryImageRepository;
 

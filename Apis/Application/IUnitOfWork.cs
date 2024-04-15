@@ -22,11 +22,11 @@ namespace Application
         public IServiceRepository ServiceRepository { get; }
         public IBaseTaskRepository BaseTaskRepository { get; }
         public IServiceBaseTaskRepository ServiceBaseTaskRepository { get; }
-        public IContractImageRepository ContractImageRepository { get; }
+        public IContractRepository ContractRepository { get; }
         public IGardenCareTaskRepository GardenCareTaskRepository { get; }
         public IBonsaiCareStepRepository BonsaiCareStepRepository { get; }
         public IServiceOrderGardenerRepository ServiceOrderGardenerRepository { get; }
-        public IContractTransactionRepository ContractTransactionRepository { get; }
+        public IServiceOrderTransactionRepository ServiceOrderTransactionRepository { get; }
         public IComplaintImageRepository ComplaintImageRepository { get; }
         public IComplaintRepository ComplaintRepository { get; }
         public IServiceOrderRepository ServiceOrderRepository { get; }
