@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using Org.BouncyCastle.Ocsp;
 using Microsoft.Extensions.Configuration;
 using System.Configuration;
+using System.Security.Cryptography;
 
 namespace Application.Services
 {
@@ -42,10 +43,10 @@ namespace Application.Services
             {
                 throw new Exception("Hiện bảng giá giao hàng đã tồn tại. Vì vậy không thể thêm mới!");
             }
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;//sử dụng để đặt ngữ cảnh giấy phép sử dụng của gói ExcelPackage thành phi thương mại
             try
             {
-                /*using (var stream = new MemoryStream())
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
                     using (var package = new ExcelPackage(stream))
@@ -55,59 +56,21 @@ namespace Application.Services
                         //Điếm số hàng có giá trị
                         int rowCount = worksheet.Dimension.Rows;
                         var listPrice = new List<DeliveryFee>();
-                        for (int row = 2; row <= rowCount; row++) // Bắt đầu từ hàng thứ 2 để bỏ qua tiêu đề
+                        for (int row = 2; row < rowCount; row++) // Bắt đầu từ hàng thứ 2 để bỏ qua tiêu đề
                         {
-                            double maxDistance = 0;
-                            try
+                            double maxDistance = (double)(worksheet.Cells[row, 1].Value);
+                            for (int i = 1; i <= 3; i++)
                             {
-                                maxDistance = (double)(worksheet.Cells[row, 1].Value);
-                                for (int i = 1; i <= 3; i++)
-                                {
-                                    double maxPrice = 0;
-                                    try
-                                    {
-                                        maxPrice = (double)worksheet.Cells[row, i + 1].Value;
-                                        var price = (double)worksheet.Cells[row, i + 1].Value;
-                                        var type = (DeliveryType);
-                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, MaxDistance = maxDistance, Fee = price };
-                                        listPrice.Add(fee);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        var price = (double)worksheet.Cells[row, i + 1].Value;
-                                        var type = (DeliveryType)i;
-                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, MaxDistance = maxDistance, Fee = price };
-                                        listPrice.Add(fee);
-                                    }
-                                }
-                            }
-                            catch (Exception)
-                            {
-                                for (int i = 1; i <= 3; i++)
-                                {
-                                    double maxPrice = 0;
-                                    try
-                                    {
-                                        maxPrice = (double)worksheet.Cells[2, i + 1].Value;
-                                        var price = (double)worksheet.Cells[row, i + 1].Value;
-                                        var type = (DeliveryType)i;
-                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, Fee = price };
-                                        listPrice.Add(fee);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        var price = (double)worksheet.Cells[row, i + 1].Value;
-                                        var type = (DeliveryType)i;
-                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, Fee = price };
-                                        listPrice.Add(fee);
-                                    }
-                                }
+                                var price = (double)worksheet.Cells[row, i + 1].Value;
+                                var type = (DeliverySize)i;
+                                DeliveryFee fee = new DeliveryFee() { DeliverySize = type, MaxDistance = maxDistance, Fee = price };
+                                listPrice.Add(fee);
                             }
                         }
                         await _unit.DeliveryFeeRepository.AddRangeAsync(listPrice);
                         await _unit.SaveChangeAsync();
                     }
-                }*/
+                }
             }
             catch (InvalidDataException ex)
             {
@@ -121,11 +84,20 @@ namespace Application.Services
 
         public async Task UpdateAsync(IFormFile file)
         {
-            var list = await _unit.DeliveryFeeRepository.GetAllAsync();
-            _unit.DeliveryFeeRepository.HardDeleteRange(list);
-            await _unit.SaveChangeAsync();
-            await CreateAsync(file);
-
+            _unit.BeginTransaction();
+            try
+            {
+                var list = await _unit.DeliveryFeeRepository.GetAllAsync();
+                _unit.DeliveryFeeRepository.HardDeleteRange(list);
+                await _unit.SaveChangeAsync();
+                await CreateAsync(file);
+                await _unit.CommitTransactionAsync();
+            }
+            catch (Exception ex)
+            {
+                _unit.RollbackTransaction();
+                throw new Exception(ex.Message);
+            }
         }
         public string FormatMoney(double price)
         {
@@ -140,13 +112,10 @@ namespace Application.Services
             var table = new DeliveryFeeDisplayModel();
             table.Rows = new List<ItemDeliveryFee>();
 
-            /*var tempDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance != null).OrderBy(x => x.MaxDistance).Select(x => x.MaxDistance).Distinct().ToListAsync();
+            var tempDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance != null).OrderBy(x => x.MaxDistance).Select(x => x.MaxDistance).Distinct().ToListAsync();
             if (tempDistance == null || tempDistance.Count() == 0)
                 throw new Exception("Hiện chưa có bảng giá vận chuyển Bonsai");
-            var tempPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Select(x => x.MaxPrice).Distinct().ToListAsync();
-            int maxRow = 4;
-
-            var check = 1;
+            int maxRow = 3;
             for (int i = 0; i < maxRow; i++)
             {
                 var listItem = new ItemDeliveryFee();
@@ -154,31 +123,20 @@ namespace Application.Services
                 if (i == 0)
                 {
                     listItem.Items.Add("Khoảng cách (km)");
-                    listItem.Items.Add("Xe bán tải hoặc ba gác");
-                    listItem.Items.Add("Xe tải nhỏ");
-                    listItem.Items.Add("Xe tải lớn");
-                    table.Rows.Add(listItem);
-                }
-                else if (i == 1)
-                {
-                    listItem.Items.Add("Giới hạn giá loại xe");
-                    for (int j = 0; j < tempPrice.Count; j++)
-                    {
-                        var amount = FormatMoney(tempPrice[j].Value);
-                        listItem.Items.Add(amount+ " VND");
-                    }
-                    var price = FormatMoney(tempPrice[tempPrice.Count - 1].Value);
-                    listItem.Items.Add("Lớn hơn " + price + " VND");
+                    listItem.Items.Add("Kích thước nhỏ");
+                    listItem.Items.Add("Kích thước vừa");
+                    listItem.Items.Add("Kích thước lớn");
                     table.Rows.Add(listItem);
                 }
                 else if (i == maxRow - 1)
                 {
-                    var listPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null).OrderBy(x => x.DeliveryType).Select(x => x.Fee).ToListAsync();
+                    var maxDistance = tempDistance.LastOrDefault();
+                    var listPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=> x.MaxDistance == maxDistance).OrderBy(x => x.DeliverySize).Select(x => x.Fee).ToListAsync();
                     for (int j = 0; j < listPrice.Count + 1; j++)
                     {
                         if (j == 0)
                         {
-                            listItem.Items.Add("Lớn hơn " + tempDistance.Last() + " km");
+                            listItem.Items.Add("từ " + tempDistance.LastOrDefault() + " km trở đi");
                         }
                         else
                         {
@@ -190,16 +148,20 @@ namespace Application.Services
                 }
                 else
                 {
-                    for (int a = 0; a < tempDistance.Count; a++)
+                    for (int a = 0; a < tempDistance.Count-1; a++)
                     {
-                        var listPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == tempDistance[a]).OrderBy(x => x.DeliveryType).Select(e =>  e.Fee ).ToListAsync();
+
+                        var listPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == tempDistance[a]).OrderBy(x => x.DeliverySize).Select(e => e.Fee).ToListAsync();
                         var items = new ItemDeliveryFee();
                         items.Items = new List<string>();
                         for (int j = 0; j < listPrice.Count + 1; j++)
                         {
                             if (j == 0)
                             {
-                                items.Items.Add(tempDistance[a] + " km");
+                                if (a == 0)
+                                    items.Items.Add("từ km đầu tiên");
+                                else 
+                                    items.Items.Add("từ " + tempDistance[a] + " km tiếp theo");
                             }
                             else
                             {
@@ -210,7 +172,7 @@ namespace Application.Services
                         table.Rows.Add(items);
                     }
                 }
-            }*/
+            }
             return table;
         }
 
@@ -269,8 +231,8 @@ namespace Application.Services
             try
             {
                 DeliverySize deliveryType;
-                var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=> !x.IsDeleted).ToListAsync();
-                if (feewithPrice == null )
+                var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => !x.IsDeleted).ToListAsync();
+                if (feewithPrice == null)
                     deliveryType = DeliverySize.Large;
                 else
                     deliveryType = feewithPrice.FirstOrDefault().DeliverySize;
@@ -290,7 +252,7 @@ namespace Application.Services
                 finalFee.DurationHour = duration / 3600;
                 finalFee.DurationMinute = (duration / 60) % 60;
                 finalFee.ExpectedDeliveryDate = DateTime.Now.AddHours(finalFee.DurationHour).AddMinutes(finalFee.DurationMinute);
-                
+
 
                 finalPrice = fee.Fee * distance;
                 finalFee.deliveryFee = fee;
