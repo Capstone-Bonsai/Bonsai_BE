@@ -69,7 +69,7 @@ namespace Application.Services
                                         maxPrice = (double)worksheet.Cells[2, i + 1].Value;
                                         var price = (double)worksheet.Cells[row, i + 1].Value;
                                         var type = (DeliveryType)i;
-                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, MaxDistance = maxDistance, MaxPrice = maxPrice, Fee = price };
+                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, MaxDistance = maxDistance, Fee = price };
                                         listPrice.Add(fee);
                                     }
                                     catch (Exception)
@@ -91,7 +91,7 @@ namespace Application.Services
                                         maxPrice = (double)worksheet.Cells[2, i + 1].Value;
                                         var price = (double)worksheet.Cells[row, i + 1].Value;
                                         var type = (DeliveryType)i;
-                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, MaxPrice = maxPrice, Fee = price };
+                                        DeliveryFee fee = new DeliveryFee() { DeliveryType = type, Fee = price };
                                         listPrice.Add(fee);
                                     }
                                     catch (Exception)
@@ -140,10 +140,10 @@ namespace Application.Services
             var table = new DeliveryFeeDisplayModel();
             table.Rows = new List<ItemDeliveryFee>();
 
-            var tempDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance != null).OrderBy(x => x.MaxDistance).Select(x => x.MaxDistance).Distinct().ToListAsync();
+            /*var tempDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance != null).OrderBy(x => x.MaxDistance).Select(x => x.MaxDistance).Distinct().ToListAsync();
             if (tempDistance == null || tempDistance.Count() == 0)
                 throw new Exception("Hiện chưa có bảng giá vận chuyển Bonsai");
-            var tempPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxPrice != null).OrderBy(x => x.MaxPrice).Select(x => x.MaxPrice).Distinct().ToListAsync();
+            var tempPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Select(x => x.MaxPrice).Distinct().ToListAsync();
             int maxRow = 4;
 
             var check = 1;
@@ -210,7 +210,7 @@ namespace Application.Services
                         table.Rows.Add(items);
                     }
                 }
-            }
+            }*/
             return table;
         }
 
@@ -269,8 +269,8 @@ namespace Application.Services
             try
             {
                 DeliveryType deliveryType;
-                var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxPrice >= price && !x.IsDeleted).OrderBy(x => x.MaxPrice).ToListAsync();
-                if (feewithPrice == null || feewithPrice.Count == 0)
+                var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=> !x.IsDeleted).ToListAsync();
+                if (feewithPrice == null )
                     deliveryType = DeliveryType.LargeTruck;
                 else
                     deliveryType = feewithPrice.FirstOrDefault().DeliveryType;

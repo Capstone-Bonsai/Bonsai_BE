@@ -53,7 +53,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("ServiveType")]
+       /* [HttpGet("ServiveType")]
         public async Task<IActionResult> ServiveType()
         {
             try
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost]
+       /* [HttpPost]
         [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Post([FromForm] ServiceModel model)
         {
@@ -99,13 +99,13 @@ namespace WebAPI.Controllers
                 if (errs == null)
                     return Ok("Tạo mới thành công.");
                 else
-                    return BadRequest(errs);
+                    return BadRequest(errs);B
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Manager")]

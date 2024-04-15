@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructures.Repositories
 {
-    public class ContractImageRepository : GenericRepository<ContractImage>, IContractImageRepository
+    public class ContractImageRepository : GenericRepository<Contract>, IContractImageRepository
     {
         public ContractImageRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {

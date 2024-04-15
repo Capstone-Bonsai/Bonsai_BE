@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -32,6 +33,7 @@ namespace Domain.Entities
         public double Price { get; set; }
         public bool isDisable { get; set; }
         public bool? isSold { get; set; }
+        public DeliveryType? DeliveryType { get; set; }
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
         [JsonIgnore]

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructures.Repositories
 {
-    public class ContractGardenerRepository : GenericRepository<ContractGardener>, IContractGardenerRepository
+    public class ContractGardenerRepository : GenericRepository<ServiceOrderGardener>, IContractGardenerRepository
     {
         public ContractGardenerRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {

@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class ContractTransaction:BaseEntity
+    public class ServiceOrderTransaction:BaseEntity
     {
-        [ForeignKey("Contract")]
-        public Guid ContractId { get; set; }
+        [ForeignKey("ServiceOrder")]
+        public Guid ServiceOrderId { get; set; }
         public double Amount { get; set; }
         public string IpnURL { get; set; }
         public string Information { get; set; }
@@ -34,6 +34,6 @@ namespace Domain.Entities
         public string Signature { get; set; }
 
         [JsonIgnore]
-        public virtual Contract Contract { get; set; }
+        public virtual ServiceOrder ServiceOrder { get; set; }
     }
 }

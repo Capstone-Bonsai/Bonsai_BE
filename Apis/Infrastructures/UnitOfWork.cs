@@ -27,13 +27,10 @@ namespace Infrastructures
         private readonly IServiceRepository _serviceRepository;
         private readonly IBaseTaskRepository _baseTaskRepository;
         private readonly IServiceBaseTaskRepository _serviceBaseTaskRepository;
-        private readonly IServiceGardenRepository _serviceGardenRepository;
         private readonly IContractRepository _contractRepository;
         private readonly IGardenCareTaskRepository _gardenCareTaskRepository;
         private readonly IBonsaiCareStepRepository _bonsaiCareStepRepository;
-        private readonly IServiceSurchargeRepository _serviceSurchargeRepository;
         private readonly IContractGardenerRepository _contractGardenerRepository;
-        private readonly IBonsaiExpectedPriceRepository _categoryExpectedPriceRepository;
         private readonly IContractTransactionRepository _contractTransactionRepository;
         private readonly IComplaintRepository _complaintRepository;
         private readonly IComplaintImageRepository _complaintImageRepository;
@@ -47,9 +44,9 @@ namespace Infrastructures
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
             ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository,
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
-            IServiceGardenRepository serviceGardenRepository, IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
-            IBonsaiCareStepRepository bonsaiCareStepRepository, IServiceSurchargeRepository serviceSurchargeRepository, IContractGardenerRepository contractGardenerRepository,
-            IBonsaiExpectedPriceRepository categoryExpectedPriceRepository, IContractTransactionRepository contractTransactionRepository,
+           IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
+            IBonsaiCareStepRepository bonsaiCareStepRepository, IContractGardenerRepository contractGardenerRepository,
+             IContractTransactionRepository contractTransactionRepository,
             IComplaintRepository complaintRepository, IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository, IDeliveryImageRepository deliveryImageRepository
          )
         {
@@ -72,13 +69,10 @@ namespace Infrastructures
             _serviceRepository = serviceRepository;
             _baseTaskRepository = baseTaskRepository;
             _serviceBaseTaskRepository = serviceBaseTaskRepository;
-            _serviceGardenRepository = serviceGardenRepository;
             _contractRepository = contractRepository;
             _gardenCareTaskRepository = gardenCareTaskRepository;
             _bonsaiCareStepRepository = bonsaiCareStepRepository;
-            _serviceSurchargeRepository = serviceSurchargeRepository;
             _contractGardenerRepository = contractGardenerRepository;
-            _categoryExpectedPriceRepository = categoryExpectedPriceRepository;
             _contractTransactionRepository = contractTransactionRepository;
             _complaintRepository = complaintRepository;
             _complaintImageRepository = complaintImageRepository;
@@ -123,7 +117,6 @@ namespace Infrastructures
 
         public IServiceBaseTaskRepository ServiceBaseTaskRepository => _serviceBaseTaskRepository;
 
-        public IServiceGardenRepository ServiceGardenRepository => _serviceGardenRepository;
 
         public IContractRepository ContractRepository => _contractRepository;
 
@@ -131,11 +124,8 @@ namespace Infrastructures
 
         public IBonsaiCareStepRepository BonsaiCareStepRepository => _bonsaiCareStepRepository;
 
-        public IServiceSurchargeRepository ServiceSurchargeRepository => _serviceSurchargeRepository;
 
         public IContractGardenerRepository ContractGardenerRepository => _contractGardenerRepository;
-
-        public IBonsaiExpectedPriceRepository CategoryExpectedPriceRepository => _categoryExpectedPriceRepository;
 
         public IContractTransactionRepository ContractTransactionRepository => _contractTransactionRepository;
 

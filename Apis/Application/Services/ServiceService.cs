@@ -48,16 +48,16 @@ namespace Application.Services
                 errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
                 return errors;
             }
-            if (model.ServiceType == Domain.Enums.ServiceType.GardenCare) {
+           /* if (model.ServiceType == Domain.Enums.ServiceType.GardenCare) {
                 if (model.ServiceBaseTaskId == null || model.ServiceBaseTaskId.Count == 0)
                 {
                     throw new Exception("Vui lòng điền danh sách công việc đi kèm dịch vụ.");
                 }
-            }
+            }*/
             
             return null;
         }
-        public async Task<IList<string>> AddService(ServiceModel model)
+       /* public async Task<IList<string>> AddService(ServiceModel model)
         {
             var errs = await ValidateServiceModel(model);
             if (errs != null)
@@ -68,7 +68,7 @@ namespace Application.Services
             {
                 throw new Exception("Không để trống hình ảnh");
             }
-            if(model.ServiceType == Domain.Enums.ServiceType.GardenCare && model.StandardPrice == 0)
+            *//*if(model.ServiceType == Domain.Enums.ServiceType.GardenCare && model.StandardPrice == 0)
             {
                 throw new Exception("Dịch vụ chăm sóc vườn không được để trống giá tiêu chuẩn");
             }
@@ -98,8 +98,8 @@ namespace Application.Services
                 }
 
             }
-
-        }
+*//*
+        }*/
         public async Task<IList<string>> AddImage(IFormFile Image, Guid? id)
         {
             var serviceId = Guid.NewGuid();

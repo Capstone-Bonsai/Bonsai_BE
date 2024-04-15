@@ -23,7 +23,7 @@ namespace Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-        public async Task<TaskViewModel> GetTasksOfContract(Guid contractId)
+     /*   public async Task<TaskViewModel> GetTasksOfContract(Guid contractId)
         {
             List<TaskOfContract> tasks = new List<TaskOfContract>();
             var contract = await _unitOfWork.ContractRepository
@@ -119,10 +119,10 @@ namespace Application.Services
                     throw new Exception("Không tìm thấy dịch vụ");
                 }
             }
-        }
+        }*/
         public async Task UpdateProgress(TaskModel taskModel)
         {
-            var contract = await _unitOfWork.ContractRepository
+           /* var contract = await _unitOfWork.ContractRepository
                   .GetAllQueryable()
                   .AsNoTracking()
                   .Include(x => x.ServiceGarden)
@@ -200,11 +200,11 @@ namespace Application.Services
                     _unitOfWork.ContractRepository.Update(contract);
                     await _unitOfWork.SaveChangeAsync();
                 }
-            }
+            }*/
         }
         public async Task ClearProgress(Guid contractId)
         {
-            var contract = await _unitOfWork.ContractRepository
+           /* var contract = await _unitOfWork.ContractRepository
                   .GetAllQueryable()
                   .AsNoTracking()
                   .Include(x => x.ServiceGarden)
@@ -232,12 +232,12 @@ namespace Application.Services
                 }
                 _unitOfWork.GardenCareTaskRepository.UpdateRange(tasks.Items);
                 await _unitOfWork.SaveChangeAsync();
-            }
+            }*/
         }
 
         public async Task UpdateNote(UpdateNoteModel updateNoteModel)
         {
-            var contract = await _unitOfWork.ContractRepository
+            /*var contract = await _unitOfWork.ContractRepository
                   .GetAllQueryable()
                   .AsNoTracking()
                   .Include(x => x.ServiceGarden)
@@ -273,7 +273,7 @@ namespace Application.Services
                     _unitOfWork.GardenCareTaskRepository.Update(task.Items[0]);
                 }
                 await _unitOfWork.SaveChangeAsync();
-            }
+            }*/
         }
     }
 }

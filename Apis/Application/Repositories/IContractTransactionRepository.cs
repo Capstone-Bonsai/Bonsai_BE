@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Repositories
 {
-    public interface IContractTransactionRepository:IGenericRepository<ContractTransaction>
+    public interface IContractTransactionRepository:IGenericRepository<ServiceOrderTransaction>
     {
     }
 }

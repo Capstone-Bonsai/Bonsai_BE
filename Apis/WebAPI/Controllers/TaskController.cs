@@ -10,7 +10,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class TaskController : ControllerBase
     {
-        private readonly ITaskService _taskService;
+       /* private readonly ITaskService _taskService;
         private readonly IClaimsService _claims;
 
         public TaskController(ITaskService taskService,
@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var taskViewModel = await _taskService.GetTasksOfContract(contractId);
+                *//*var taskViewModel = await _taskService.GetTasksOfContract(contractId);
                 if (taskViewModel == null)
                 {
                     return BadRequest("Không tìm thấy");
@@ -33,7 +33,8 @@ namespace WebAPI.Controllers
                 else
                 {
                     return Ok(taskViewModel);
-                }
+                }*//*
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -81,6 +82,6 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
     }
 }

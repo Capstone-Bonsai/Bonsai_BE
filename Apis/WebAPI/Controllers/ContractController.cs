@@ -14,7 +14,7 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ContractController : ControllerBase
     {
-        private readonly IContractService _contractService;
+        /*private readonly IContractService _contractService;
         private readonly IClaimsService _claims;
 
         public ContractController(IContractService contractService,
@@ -29,15 +29,16 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var contracts = await _contractService.GetContracts(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId);
-                if (contracts.Items.Count == 0)
-                {
-                    return BadRequest("Không tìm thấy");
-                }
-                else
-                {
-                    return Ok(contracts);
-                }
+                *//* var contracts = await _contractService.GetContracts(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId);
+                 if (contracts.Items.Count == 0)
+                 {
+                     return BadRequest("Không tìm thấy");
+                 }
+                 else
+                 {
+                     return Ok(contracts);
+                 }*//*
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -177,6 +178,6 @@ namespace WebAPI.Controllers
             {
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
     }
 }

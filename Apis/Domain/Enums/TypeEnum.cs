@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum ServiceStatus
+    public enum TypeEnum
     {
-        Waiting = 1, Applied = 2, Paid = 3, OnProcessing = 4, Failed = 6, Canceled = 7, Completed = 8
+        Bonsai = 1, Garden = 2
     }
 }

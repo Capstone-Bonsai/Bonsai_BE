@@ -11,13 +11,13 @@ namespace Domain.Entities
 {
     public class Complaint:BaseEntity
     {
-        [ForeignKey("Contract")]
-        public Guid ContractId { get; set; }
+        [ForeignKey("ServiceOrder")]
+        public Guid ServiceOrderId { get; set; }
         public string Detail { get; set; }
         public ComplaintStatus ComplaintStatus { get; set; } = ComplaintStatus.Request;
         public string? CancelReason { get; set; }
         [JsonIgnore]
-        public virtual Contract Contract { get; set; }
+        public virtual ServiceOrder ServiceOrder { get; set; }
         public IList<ComplaintImage> ComplaintImages { get; set; }
 
     }

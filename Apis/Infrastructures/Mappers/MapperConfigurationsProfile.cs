@@ -29,13 +29,12 @@ namespace Infrastructures.Mappers
             CreateMap<BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
-            CreateMap<ServiceGardenModel, ServiceGarden>();
             CreateMap<CustomerGardenModel, CustomerGarden>();
             CreateMap<CustomerBonsaiModel, CustomerBonsai>().ReverseMap();
             CreateMap<BonsaiModelForCustomer, Bonsai>();
             
-            CreateMap<ServiceSurchargeModel, ServiceSurcharge>();
-            CreateMap<Contract, ContractViewModel>().ReverseMap();
+
+            CreateMap<ServiceOrder, ContractViewModel>().ReverseMap();
             CreateMap<OrderModel, Order>().ReverseMap();
             CreateMap<OrderViewModel, Order>();
             CreateMap<Order, OrderViewModel>().ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails));
@@ -45,7 +44,7 @@ namespace Infrastructures.Mappers
             CreateMap<ServiceViewModel, Service>();
             CreateMap<Service, ServiceViewModel>().ForMember(dest => dest.ServiceBaseTasks, opt => opt.MapFrom(src => src.ServiceBaseTasks));
             CreateMap<ServiceModel, Service>().ReverseMap();
-            CreateMap<Contract, OverallContractViewModel>();
+            CreateMap<ServiceOrder, OverallContractViewModel>();
         }
     }
 }

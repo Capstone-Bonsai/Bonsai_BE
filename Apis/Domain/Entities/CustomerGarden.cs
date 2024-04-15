@@ -20,6 +20,6 @@ namespace Domain.Entities
         public IList<CustomerBonsai > CustomerBonsais { get; set; }
         public IList<CustomerGardenImage> CustomerGardenImages { get; set; }
         [JsonIgnore]
-        public IList<ServiceGarden> ServiceGarden { get; set; }
+        public IList<ServiceOrder> ServiceOrder { get; set; }
     }
 }

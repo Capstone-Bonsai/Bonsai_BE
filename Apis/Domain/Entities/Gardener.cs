@@ -9,6 +9,6 @@ namespace Domain.Entities
         public string UserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
         [JsonIgnore]
-        public IList<ContractGardener> ContractGardeners { get; set;}
+        public IList<ServiceOrderGardener> ContractGardeners { get; set;}
     }
 }

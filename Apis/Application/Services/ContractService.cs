@@ -50,7 +50,7 @@ namespace Application.Services
             _userManager = userManager;
         }
         public async Task CreateContract(ContractModel contractModel)
-        {
+        {/*
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -143,9 +143,9 @@ namespace Application.Services
             {
                 _unitOfWork.RollbackTransaction();
                 throw;
-            }
+            }*/
         }
-        public async Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id)
+        /*public async Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id)
         {
             List<Expression<Func<Contract, object>>> includes = new List<Expression<Func<Contract, object>>>{
                                  x => x.ContractGardeners,
@@ -161,7 +161,7 @@ namespace Application.Services
                 var contracts = await _unitOfWork.ContractRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ContractStatus), includes: includes);
                 return contracts;
             }
-        }
+        }*/
 
         public async Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id)
         {
@@ -181,13 +181,13 @@ namespace Application.Services
             {
                 return new List<ContractViewModel>();
             }
-            foreach (Contract contract in contracts)
+            foreach (ServiceOrder contract in contracts)
             {
-                if (contract.ContractStatus == ContractStatus.Processing || contract.ContractStatus == ContractStatus.ProcessingComplaint || 
-                    contract.ContractStatus == ContractStatus.TaskFinished || contract.ContractStatus == ContractStatus.DoneTaskComplaint ||
-                     contract.ContractStatus == ContractStatus.Completed)
+                if (contract.ContractStatus == ServiceOrderStatus.Processing || contract.ContractStatus == ServiceOrderStatus.ProcessingComplaint || 
+                    contract.ContractStatus == ServiceOrderStatus.TaskFinished || contract.ContractStatus == ServiceOrderStatus.DoneTaskComplaint ||
+                     contract.ContractStatus == ServiceOrderStatus.Completed)
                 {
-                    if(contract.ContractStatus == ContractStatus.ProcessingComplaint)
+                    if(contract.ContractStatus == ServiceOrderStatus.ProcessingComplaint)
                     {
                         contract.EndDate.AddDays(5);
                     }
@@ -213,13 +213,13 @@ namespace Application.Services
             {
                 return new List<ContractViewModel>();
             }
-            foreach (Contract contract in contracts)
+            foreach (ServiceOrder contract in contracts)
             {
                 contractViewModels.Add(_mapper.Map<ContractViewModel>(contract));
             }
             return contractViewModels;
         }
-        public async Task<ContractViewModel> GetContractByIdForGardener(Guid id)
+       /* public async Task<ContractViewModel> GetContractByIdForGardener(Guid id)
         {
             var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x => x.ServiceGarden.CustomerGarden.Customer).FirstOrDefaultAsync(x => x.Id == id);
             if (contract == null)
@@ -237,8 +237,8 @@ namespace Application.Services
                 contractViewModel.Image = images;
             }
             return contractViewModel;
-        }
-        public async Task<string> PaymentContract(Guid contractId, string userId)
+        }*/
+        /*public async Task<string> PaymentContract(Guid contractId, string userId)
         {
             //check co phai user ko
             var contract = await _unitOfWork.ContractRepository.GetAllQueryable().Include(x => x.ServiceGarden.CustomerGarden).ThenInclude(x => x.Customer.ApplicationUser).FirstOrDefaultAsync(x => x.Id == contractId);
@@ -247,8 +247,8 @@ namespace Application.Services
             if (!contract.ServiceGarden.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))
                 throw new Exception("Bạn không có quyền truy cập vào hợp đồng này");
             // check status
-            /* if(contract.ContractStatus != Domain.Enums.ContractStatus.Waiting)
-                 throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");*/
+            *//* if(contract.ContractStatus != Domain.Enums.ContractStatus.Waiting)
+                 throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");*//*
 
             // 
 
@@ -313,7 +313,7 @@ namespace Application.Services
             }
 
         }
-
+*/
         public async Task HandleIpnAsync(MomoRedirect momo)
         {
             string accessKey = _configuration["MomoServices:accessKey"];
@@ -341,7 +341,7 @@ namespace Application.Services
             string secretKey = _configuration["MomoServices:secretKey"];
             string temp = crypto.signSHA256(rawHash, secretKey);
             TransactionStatus transactionStatus = TransactionStatus.Failed;
-            ContractStatus contractStatus = ContractStatus.Waiting;
+            ServiceOrderStatus contractStatus = ServiceOrderStatus.Waiting;
             //check chữ ký
             if (temp != momo.signature)
                 throw new Exception("Sai chữ ký");
@@ -352,13 +352,13 @@ namespace Application.Services
                 if (momo.resultCode == 0)
                 {
                     transactionStatus = TransactionStatus.Success;
-                    contractStatus = ContractStatus.Paid;
+                    contractStatus = ServiceOrderStatus.Paid;
                 }
                 var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
                 if (contract == null)
                     throw new Exception("Không tìm thấy hợp đồng.");
-                var contractTransaction = new ContractTransaction();
-                contractTransaction.ContractId = contractId;
+                var contractTransaction = new ServiceOrderTransaction();
+                contractTransaction.ServiceOrderId = contractId;
                 contractTransaction.Amount = momo.amount;
                 contractTransaction.IpnURL = IpnUrl;
                 contractTransaction.Information = momo.orderInfo;
@@ -390,7 +390,7 @@ namespace Application.Services
                 throw new Exception($"tạo Transaction lỗi: {exx.Message}");
             }
         }
-        public async Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId)
+       /* public async Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId)
         {
             List<Expression<Func<Contract, object>>> includes = new List<Expression<Func<Contract, object>>>{
                                  x => x.ContractImages,
@@ -422,8 +422,8 @@ namespace Application.Services
                 complaint.ComplaintImages = await GetIMageAsync(complaint.Id);
             }
             return overallContractViewModel;
-        }
-        private async Task<List<TaskOfContract>> GetTasksAsync(Guid contractId, bool isBonsaiCare)
+        }*/
+       /* private async Task<List<TaskOfContract>> GetTasksAsync(Guid contractId, bool isBonsaiCare)
         {
             List<TaskOfContract> tasks = new List<TaskOfContract>();
             var contract = await _unitOfWork.ContractRepository
@@ -498,7 +498,7 @@ namespace Application.Services
                 }
             }
             return tasks;
-        }
+        }*/
         private async Task<List<UserViewModel>> GetGardenerOfContract(Guid contractId)
         {
             var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
@@ -506,7 +506,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
             }
-            var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(y => y.ContractId == contractId)).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
+            var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(y => y.ServiceOrderId == contractId)).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
             var gardenerList = _mapper.Map<List<UserViewModel>>(listUser);
 
             foreach (var item in gardenerList)
@@ -555,7 +555,7 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                var images = await _unitOfWork.ContractImageRepository.GetAsync(isTakeAll: true, expression: x => x.ContractId == contractId && !x.IsDeleted, isDisableTracking: true);
+                var images = await _unitOfWork.ContractImageRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == contractId && !x.IsDeleted, isDisableTracking: true);
                 _unitOfWork.ContractImageRepository.SoftRemoveRange(images.Items);
                 foreach (var singleImage in contractImageModel.Image.Select((image, index) => (image, index)))
                 {
@@ -572,9 +572,9 @@ namespace Application.Services
                     if (url == null)
                         throw new Exception("Lỗi khi đăng ảnh lên firebase!");
 
-                    ContractImage contractImage = new ContractImage()
+                    Contract contractImage = new Contract()
                     {
-                        ContractId = contractId,
+                        ServiceOrderId = contractId,
                         Image = url
                     };
 
@@ -587,9 +587,9 @@ namespace Application.Services
                 throw;
             }
         }
-        public async Task UpdateContractStatus(Guid contractId, ContractStatus contractStatus)
+        public async Task UpdateContractStatus(Guid contractId, ServiceOrderStatus contractStatus)
         {
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+           /* var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
@@ -606,7 +606,7 @@ namespace Application.Services
                 serviceGarden.ServiceGardenStatus = ServiceGardenStatus.Finished;
                 _unitOfWork.ServiceGardenRepository.Update(serviceGarden);
             }
-            await _unitOfWork.SaveChangeAsync();
+            await _unitOfWork.SaveChangeAsync();*/
         }
     }
 }

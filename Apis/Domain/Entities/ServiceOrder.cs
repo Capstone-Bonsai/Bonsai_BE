@@ -1,7 +1,4 @@
-﻿using Application.ViewModels.TaskViewModels;
-using Application.ViewModels.UserViewModels;
-using Domain.Entities;
-using Domain.Enums;
+﻿using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,12 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.ViewModels.ContractViewModels
+namespace Domain.Entities
 {
-     public class OverallContractViewModel
+    public class ServiceOrder : BaseEntity
     {
-        public Guid Id { get; set; }
-        public Guid ServiceGardenId { get; set; }
+        [ForeignKey("CustomerGarden")]
+        public Guid CustomerGardenId { get; set; }
         public Guid? CustomerBonsaiId { get; set; }
         public string CustomerName { get; set; }
         public string CustomerPhoneNumber { get; set; }
@@ -23,22 +20,16 @@ namespace Application.ViewModels.ContractViewModels
         public DateTime EndDate { get; set; }
         public float GardenSquare { get; set; }
         public string Address { get; set; }
-        public double StandardPrice { get; set; }
-        public double SurchargePrice { get; set; }
-        public double ServicePrice { get; set; }
         public double TotalPrice { get; set; }
-        public ServiceOrderStatus ContractStatus { get; set; }
+        public ServiceOrderStatus ContractStatus { get; set; } = ServiceOrderStatus.Waiting;
         public ServiceType ServiceType { get; set; }
         public int NumberOfGardener { get; set; }
+        public virtual CustomerGarden CustomerGarden { get; set; }
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }
-        public IList<Contract> Contracts { get; set; }
+        public IList<Contract> Contract { get; set; }
         public IList<GardenCareTask> GardenCareTasks { get; set; }
         public IList<ServiceOrderGardener> ContractGardeners { get; set; }
         public IList<ServiceOrderTransaction> ContractTransactions { get; set; }
         public IList<Complaint> Complaints { get; set; }
-        [NotMapped]
-        public List<TaskOfContract> TaskOfContracts { get; set; } = default!;
-        [NotMapped]
-        public List<UserViewModel> GardenersOfContract { get; set; } = default!;
     }
 }

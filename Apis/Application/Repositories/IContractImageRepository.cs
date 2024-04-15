@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Repositories
 {
-    public interface IContractImageRepository : IGenericRepository<ContractImage>
+    public interface IContractImageRepository : IGenericRepository<Contract>
     {
     }
 }

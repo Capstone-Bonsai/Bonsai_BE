@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class ContractGardener:BaseEntity
+    public class ServiceOrderGardener:BaseEntity
     {
-        [ForeignKey("Contract")]
-        public Guid ContractId { get; set; }
+        [ForeignKey("ServiceOrder")]
+        public Guid ServiceOrderId { get; set; }
         [ForeignKey("Gardener")]
         public Guid GardenerId { get; set; }
         public bool HasRequest { get; set; }
         public string? Note { get; set; }
         [JsonIgnore]
-        public virtual Contract Contract { get; set; }
+        public virtual ServiceOrder ServiceOrder { get; set; }
         public virtual Gardener Gardener { get; set; }  
     }
 }

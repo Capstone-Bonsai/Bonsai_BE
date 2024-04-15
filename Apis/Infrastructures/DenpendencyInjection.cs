@@ -31,13 +31,10 @@ namespace Infrastructures
             services.AddScoped<IBaseTaskService, BaseTaskService>();
             services.AddScoped<IServiceBaseTaskService, ServiceBaseTaskService>();
             services.AddScoped<IServiceService, ServiceService>();
-            services.AddScoped<IServiceGardenService, ServiceGardenService>();
             services.AddScoped<IContractService, ContractService>();
-            services.AddScoped<IServiceSurchargeService, ServiceSurchargeService>();
             services.AddScoped<ITaskService, TaskService>();
             services.AddScoped<IContractGardenerService, ContractGardenerService>();
             services.AddScoped<ICustomerBonsaiService, CustomerBonsaiService>();
-            services.AddScoped<IBonsaiExpectedPriceService, BonsaiExpectedPriceService>();
             services.AddScoped<IComplaintService, ComplaintService>();
 
 
@@ -59,13 +56,10 @@ namespace Infrastructures
             services.AddScoped<IServiceRepository, ServiceRepository>();
             services.AddScoped<IBaseTaskRepository, BaseTaskRepository>();
             services.AddScoped<IServiceBaseTaskRepository, ServiceBaseTaskRepository>();
-            services.AddScoped<IServiceGardenRepository, ServiceGardenRepository>();
             services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IBonsaiCareStepRepository, BonsaiCareStepRepository>();
             services.AddScoped<IGardenCareTaskRepository, GardenCareTaskRepository>();
-            services.AddScoped<IServiceSurchargeRepository, ServiceSurchargeRepository>();
             services.AddScoped<IContractGardenerRepository, ContractGardenerRepository>();
-            services.AddScoped<IBonsaiExpectedPriceRepository, BonsaiExpectedPriceRepository>();
             services.AddScoped<IContractTransactionRepository, ContractTransactionRepository>();
             services.AddScoped<IComplaintRepository, ComplaintRepository>();
             services.AddScoped<IComplaintImageRepository, ComplaintImageRepository>();

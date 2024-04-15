@@ -1,4 +1,4 @@
-﻿using Application.Commons;
+﻿/*using Application.Commons;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Utils;
@@ -20,16 +20,14 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly IServiceSurchargeService _serviceSurchargeService;
         private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICustomerBonsaiService _customerBonsaiService;
         private readonly IdUtil _idUtil;
-        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IServiceSurchargeService serviceSurchargeService, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, ICustomerBonsaiService customerBonsaiService, IdUtil idUtil)
+        public ServiceGardenService(IUnitOfWork unitOfWork, IMapper mapper, IDeliveryFeeService deliveryFeeService, UserManager<ApplicationUser> userManager, ICustomerBonsaiService customerBonsaiService, IdUtil idUtil)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _serviceSurchargeService = serviceSurchargeService;
             _deliveryFeeService = deliveryFeeService;
             _userManager = userManager;
             _customerBonsaiService = customerBonsaiService;
@@ -213,3 +211,4 @@ namespace Application.Services
         }
     }
 }
+*/

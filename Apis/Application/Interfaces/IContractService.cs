@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Application.Interfaces
 {
     public interface IContractService
-    {
+    {/*
         Task CreateContract(ContractModel contractModel);
         Task<Pagination<Contract>> GetContracts(int pageIndex, int pageSize, bool isCustomer, Guid id);
         Task<List<ContractViewModel>> GetWorkingCalendar(int month, int year, Guid id);
@@ -22,6 +22,6 @@ namespace Application.Interfaces
         Task<List<ContractViewModel>> GetTodayProject(Guid id);
         Task<OverallContractViewModel> GetContractById(Guid id, bool isCustomer, Guid userId);
         Task AddContractImage(Guid contractId, ContractImageModel contractImageModel);
-        Task UpdateContractStatus(Guid contractId, ContractStatus contractStatus);
+        Task UpdateContractStatus(Guid contractId, ContractStatus contractStatus);*/
     }
 }

@@ -32,7 +32,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
             }
-            var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(y => y.ContractId == contractId)).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
+            var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(y => y.ServiceOrderId == contractId)).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
             var itemCount = listUser.Count();
             var items = listUser.Skip(pageIndex * pageSize)
                                     .Take(pageSize)
@@ -68,7 +68,7 @@ namespace Application.Services
         }
         public async Task ChangeContractGardener(Guid contractId, ChangeGardenerViewModel changeGardenerViewModel)
         {
-            var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == changeGardenerViewModel.OldGardenerIds && x.ContractId == contractId && !x.IsDeleted);
+            var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == changeGardenerViewModel.OldGardenerIds && x.ServiceOrderId == contractId && !x.IsDeleted);
             if (contractGardener == null)
             {
                 throw new Exception("Người làm vườn chưa làm cho dịch vụ này");
@@ -93,7 +93,7 @@ namespace Application.Services
             {
                 throw new Exception("Phải thêm đúng " + contract.NumberOfGardener + " người");
             }
-            List<ContractGardener> contractGardeners = new List<ContractGardener>();
+            List<ServiceOrderGardener> contractGardeners = new List<ServiceOrderGardener>();
             foreach (Guid id in contractGardenerModel.GardenerIds)
             {
                 var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(id);
@@ -101,12 +101,12 @@ namespace Application.Services
                 {
                     throw new Exception("Không tìm thấy người được thêm vào");
                 }
-                var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ContractId == contract.Id && !x.IsDeleted);
+                var contractGardener = await _unitOfWork.ContractGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ServiceOrderId == contract.Id && !x.IsDeleted);
                 if (contractGardener.Items.Count == 0)
                 {
-                    contractGardeners.Add(new ContractGardener()
+                    contractGardeners.Add(new ServiceOrderGardener()
                     {
-                        ContractId = contract.Id,
+                        ServiceOrderId = contract.Id,
                         GardenerId = id,
                         HasRequest = false,
                     });
@@ -117,7 +117,7 @@ namespace Application.Services
                 }
             }
             await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
-            contract.ContractStatus = Domain.Enums.ContractStatus.Processing;
+            contract.ContractStatus = Domain.Enums.ServiceOrderStatus.Processing;
             _unitOfWork.ContractRepository.Update(contract);
             await _unitOfWork.SaveChangeAsync();
         }
