@@ -294,7 +294,6 @@ namespace Application.Services
         {
             service.Name = model.Name;
             service.Description = model.Description;
-            service.StandardPrice = model.StandardPrice;
             if (Image != null)
                 service.Image = Image;
             _unit.ServiceRepository.Update(service);

@@ -123,9 +123,9 @@ namespace Application.Services
                 if (i == 0)
                 {
                     listItem.Items.Add("Khoảng cách (km)");
-                    listItem.Items.Add("Kích thước nhỏ");
-                    listItem.Items.Add("Kích thước vừa");
-                    listItem.Items.Add("Kích thước lớn");
+                    listItem.Items.Add("Kích thước bonsai nhỏ");
+                    listItem.Items.Add("Kích thước bonsai vừa");
+                    listItem.Items.Add("Kích thước bonsai lớn");
                     table.Rows.Add(listItem);
                 }
                 else if (i == maxRow - 1)
@@ -198,7 +198,7 @@ namespace Application.Services
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
         }
 
-        public async Task<FeeViewModel> CalculateFee(string destination, double price)
+        public async Task<FeeViewModel> CalculateFee(string destination, /*IList<Guid> listBonsaiId*/ double price)
         {
             string origin = _configuration["Origin:GeoLocation"];
             double finalPrice = 0;
@@ -228,20 +228,22 @@ namespace Application.Services
             {
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
             }
+
             try
             {
-                DeliverySize deliveryType;
+                
+                DeliverySize deliverysize;
                 var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => !x.IsDeleted).ToListAsync();
                 if (feewithPrice == null)
-                    deliveryType = DeliverySize.Large;
+                    deliverysize = DeliverySize.Large;
                 else
-                    deliveryType = feewithPrice.FirstOrDefault().DeliverySize;
+                    deliverysize = feewithPrice.FirstOrDefault().DeliverySize;
 
-                var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliverySize == deliveryType).OrderBy(x => x.MaxDistance).ToListAsync();
+                var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliverySize == deliverysize).OrderBy(x => x.MaxDistance).ToListAsync();
                 DeliveryFee fee = new DeliveryFee();
                 if (feeWithDistance == null || feeWithDistance.Count == 0)
                 {
-                    fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null && !x.IsDeleted && x.DeliverySize == deliveryType).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
+                    fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null && !x.IsDeleted && x.DeliverySize == deliverysize).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
                 }
                 else
                 {
@@ -268,11 +270,14 @@ namespace Application.Services
         }
 
 
-        public async Task<double> CalculateDelivery()
+        /*public async Task<double> CalculateFeeOfBonsai(Guid bonsaiId)
         {
-            return 0;
+            var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id == bonsaiId);
+            if (bonsai == null) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");
+            var listFee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=>x.DeliverySize == bonsai.DeliverySize).ToListAsync();
+            
         }
-
+*/
 
         public async Task<DistanceResponse> GetDistanse(string destination)
         {
