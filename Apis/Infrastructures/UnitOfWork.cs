@@ -36,6 +36,7 @@ namespace Infrastructures
         private readonly IComplaintImageRepository _complaintImageRepository;
         private readonly IContractImageRepository _contractImageRepository;
         private readonly IDeliveryImageRepository _deliveryImageRepository;
+        private readonly IServiceTypeRepository _serviceTypeRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -46,8 +47,9 @@ namespace Infrastructures
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
            IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository, IContractGardenerRepository contractGardenerRepository,
-             IContractTransactionRepository contractTransactionRepository,
-            IComplaintRepository complaintRepository, IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository, IDeliveryImageRepository deliveryImageRepository
+             IContractTransactionRepository contractTransactionRepository, IComplaintRepository complaintRepository, 
+             IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository, IDeliveryImageRepository deliveryImageRepository,
+             IServiceTypeRepository serviceTypeRepository
          )
         {
             _dbContext = dbContext;
@@ -78,6 +80,7 @@ namespace Infrastructures
             _complaintImageRepository = complaintImageRepository;
             _contractImageRepository = contractImageRepository;
             _deliveryImageRepository = deliveryImageRepository;
+            _serviceTypeRepository = serviceTypeRepository;
         }
 
 
@@ -117,13 +120,11 @@ namespace Infrastructures
 
         public IServiceBaseTaskRepository ServiceBaseTaskRepository => _serviceBaseTaskRepository;
 
-
         public IContractRepository ContractRepository => _contractRepository;
 
         public IGardenCareTaskRepository GardenCareTaskRepository => _gardenCareTaskRepository;
 
         public IBonsaiCareStepRepository BonsaiCareStepRepository => _bonsaiCareStepRepository;
-
 
         public IContractGardenerRepository ContractGardenerRepository => _contractGardenerRepository;
 
@@ -136,6 +137,8 @@ namespace Infrastructures
         public IDeliveryImageRepository DeliveryImageRepository => _deliveryImageRepository;
 
         public IComplaintRepository ComplaintRepository => _complaintRepository;
+
+        public IServiceTypeRepository ServiceTypeRepository => _serviceTypeRepository;
 
         public async Task<int> SaveChangeAsync()
         {

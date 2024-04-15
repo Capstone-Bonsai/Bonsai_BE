@@ -31,6 +31,7 @@ namespace Application
         public IComplaintRepository ComplaintRepository { get; }
         public IContractImageRepository ContractImageRepository { get; }
         public IDeliveryImageRepository DeliveryImageRepository { get; }
+        public IServiceTypeRepository ServiceTypeRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();
