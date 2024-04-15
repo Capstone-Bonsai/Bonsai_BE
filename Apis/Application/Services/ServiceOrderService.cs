@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ContractService : IContractService
+    public class ServiceOrderService : IContractService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -38,7 +38,7 @@ namespace Application.Services
         private readonly IdUtil _idUtil;
         private readonly FirebaseService _fireBaseService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public ContractService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper,
+        public ServiceOrderService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper,
             IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
         {
             _unitOfWork = unitOfWork;
@@ -49,7 +49,7 @@ namespace Application.Services
             _fireBaseService = fireBaseService;
             _userManager = userManager;
         }
-        public async Task CreateContract(ContractModel contractModel)
+        public async Task CreateServiceOrder(ContractModel contractModel)
         {/*
             try
             {

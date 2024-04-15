@@ -2,7 +2,7 @@
 
 namespace Application.Repositories
 {
-    public interface IContractRepository: IGenericRepository<ServiceOrder>
+    public interface IServiceOrderRepository: IGenericRepository<ServiceOrder>
     {
     }
 }

@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Infrastructures.Repositories
 {
-    public class ContractRepository : GenericRepository<ServiceOrder>, IContractRepository
+    public class ServiceOrderRepository : GenericRepository<ServiceOrder>, IServiceOrderRepository
     {
-        public ContractRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
+        public ServiceOrderRepository(AppDbContext context, ICurrentTime timeService, IClaimsService claimsService) : base(context, timeService, claimsService)
         {
         }
     }
