@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Domain.Enums
 {
-    public enum DeliveryType
+    public enum DeliverySize
     {
-        PickupTruck = 1, SmallTruck= 2,LargeTruck = 3
+        Small = 1, Medium = 2, Large = 3
     }
 }

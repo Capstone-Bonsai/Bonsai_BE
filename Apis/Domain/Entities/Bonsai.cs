@@ -33,7 +33,7 @@ namespace Domain.Entities
         public double Price { get; set; }
         public bool isDisable { get; set; }
         public bool? isSold { get; set; }
-        public DeliveryType? DeliveryType { get; set; }
+        public DeliverySize? DeliverySize { get; set; }
         public virtual Category Category { get; set; }
         public virtual Style Style { get; set; }
         [JsonIgnore]

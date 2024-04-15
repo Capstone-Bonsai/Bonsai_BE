@@ -45,7 +45,7 @@ namespace Application.Services
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;//sử dụng để đặt ngữ cảnh giấy phép sử dụng của gói ExcelPackage thành phi thương mại
             try
             {
-                using (var stream = new MemoryStream())
+                /*using (var stream = new MemoryStream())
                 {
                     await file.CopyToAsync(stream);
                     using (var package = new ExcelPackage(stream))
@@ -55,20 +55,20 @@ namespace Application.Services
                         //Điếm số hàng có giá trị
                         int rowCount = worksheet.Dimension.Rows;
                         var listPrice = new List<DeliveryFee>();
-                        for (int row = 3; row <= rowCount; row++) // Bắt đầu từ hàng thứ 3 để bỏ qua tiêu đề
+                        for (int row = 2; row <= rowCount; row++) // Bắt đầu từ hàng thứ 2 để bỏ qua tiêu đề
                         {
-                            int maxDistance = 0;
+                            double maxDistance = 0;
                             try
                             {
-                                maxDistance = int.Parse(worksheet.Cells[row, 1].Value.ToString());
+                                maxDistance = (double)(worksheet.Cells[row, 1].Value);
                                 for (int i = 1; i <= 3; i++)
                                 {
                                     double maxPrice = 0;
                                     try
                                     {
-                                        maxPrice = (double)worksheet.Cells[2, i + 1].Value;
+                                        maxPrice = (double)worksheet.Cells[row, i + 1].Value;
                                         var price = (double)worksheet.Cells[row, i + 1].Value;
-                                        var type = (DeliveryType)i;
+                                        var type = (DeliveryType);
                                         DeliveryFee fee = new DeliveryFee() { DeliveryType = type, MaxDistance = maxDistance, Fee = price };
                                         listPrice.Add(fee);
                                     }
@@ -107,7 +107,7 @@ namespace Application.Services
                         await _unit.DeliveryFeeRepository.AddRangeAsync(listPrice);
                         await _unit.SaveChangeAsync();
                     }
-                }
+                }*/
             }
             catch (InvalidDataException ex)
             {
@@ -268,23 +268,25 @@ namespace Application.Services
             }
             try
             {
-                DeliveryType deliveryType;
+                DeliverySize deliveryType;
                 var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=> !x.IsDeleted).ToListAsync();
                 if (feewithPrice == null )
-                    deliveryType = DeliveryType.LargeTruck;
+                    deliveryType = DeliverySize.Large;
                 else
-                    deliveryType = feewithPrice.FirstOrDefault().DeliveryType;
+                    deliveryType = feewithPrice.FirstOrDefault().DeliverySize;
 
-                var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliveryType == deliveryType).OrderBy(x => x.MaxDistance).ToListAsync();
+                var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliverySize == deliveryType).OrderBy(x => x.MaxDistance).ToListAsync();
                 DeliveryFee fee = new DeliveryFee();
                 if (feeWithDistance == null || feeWithDistance.Count == 0)
                 {
-                    fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null && !x.IsDeleted && x.DeliveryType == deliveryType).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
+                    fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null && !x.IsDeleted && x.DeliverySize == deliveryType).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
                 }
                 else
                 {
                     fee = feeWithDistance.FirstOrDefault();
                 }
+
+
                 finalFee.DurationHour = duration / 3600;
                 finalFee.DurationMinute = (duration / 60) % 60;
                 finalFee.ExpectedDeliveryDate = DateTime.Now.AddHours(finalFee.DurationHour).AddMinutes(finalFee.DurationMinute);
@@ -292,7 +294,7 @@ namespace Application.Services
 
                 finalPrice = fee.Fee * distance;
                 finalFee.deliveryFee = fee;
-                finalFee.DeliveryType = fee.DeliveryType.ToString();
+                finalFee.DeliveryType = fee.DeliverySize.ToString();
                 finalFee.Price = finalPrice;
                 finalFee.Distance = distance;
                 return finalFee;
@@ -301,6 +303,12 @@ namespace Application.Services
             {
                 throw new Exception("Chưa cập nhật bảng giá vận chuyển");
             }
+        }
+
+
+        public async Task<double> CalculateDelivery()
+        {
+            return 0;
         }
 
 

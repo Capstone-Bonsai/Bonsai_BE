@@ -9,9 +9,8 @@ namespace Domain.Entities
 {
     public class DeliveryFee:BaseEntity
     {
-        public int? MaxDistance { get; set; }
+        public double? MaxDistance { get; set; }
         public double Fee { get; set; }
-        public DeliveryType DeliveryType { get; set; }
-
+        public DeliverySize DeliverySize { get; set; }
     }
 }

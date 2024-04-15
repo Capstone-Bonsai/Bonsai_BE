@@ -429,7 +429,7 @@ namespace Application.Services
             try
             {
                 var order = _mapper.Map<Order>(model);
-                order.DeliveryType = Domain.Enums.DeliveryType.PickupTruck;
+                order.DeliverySize = Domain.Enums.DeliverySize.Small;
                 order.OrderDate = DateTime.Now;
                 order.CustomerId = customerId;
                 order.Price = 0;
@@ -498,7 +498,7 @@ namespace Application.Services
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
                 deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
-                order.DeliveryType = deliveryPrice.deliveryFee.DeliveryType;
+                order.DeliverySize = deliveryPrice.deliveryFee.DeliverySize;
                 order.DeliveryPrice = deliveryPrice.Price;
                 order.ExpectedDeliveryDate = deliveryPrice.ExpectedDeliveryDate;
                 order.Price = total;
