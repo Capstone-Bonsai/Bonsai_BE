@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Application.ViewModels.BonsaiViewModel
@@ -14,6 +15,7 @@ namespace Application.ViewModels.BonsaiViewModel
         public float? Height { get; set; }
         public int NumberOfTrunk { get; set; }
         public double Price { get; set; }
+        public DeliveryType DeliveryType { get; set; }
         [NotMapped]
         public List<String>? OldImage { get; set; } = default!;
         [NotMapped]
