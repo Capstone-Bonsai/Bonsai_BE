@@ -27,7 +27,7 @@ namespace Infrastructures
         private readonly IServiceRepository _serviceRepository;
         private readonly IBaseTaskRepository _baseTaskRepository;
         private readonly IServiceBaseTaskRepository _serviceBaseTaskRepository;
-        private readonly IContractRepository _contractRepository;
+        private readonly IServiceOrderRepository _serviceOrderRepository;
         private readonly IGardenCareTaskRepository _gardenCareTaskRepository;
         private readonly IBonsaiCareStepRepository _bonsaiCareStepRepository;
         private readonly IContractGardenerRepository _contractGardenerRepository;
@@ -45,7 +45,7 @@ namespace Infrastructures
             IDeliveryFeeRepository deliveryFeeRepository, IStyleRepository styleRepository, IStaffRepository staffRepository, ICustomerGardenRepository customerGardenRepository,
             ICustomerGardenImageRepository customerGardenImageRepository, ICustomerBonsaiRepository customerBonsaiRepository, ICareStepRepository careStepRepository,
             IServiceRepository serviceRepository,IBaseTaskRepository baseTaskRepository, IServiceBaseTaskRepository serviceBaseTaskRepository,
-           IContractRepository contractRepository, IGardenCareTaskRepository gardenCareTaskRepository,
+           IServiceOrderRepository serviceOrderRepository, IGardenCareTaskRepository gardenCareTaskRepository,
             IBonsaiCareStepRepository bonsaiCareStepRepository, IContractGardenerRepository contractGardenerRepository,
              IContractTransactionRepository contractTransactionRepository, IComplaintRepository complaintRepository, 
              IComplaintImageRepository complaintImageRepository, IContractImageRepository contractImageRepository, IDeliveryImageRepository deliveryImageRepository,
@@ -71,7 +71,7 @@ namespace Infrastructures
             _serviceRepository = serviceRepository;
             _baseTaskRepository = baseTaskRepository;
             _serviceBaseTaskRepository = serviceBaseTaskRepository;
-            _contractRepository = contractRepository;
+            _serviceOrderRepository = serviceOrderRepository;
             _gardenCareTaskRepository = gardenCareTaskRepository;
             _bonsaiCareStepRepository = bonsaiCareStepRepository;
             _contractGardenerRepository = contractGardenerRepository;
@@ -120,7 +120,7 @@ namespace Infrastructures
 
         public IServiceBaseTaskRepository ServiceBaseTaskRepository => _serviceBaseTaskRepository;
 
-        public IContractRepository ContractRepository => _contractRepository;
+        public IServiceOrderRepository ServiceOrderRepository => _serviceOrderRepository;
 
         public IGardenCareTaskRepository GardenCareTaskRepository => _gardenCareTaskRepository;
 

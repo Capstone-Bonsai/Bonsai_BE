@@ -384,7 +384,7 @@ namespace Infrastructures.Services
 
         public async Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize, Guid contractId)
         {
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
@@ -406,9 +406,9 @@ namespace Infrastructures.Services
             foreach (var item in paginationList.Items)
             {
                 var gardener = await GetGardenerAsync(Guid.Parse(item.Id));
-                var contracts = _unitOfWork.ContractRepository
+                var contracts = _unitOfWork.ServiceOrderRepository
                     .GetAllQueryable()
-                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ContractGardeners.Any(y => y.GardenerId == gardener.Id));
+                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id));
                 var user = await _userManager.FindByIdAsync(item.Id);
                 var isLockout = await _userManager.IsLockedOutAsync(user);
                 var roles = await _userManager.GetRolesAsync(user);

@@ -127,19 +127,19 @@ namespace Application.Services
                 if (complaint.ComplaintStatus == Domain.Enums.ComplaintStatus.Completed) throw new Exception("Khiếu nại này đã hoàn thành nên không thể cập nhật trạng thái mới.");
 
                 if (complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Request && model.ComplaintStatus != Domain.Enums.ComplaintStatus.Completed) throw new Exception("Khiếu nại này đã được xử lý");
-                var contract = await _unitOfWork.ContractRepository.GetAllQueryable().AsNoTracking().Include(x => x.BonsaiCareSteps).Include(x => x.GardenCareTasks).FirstOrDefaultAsync(x => x.Id == complaint.ServiceOrderId);
+                var contract = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().AsNoTracking().Include(x => x.BonsaiCareSteps).Include(x => x.GardenCareTasks).FirstOrDefaultAsync(x => x.Id == complaint.ServiceOrderId);
                 if (model.ComplaintStatus == Domain.Enums.ComplaintStatus.Canceled && model.CancelReason == null) throw new Exception("Để hủy khiếu nại cần phải có lý do hủy.");
                 if(model.ComplaintStatus == Domain.Enums.ComplaintStatus.Canceled)
                 {
                     complaint.CancelReason = model.CancelReason;
                     contract.ContractStatus = Domain.Enums.ServiceOrderStatus.Completed;
-                    _unitOfWork.ContractRepository.Update(contract);
+                    _unitOfWork.ServiceOrderRepository.Update(contract);
                 }
                 else if (model.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing)
                 {
                     if(complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Request) throw new Exception("Trạng thái khiếu nại không hợp lệ.");
                     contract.ContractStatus = Domain.Enums.ServiceOrderStatus.ProcessingComplaint;
-                    _unitOfWork.ContractRepository.Update(contract);
+                    _unitOfWork.ServiceOrderRepository.Update(contract);
                     await _unitOfWork.SaveChangeAsync();
                     /*if (contract.ServiceType == Domain.Enums.ServiceType.BonsaiCare || contract.CustomerBonsaiId!=null)
                     {
@@ -168,7 +168,7 @@ namespace Application.Services
                 {
                     if (complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Processing) throw new Exception("Trạng thái khiếu nại không hợp lệ.");
                     contract.ContractStatus = Domain.Enums.ServiceOrderStatus.ProcessedComplaint;
-                    _unitOfWork.ContractRepository.Update(contract);
+                    _unitOfWork.ServiceOrderRepository.Update(contract);
                     await _unitOfWork.SaveChangeAsync();
                     if (contract.CustomerBonsaiId == null)
                     {

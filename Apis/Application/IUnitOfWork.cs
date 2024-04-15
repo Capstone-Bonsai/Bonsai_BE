@@ -22,14 +22,14 @@ namespace Application
         public IServiceRepository ServiceRepository { get; }
         public IBaseTaskRepository BaseTaskRepository { get; }
         public IServiceBaseTaskRepository ServiceBaseTaskRepository { get; }
-        public IContractRepository ContractRepository { get; }
+        public IContractImageRepository ContractImageRepository { get; }
         public IGardenCareTaskRepository GardenCareTaskRepository { get; }
         public IBonsaiCareStepRepository BonsaiCareStepRepository { get; }
         public IContractGardenerRepository ContractGardenerRepository { get; }
         public IContractTransactionRepository ContractTransactionRepository { get; }
         public IComplaintImageRepository ComplaintImageRepository { get; }
         public IComplaintRepository ComplaintRepository { get; }
-        public IContractImageRepository ContractImageRepository { get; }
+        public IServiceOrderRepository ServiceOrderRepository { get; }
         public IDeliveryImageRepository DeliveryImageRepository { get; }
         public IServiceTypeRepository ServiceTypeRepository { get; }
         public Task<int> SaveChangeAsync();

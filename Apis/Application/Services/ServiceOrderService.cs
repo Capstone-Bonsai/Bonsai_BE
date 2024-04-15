@@ -173,9 +173,9 @@ namespace Application.Services
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
             List<ContractViewModel> contractViewModels = new List<ContractViewModel>();
-            var contracts = await _unitOfWork.ContractRepository
+            var contracts = await _unitOfWork.ServiceOrderRepository
                 .GetAllQueryable()
-                .Where(x => x.ContractGardeners.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= endDate && x.EndDate >= startDate)
+                .Where(x => x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= endDate && x.EndDate >= startDate)
                 .ToListAsync();
             if (contracts.Count == 0)
             {
@@ -205,9 +205,9 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy gardener!");
             }
             List<ContractViewModel> contractViewModels = new List<ContractViewModel>();
-            var contracts = await _unitOfWork.ContractRepository
+            var contracts = await _unitOfWork.ServiceOrderRepository
                 .GetAllQueryable()
-                .Where(x => x.ContractGardeners.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= DateTime.Today && x.EndDate >= DateTime.Today)
+                .Where(x => x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id && !y.IsDeleted) && x.StartDate <= DateTime.Today && x.EndDate >= DateTime.Today)
                 .ToListAsync();
             if (contracts.Count == 0)
             {
@@ -354,7 +354,7 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     contractStatus = ServiceOrderStatus.Paid;
                 }
-                var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+                var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
                 if (contract == null)
                     throw new Exception("Không tìm thấy hợp đồng.");
                 var contractTransaction = new ServiceOrderTransaction();
@@ -381,7 +381,7 @@ namespace Application.Services
                 await _unitOfWork.ContractTransactionRepository.AddAsync(contractTransaction);
                 //Update Contract Status
                 contract.ContractStatus = contractStatus;
-                _unitOfWork.ContractRepository.Update(contract);
+                _unitOfWork.ServiceOrderRepository.Update(contract);
                 await _unitOfWork.SaveChangeAsync();
 
             }
@@ -501,7 +501,7 @@ namespace Application.Services
         }*/
         private async Task<List<UserViewModel>> GetGardenerOfContract(Guid contractId)
         {
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
@@ -512,9 +512,9 @@ namespace Application.Services
             foreach (var item in gardenerList)
             {
                 var gardener = await _idUtil.GetGardenerAsync(Guid.Parse(item.Id));
-                var contracts = _unitOfWork.ContractRepository
+                var contracts = _unitOfWork.ServiceOrderRepository
                     .GetAllQueryable()
-                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ContractGardeners.Any(y => y.GardenerId == gardener.Id));
+                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id));
                 var user = await _userManager.FindByIdAsync(item.Id);
                 var isLockout = await _userManager.IsLockedOutAsync(user);
                 var roles = await _userManager.GetRolesAsync(user);
@@ -547,7 +547,7 @@ namespace Application.Services
             {
                 throw new Exception("Không có hình ảnh!");
             }
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");

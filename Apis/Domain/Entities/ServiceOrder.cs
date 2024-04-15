@@ -29,7 +29,7 @@ namespace Domain.Entities
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }
         public IList<Contract> Contract { get; set; }
         public IList<GardenCareTask> GardenCareTasks { get; set; }
-        public IList<ServiceOrderGardener> ContractGardeners { get; set; }
+        public IList<ServiceOrderGardener> ServiceOrderGardener { get; set; }
         public IList<ServiceOrderTransaction> ContractTransactions { get; set; }
         public IList<Complaint> Complaints { get; set; }
     }

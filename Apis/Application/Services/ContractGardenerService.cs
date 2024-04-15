@@ -27,7 +27,7 @@ namespace Application.Services
         }
         public async Task<Pagination<UserViewModel>> GetGardenerOfContract(int pageIndex, int pageSize, Guid contractId)
         {
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractId);
+            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
@@ -49,9 +49,9 @@ namespace Application.Services
             foreach (var item in paginationList.Items)
             {
                 var gardener = await _idUtil.GetGardenerAsync(Guid.Parse(item.Id));
-                var contracts = _unitOfWork.ContractRepository
+                var contracts = _unitOfWork.ServiceOrderRepository
                     .GetAllQueryable()
-                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ContractGardeners.Any(y => y.GardenerId == gardener.Id));
+                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id));
                 var user = await _userManager.FindByIdAsync(item.Id);
                 var isLockout = await _userManager.IsLockedOutAsync(user);
                 var roles = await _userManager.GetRolesAsync(user);
@@ -84,15 +84,15 @@ namespace Application.Services
         }
         public async Task AddContractGardener(ContractGardenerModel contractGardenerModel)
         {
-            var contract = await _unitOfWork.ContractRepository.GetByIdAsync(contractGardenerModel.ContractId);
+            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractGardenerModel.ContractId);
             if (contract == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng");
             }
-            if (contract.NumberOfGardener != contractGardenerModel.GardenerIds.Count)
+           /* if (contract.NumberOfGardener != contractGardenerModel.GardenerIds.Count)
             {
                 throw new Exception("Phải thêm đúng " + contract.NumberOfGardener + " người");
-            }
+            }*/
             List<ServiceOrderGardener> contractGardeners = new List<ServiceOrderGardener>();
             foreach (Guid id in contractGardenerModel.GardenerIds)
             {
@@ -118,7 +118,7 @@ namespace Application.Services
             }
             await _unitOfWork.ContractGardenerRepository.AddRangeAsync(contractGardeners);
             contract.ContractStatus = Domain.Enums.ServiceOrderStatus.Processing;
-            _unitOfWork.ContractRepository.Update(contract);
+            _unitOfWork.ServiceOrderRepository.Update(contract);
             await _unitOfWork.SaveChangeAsync();
         }
     }

@@ -57,7 +57,7 @@ namespace Infrastructures
             services.AddScoped<IServiceRepository, ServiceRepository>();
             services.AddScoped<IBaseTaskRepository, BaseTaskRepository>();
             services.AddScoped<IServiceBaseTaskRepository, ServiceBaseTaskRepository>();
-            services.AddScoped<IContractRepository, ServiceOrderRepository>();
+            services.AddScoped<IServiceOrderRepository, ServiceOrderRepository>();
             services.AddScoped<IBonsaiCareStepRepository, BonsaiCareStepRepository>();
             services.AddScoped<IGardenCareTaskRepository, GardenCareTaskRepository>();
             services.AddScoped<IContractGardenerRepository, ContractGardenerRepository>();
