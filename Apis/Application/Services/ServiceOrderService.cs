@@ -59,13 +59,47 @@ namespace Application.Services
                 {
                     throw new Exception("Không tìm thấy dịch vụ!");
                 }
+                if (serviceOrderModel.CustomerGardenId == null && serviceOrderModel.CustomerBonsaiId == null)
+                {
+                    throw new Exception("Vui lòng nhập vườn/bonsai cần chăm sóc!");
+                }
+                var service = await _unitOfWork.ServiceRepository.GetAllQueryable()
+.AsNoTracking()
+.Include(x => x.ServiceType)
+.FirstOrDefaultAsync(x => !x.IsDeleted && !x.IsDisable && x.Id == serviceOrderModel.ServiceId);
+                if (serviceOrderModel.CustomerGardenId == null)
+                {
+                    //Check service có phải service bonsai hay k
+
+                    if (service.ServiceType.TypeEnum != TypeEnum.Bonsai)
+                    {
+                        throw new Exception("Đây là dịch vụ bonsai");
+                    }
+                    if (serviceOrderModel.CustomerBonsaiId == null)
+                    {
+                        throw new Exception("");
+                    }
+                    var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetByIdAsync(serviceOrderModel.CustomerBonsaiId.Value);
+                    if (customerBonsai == null)
+                    {
+                        throw new Exception("Không tìm thấy cây này!");
+                    }
+                    serviceOrderModel.CustomerGardenId = customerBonsai.CustomerGardenId;
+                }
+                else
+                {
+                    if (service.ServiceType.TypeEnum != TypeEnum.Garden)
+                    {
+                        throw new Exception("Đây là dịch vụ vườn!");
+                    }
+                }
                 var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAllQueryable()
                     .AsNoTracking()
                     .Include(x => x.Customer)
                     .ThenInclude(x => x.ApplicationUser)
                     .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceOrderModel.CustomerGardenId);
                 ServiceOrder serviceOrder = new ServiceOrder();
-                serviceOrder.CustomerGardenId = serviceOrderModel.CustomerGardenId;
+                serviceOrder.CustomerGardenId = serviceOrderModel.CustomerGardenId.Value;
                 serviceOrder.ServiceId = serviceOrderModel.ServiceId;
                 serviceOrder.CustomerBonsaiId = serviceOrderModel.CustomerBonsaiId;
                 serviceOrder.CustomerName = customerGarden.Customer.ApplicationUser.Fullname;
@@ -78,53 +112,6 @@ namespace Application.Services
                 serviceOrder.GardenSquare = customerGarden.Square;
                 serviceOrder.ServiceOrderStatus = ServiceOrderStatus.Pending;
                 await _unitOfWork.ServiceOrderRepository.AddAsync(serviceOrder);
-                /*if (contract.ServiceType == Domain.Enums.ServiceType.GardenCare)
-                {
-                    var service = await _unitOfWork.ServiceRepository.GetAllQueryable()
-                        .AsNoTracking()
-                        .Include(x => x.ServiceBaseTasks)
-                        .ThenInclude(y => y.BaseTask)
-                        .FirstOrDefaultAsync(x => !x.IsDisable && x.Id == serviceGarden.ServiceId);
-                    if (service == null)
-                    {
-                        throw new Exception("Không tìm thấy dịch vụ");
-                    }
-                    List<GardenCareTask> gardenCareTasks = new List<GardenCareTask>();
-                    foreach (ServiceBaseTask serviceBaseTask in service.ServiceBaseTasks)
-                    {
-                        BaseTask baseTask = serviceBaseTask.BaseTask;
-                        gardenCareTasks.Add(new GardenCareTask()
-                        {
-                            BaseTaskId = baseTask.Id,
-                            ContractId = contract.Id
-                        });
-                    }
-                    await _unitOfWork.GardenCareTaskRepository.AddRangeAsync(gardenCareTasks);
-                }
-                else
-                {
-                    CustomerBonsai? customerBonsai = new CustomerBonsai();
-                    customerBonsai = await _unitOfWork.CustomerBonsaiRepository
-                        .GetAllQueryable()
-                        .AsNoTracking()
-                        .Include(x => x.Bonsai)
-                        .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == contract.CustomerBonsaiId);
-                    if (customerBonsai == null)
-                    {
-                        throw new Exception("Không tìm thấy bonsai");
-                    }
-                    var careSteps = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == customerBonsai.Bonsai.CategoryId && !x.IsDeleted);
-                    List<BonsaiCareStep> bonsaiCareSteps = new List<BonsaiCareStep>();
-                    foreach (CareStep careStep in careSteps.Items)
-                    {
-                        bonsaiCareSteps.Add(new BonsaiCareStep()
-                        {
-                            CareStepId = careStep.Id,
-                            ContractId = contract.Id
-                        });
-                    }
-                    await _unitOfWork.BonsaiCareStepRepository.AddRangeAsync(bonsaiCareSteps);
-                }*/
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
@@ -197,13 +184,13 @@ namespace Application.Services
                     serviceOrder.ServiceOrderStatus == ServiceOrderStatus.TaskFinished || serviceOrder.ServiceOrderStatus == ServiceOrderStatus.DoneTaskComplaint ||
                      serviceOrder.ServiceOrderStatus == ServiceOrderStatus.Completed)
                 {
-                    if(serviceOrder.ServiceOrderStatus == ServiceOrderStatus.ProcessingComplaint)
+                    if (serviceOrder.ServiceOrderStatus == ServiceOrderStatus.ProcessingComplaint)
                     {
                         serviceOrder.EndDate.AddDays(7);
                     }
                     serviceOrderForGardenerViewModels.Add(_mapper.Map<ServiceOrderForGardenerViewModel>(serviceOrder));
                 }
-                    
+
             }
             return serviceOrderForGardenerViewModels;
         }
@@ -231,10 +218,10 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().Include(x => x.CustomerGarden).ThenInclude(x => x.Customer.ApplicationUser).FirstOrDefaultAsync(x => x.Id == contractId);
             if (serviceOrder == null)
                 throw new Exception("Không tìm thấy hợp đồng bạn yêu cầu");
-           
+
             // check status
-            if(serviceOrder.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.WaitingForPayment)
-                 throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");
+            if (serviceOrder.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.WaitingForPayment)
+                throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");
 
 
             double totalPrice = Math.Round(serviceOrder.TotalPrice);
