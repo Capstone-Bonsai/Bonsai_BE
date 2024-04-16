@@ -19,6 +19,5 @@ namespace Application.ViewModels.DeliveryFeeViewModels
         public DateTime ExpectedDeliveryDate { get; set; }
         public double DeliveryFee { get; set; }
         public double FinalPrice { get; set; }
-        public DeliverySize DeliverySize { get; set; }  
     }
 }

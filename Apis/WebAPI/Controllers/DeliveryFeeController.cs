@@ -1,5 +1,6 @@
 ﻿using Application.Repositories;
 using Application.Services;
+using Application.ViewModels.DeliveryFeeViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -46,13 +47,13 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet("CalculateFee")]
-        public async Task<IActionResult> CalculateFeeAsync(string destination,IList<Guid> listBonsaiId)
+        [HttpPost("CalculateFee")]
+        public async Task<IActionResult> CalculateFeeAsync([FromBody] DeliveryModel model)
         {
             try
             {
-                var newList = listBonsaiId.Distinct().ToList();
-                var distance = await _deliveryFeeService.CalculateFee(destination, newList);
+                var newList = model.listBonsaiId.Distinct().ToList();
+                var distance = await _deliveryFeeService.CalculateFee(model.destination, newList);
                 return Ok(distance);
             }
             catch (Exception ex)
