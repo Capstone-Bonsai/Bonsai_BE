@@ -56,7 +56,7 @@ namespace Application.Services
                         //Điếm số hàng có giá trị
                         int rowCount = worksheet.Dimension.Rows;
                         var listPrice = new List<DeliveryFee>();
-                        for (int row = 2; row < rowCount; row++) // Bắt đầu từ hàng thứ 2 để bỏ qua tiêu đề
+                        for (int row = 2; row < rowCount; row++)
                         {
                             double maxDistance = (double)(worksheet.Cells[row, 1].Value);
                             for (int i = 1; i <= 3; i++)
@@ -136,7 +136,7 @@ namespace Application.Services
                     {
                         if (j == 0)
                         {
-                            listItem.Items.Add("từ " + tempDistance.LastOrDefault() + " km trở đi");
+                            listItem.Items.Add("từ km thứ " +( tempDistance.LastOrDefault()+1) + "  trở đi");
                         }
                         else
                         {
@@ -161,7 +161,7 @@ namespace Application.Services
                                 if (a == 0)
                                     items.Items.Add("từ km đầu tiên");
                                 else 
-                                    items.Items.Add("từ " + tempDistance[a] + " km tiếp theo");
+                                    items.Items.Add("từ km thứ " +( tempDistance[a] + 1) + " tiếp theo");
                             }
                             else
                             {
@@ -198,10 +198,9 @@ namespace Application.Services
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
         }
 
-        public async Task<FeeViewModel> CalculateFee(string destination, /*IList<Guid> listBonsaiId*/ double price)
+        public async Task<FeeViewModel> CalculateFee(string destination, IList<Guid> listBonsaiId)
         {
             string origin = _configuration["Origin:GeoLocation"];
-            double finalPrice = 0;
             int distance = 0;
             var finalFee = new FeeViewModel();
             var addressModel = await GetGeocoding(destination);
@@ -228,57 +227,115 @@ namespace Application.Services
             {
                 throw new Exception("Địa điểm giao hàng không hợp lệ.");
             }
-
+            if (distance == 0) throw new Exception("Địa chỉ giao hàng không hợp lệ");
             try
             {
-                
-                DeliverySize deliverysize;
-                var feewithPrice = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => !x.IsDeleted).ToListAsync();
-                if (feewithPrice == null)
-                    deliverysize = DeliverySize.Large;
-                else
-                    deliverysize = feewithPrice.FirstOrDefault().DeliverySize;
-
-                var feeWithDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance >= distance && !x.IsDeleted && x.DeliverySize == deliverysize).OrderBy(x => x.MaxDistance).ToListAsync();
-                DeliveryFee fee = new DeliveryFee();
-                if (feeWithDistance == null || feeWithDistance.Count == 0)
-                {
-                    fee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.MaxDistance == null && !x.IsDeleted && x.DeliverySize == deliverysize).OrderBy(x => x.MaxDistance).FirstOrDefaultAsync();
-                }
-                else
-                {
-                    fee = feeWithDistance.FirstOrDefault();
-                }
-
-
                 finalFee.DurationHour = duration / 3600;
                 finalFee.DurationMinute = (duration / 60) % 60;
                 finalFee.ExpectedDeliveryDate = DateTime.Now.AddHours(finalFee.DurationHour).AddMinutes(finalFee.DurationMinute);
-
-
-                finalPrice = fee.Fee * distance;
-                finalFee.deliveryFee = fee;
-                finalFee.DeliveryType = fee.DeliverySize.ToString();
-                finalFee.Price = finalPrice;
+                double deliveryFee = 0;
+                double bonsaiPrice = 0;
+                foreach (var item in listBonsaiId.Distinct())
+                {
+                    var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id ==item);
+                    if (bonsai == null) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");
+                    bonsaiPrice += bonsai.Price;
+                    var fee = await CalculateFeeOfBonsai(bonsai.DeliverySize.Value, distance);
+                    deliveryFee +=fee;
+                }
+                finalFee.DeliveryFee = deliveryFee;
+                finalFee.PriceAllBonsai = bonsaiPrice;
+                finalFee.FinalPrice  = bonsaiPrice + deliveryFee;
                 finalFee.Distance = distance;
                 return finalFee;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw new Exception("Chưa cập nhật bảng giá vận chuyển");
+                throw new Exception(ex.Message);
             }
         }
-
-
-        /*public async Task<double> CalculateFeeOfBonsai(Guid bonsaiId)
+        public async Task<double> TestCalcutale(/*Guid bonsaiId,*/ int distance)
         {
-            var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id == bonsaiId);
-            if (bonsai == null) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");
-            var listFee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=>x.DeliverySize == bonsai.DeliverySize).ToListAsync();
-            
+            double price = 0;
+            /*var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id == bonsaiId);
+            if (bonsai == null) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");*/
+            DeliverySize size = DeliverySize.Small;
+            var listFee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.DeliverySize == size).OrderBy(x=>x.MaxDistance).ToListAsync();
+            var pointDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x=>x.DeliverySize == size).Select(x=>x.MaxDistance).OrderBy(s=>s.Value).Distinct().ToListAsync();
+            for (var i = 0;i< pointDistance.Count;i++)
+            {
+                if (i == 0 )
+                {
+                    if(distance <= pointDistance[i + 1])
+                    {
+                        price = listFee[i].Fee * distance; 
+                        break;
+                    }
+                    else
+                    {
+                        price = price + (double)(listFee[i].Fee * (pointDistance[i + 1]));
+                    }
+                }
+                else if (i == pointDistance.Count-1)
+                {
+                    price = price + (double)(listFee[i].Fee * (distance - pointDistance[i]));
+                }
+                else
+                {
+                    if(distance<= pointDistance[i +1])
+                    {
+                        price = price+ (distance - (double) pointDistance[i]) * listFee[i].Fee;
+                        break;
+                    }
+                    else
+                    {
+                       price =  price + ((((double)pointDistance[i +1] - (double)pointDistance[i])) * listFee[i].Fee);
+                      
+                    }
+                }
+            }
+            return price;
         }
-*/
 
+        public async Task<double> CalculateFeeOfBonsai(DeliverySize size, int distance)
+        {
+            double price = 0;
+            var listFee = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.DeliverySize == size).OrderBy(x => x.MaxDistance).ToListAsync();
+            var pointDistance = await _unit.DeliveryFeeRepository.GetAllQueryable().Where(x => x.DeliverySize == size).Select(x => x.MaxDistance).OrderBy(s => s.Value).Distinct().ToListAsync();
+            for (var i = 0; i < pointDistance.Count; i++)
+            {
+                if (i == 0)
+                {
+                    if (distance <= pointDistance[i + 1])
+                    {
+                        price = listFee[i].Fee * distance;
+                        break;
+                    }
+                    else
+                    {
+                        price = price + (double)(listFee[i].Fee * (pointDistance[i + 1]));
+                    }
+                }
+                else if (i == pointDistance.Count - 1)
+                {
+                    price = price + (double)(listFee[i].Fee * (distance - pointDistance[i]));
+                }
+                else
+                {
+                    if (distance <= pointDistance[i + 1])
+                    {
+                        price = price + (distance - (double)pointDistance[i]) * listFee[i].Fee;
+                        break;
+                    }
+                    else
+                    {
+                        price = price + ((((double)pointDistance[i + 1] - (double)pointDistance[i])) * listFee[i].Fee);
+
+                    }
+                }
+            }
+            return price;
+        }
         public async Task<DistanceResponse> GetDistanse(string destination)
         {
             string origin = _configuration["Origin:GeoLocation"];
