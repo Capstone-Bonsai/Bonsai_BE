@@ -1,5 +1,6 @@
 ﻿using Application.ViewModels.DeliveryFeeViewModels;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,11 @@ namespace Application.Repositories
         public Task CreateAsync(IFormFile file);
         public Task UpdateAsync(IFormFile file);
         public Task<DeliveryFeeDisplayModel> GetAllAsync();
-        public Task<FeeViewModel> CalculateFee(string destination, double price);
+        public Task<FeeViewModel> CalculateFee(string destination,IList<Guid> listBonsaiId);
         public Task<DistanceResponse> GetDistanse(string destination);
+        public Task<double> CalculateFeeOfBonsai(DeliverySize size, int distance);
+        public Task<double> TestCalcutale(/*Guid bonsaiId,*/ int distance);
+       
+
     }
 }

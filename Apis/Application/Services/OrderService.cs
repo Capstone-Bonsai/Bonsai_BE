@@ -347,7 +347,7 @@ namespace Application.Services
                 {
                     await CreateOrderDetail(item, orderId);
                 }
-                await UpdateOrder(orderId);
+                await UpdateOrder(orderId, model.ListBonsai.Distinct().ToList());
                 await _unit.CommitTransactionAsync();
                 return orderId;
             }
@@ -429,7 +429,6 @@ namespace Application.Services
             try
             {
                 var order = _mapper.Map<Order>(model);
-                order.DeliverySize = Domain.Enums.DeliverySize.Small;
                 order.OrderDate = DateTime.Now;
                 order.CustomerId = customerId;
                 order.Price = 0;
@@ -478,7 +477,7 @@ namespace Application.Services
         }
 
 
-        public async Task UpdateOrder(Guid orderId)
+        public async Task UpdateOrder(Guid orderId, List<Guid> bonsaisId)
         {
             try
             {
@@ -497,12 +496,12 @@ namespace Application.Services
                     total += item.Price;
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
-                deliveryPrice = await CalculateDeliveryPrice(order.Address, total);
-                order.DeliverySize = deliveryPrice.deliveryFee.DeliverySize;
-                order.DeliveryPrice = deliveryPrice.Price;
+                deliveryPrice = await CalculateDeliveryPrice(order.Address, bonsaisId);
+                
+                order.DeliveryPrice = deliveryPrice.DeliveryFee;
                 order.ExpectedDeliveryDate = deliveryPrice.ExpectedDeliveryDate;
                 order.Price = total;
-                order.TotalPrice = total + deliveryPrice.Price;
+                order.TotalPrice = total + deliveryPrice.DeliveryFee;
                 _unit.ClearTrack();
                 _unit.OrderRepository.Update(order);
                 await _unit.SaveChangeAsync();
@@ -514,9 +513,9 @@ namespace Application.Services
         }
 
 
-        public async Task<FeeViewModel> CalculateDeliveryPrice(string destination, double price)
+        public async Task<FeeViewModel> CalculateDeliveryPrice(string destination, IList<Guid> listBonsaiId)
         {
-            var distance = await _deliveryFeeService.CalculateFee(destination, price);
+            var distance = await _deliveryFeeService.CalculateFee(destination, listBonsaiId);
             return distance;
         }
 

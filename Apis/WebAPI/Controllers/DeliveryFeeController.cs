@@ -47,12 +47,29 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("CalculateFee")]
-        public async Task<IActionResult> CalculateFeeAsync(string destination,double price)
+        public async Task<IActionResult> CalculateFeeAsync(string destination,IList<Guid> listBonsaiId)
         {
             try
             {
-                var distance = await _deliveryFeeService.CalculateFee(destination,  price);
+                var newList = listBonsaiId.Distinct().ToList();
+                var distance = await _deliveryFeeService.CalculateFee(destination, newList);
                 return Ok(distance);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        [HttpGet("test")]
+        public async Task<IActionResult> Test(int distance)
+        {
+            try
+            {
+                
+                var price = await _deliveryFeeService.TestCalcutale(distance);
+                return Ok(price);
             }
             catch (Exception ex)
             {
