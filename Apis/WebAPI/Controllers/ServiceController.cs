@@ -26,19 +26,20 @@ namespace WebAPI.Controllers
             _serviceService = serviceService;
             _claims = claimsService;
         }
-        /*        [HttpGet]
-                public async Task<IActionResult> Get()
-                {
-                    try
-                    {
-                        var service = await _serviceService.GetService();
-                        return Ok(service);
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(ex.Message);
-                    }
-                }*/
+        [HttpGet("Package")]
+        public async Task<IActionResult> GetPackage(int pageIndex, int pageSize, Guid serviceTypeId, Guid? customerBonsaiId)
+        {
+            try
+            {
+                var userId = _claims.GetCurrentUserId.ToString().ToLower();
+                var service = await _serviceService.GetServicePagination(pageIndex, pageSize, serviceTypeId, customerBonsaiId);
+                return Ok(service);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> GetPagination(int pageIndex = 0, int pageSize = 10)
         {
@@ -53,20 +54,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-       /*[HttpGet("ServiveType")]
-        public async Task<IActionResult> ServiveType()
-        {
-            try
-            {
-                List<EnumModel> enums = ((ServiceType[])Enum.GetValues(typeof(ServiceType))).Select(c => new EnumModel() { Value = (int)c, Display = c.ToString() }).ToList();
-                return Ok(enums);
+        /*[HttpGet("ServiveType")]
+         public async Task<IActionResult> ServiveType()
+         {
+             try
+             {
+                 List<EnumModel> enums = ((ServiceType[])Enum.GetValues(typeof(ServiceType))).Select(c => new EnumModel() { Value = (int)c, Display = c.ToString() }).ToList();
+                 return Ok(enums);
 
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }*/
+             }
+             catch (Exception ex)
+             {
+                 return BadRequest(ex.Message);
+             }
+         }*/
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)

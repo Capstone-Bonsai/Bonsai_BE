@@ -10,5 +10,6 @@ namespace Application.Interfaces
         public Task<IList<string>> AddService(ServiceModel model);
         public Task<IList<string>> UpdateService(Guid id, ServiceModel model);
         public Task DeleteService(Guid id);
+        Task<Pagination<ServiceViewModel>> GetServicePagination(int pageIndex, int pageSize, Guid serviceTypeId, Guid? customerBonsaId);
     }
 }

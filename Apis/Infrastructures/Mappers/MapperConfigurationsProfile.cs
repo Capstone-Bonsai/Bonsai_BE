@@ -20,10 +20,6 @@ namespace Infrastructures.Mappers
         public MapperConfigurationsProfile()
         {
             CreateMap(typeof(Pagination<>), typeof(Pagination<>));
-            /*CreateMap<CreateChemicalViewModel, Chemical>();
-            CreateMap(typeof(Pagination<>), typeof(Pagination<>));
-            CreateMap<Chemical, ChemicalViewModel>()
-                .ForMember(dest => dest._Id, src => src.MapFrom(x => x.Id));*/
             CreateMap<BonsaiModel, Bonsai>();
             CreateMap<CategoryModel, Category>();
             CreateMap<StyleModel, Style>();
@@ -39,8 +35,7 @@ namespace Infrastructures.Mappers
             CreateMap<UserViewModel, ApplicationUser>().ReverseMap();
             CreateMap<GardenerViewModel, ApplicationUser>().ReverseMap();
             CreateMap<BaseTaskModel, BaseTask>().ReverseMap();
-            CreateMap<ServiceViewModel, Service>();
-            CreateMap<Service, ServiceViewModel>().ForMember(dest => dest.ServiceBaseTasks, opt => opt.MapFrom(src => src.ServiceBaseTasks));
+            CreateMap<Service, ServiceViewModel>();
             CreateMap<ServiceModel, Service>().ReverseMap();
         }
     }

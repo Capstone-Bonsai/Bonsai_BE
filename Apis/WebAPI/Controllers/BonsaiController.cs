@@ -32,7 +32,6 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _bonsaiService.GetPagination(pageIndex, pageSize, _claims.GetIsAdmin);
-                await _notificationService.SendToStaff("Hello");
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");
@@ -53,6 +52,7 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _bonsaiService.GetAll(_claims.GetIsAdmin);
+                await _notificationService.SendToStaff("Khách hàng đang tìm kiếm sản phẩm");
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");

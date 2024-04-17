@@ -125,7 +125,7 @@ namespace Application.Services
         }
         private async Task<string> generateCode()
         {
-            var lastCodeBonsai = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == categoryId && x.Code.Contains("KHACHHANG"), orderBy: query => query.OrderByDescending(x => x.Code));
+            var lastCodeBonsai = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.Code.Contains("KHACHHANG"), orderBy: query => query.OrderByDescending(x => x.Code));
             if (lastCodeBonsai.Items.Count > 0)
             {
                 var lastCodeNumericPart = Regex.Match(lastCodeBonsai.Items[0].Code, @"\d+").Value;

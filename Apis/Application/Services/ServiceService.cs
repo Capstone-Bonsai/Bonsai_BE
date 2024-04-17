@@ -319,5 +319,65 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<Pagination<ServiceViewModel>> GetServicePagination(int pageIndex, int pageSize, Guid serviceTypeId, Guid? customerBonsaId)
+        {
+            var serviceType = await _unit.ServiceTypeRepository.GetByIdAsync(serviceTypeId);
+            var services = await _unit.ServiceRepository.GetAllQueryable()
+                        .AsNoTracking()
+                        .Where(x => x.IsDeleted == false && x.ServiceType.Id == serviceTypeId)
+                        .OrderByDescending(x => x.CreationDate)
+                                    .Skip(pageIndex * pageSize)
+                                    .Take(pageSize)
+                                    .ToListAsync();
+            var totalCount = await _unit.ServiceRepository.GetAllQueryable()
+    .AsNoTracking()
+    .Where(x => x.IsDeleted == false && x.ServiceType.Id == serviceTypeId)
+    .CountAsync();
+            var result = _mapper.Map<List<ServiceViewModel>>(services);
+            if (serviceType.TypeEnum == Domain.Enums.TypeEnum.Bonsai && customerBonsaId != null && customerBonsaId != Guid.Empty)
+            {
+                var customerBonsai = await _unit.CustomerBonsaiRepository.GetAllQueryable()
+                        .AsNoTracking()
+                        .Include(x => x.Bonsai)
+                        .Where(x => x.IsDeleted == false && x.Id == customerBonsaId)
+                        .FirstOrDefaultAsync();
+                foreach (ServiceViewModel service in result)
+                {
+                    var task = await _unit.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == customerBonsai.Bonsai.CategoryId);
+                    if (task == null)
+                    {
+
+                    }
+                    List<string> taskList = task.Items.Select(t => t.Step.ToString()).ToList();
+                    service.Tasks = taskList;
+                }
+            }
+            else
+            {
+                if (serviceType.TypeEnum == Domain.Enums.TypeEnum.Garden && (customerBonsaId == null || customerBonsaId != Guid.Empty))
+                {
+                    foreach (ServiceViewModel service in result)
+                    {
+                        var task = await _unit.BaseTaskRepository.GetAllQueryable()
+                            .AsNoTracking()
+                            .Where(x => x.ServiceBaseTasks.Any(sbt => sbt.ServiceId == service.Id))
+                            .ToListAsync();
+                        List<string> taskList = task.Select(t => t.Name.ToString()).ToList();
+                        service.Tasks = taskList;
+                    }
+                }
+
+                else return new Pagination<ServiceViewModel>();
+            }
+            Pagination<ServiceViewModel> response = new Pagination<ServiceViewModel>
+            {
+                TotalItemsCount = totalCount,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Items = result
+            };
+            return response;
+        }
     }
 }

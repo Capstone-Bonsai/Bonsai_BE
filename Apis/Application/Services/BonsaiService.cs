@@ -342,7 +342,7 @@ namespace Application.Services
                                  x => x.Category,
                                  x => x.Style,
                                     };
-            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable && x.isSold == false && x.CategoryId == categoryId && !x.isSold.Value && !x.Code.Contains("KHACHHANG")s,
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable && x.isSold == false && x.CategoryId == categoryId && !x.isSold.Value && !x.Code.Contains("KHACHHANG"),
                 isDisableTracking: true, includes: includes);
             return bonsais;
         }
