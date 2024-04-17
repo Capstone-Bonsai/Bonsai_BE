@@ -56,7 +56,7 @@ namespace Application.Services
             style.Id = id;
             var result = await _unitOfWork.StyleRepository.GetByIdAsync(style.Id);
             if (result == null)
-                throw new Exception("Không tìm thấy dáng cây!");
+                throw new Exception("Không tìm thấy!");
             try
             {
                 _unitOfWork.StyleRepository.Update(style);
@@ -71,7 +71,7 @@ namespace Application.Services
         {
             var result = await _unitOfWork.StyleRepository.GetByIdAsync(id);
             if (result == null)
-                throw new Exception("Không tìm thấy dáng cây!");
+                throw new Exception("Không tìm thấy");
             var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.StyleId == id && !x.IsDeleted);
             if (bonsais.TotalItemsCount > 0)
             {
