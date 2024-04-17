@@ -73,33 +73,102 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng");
             }
-            List<ServiceOrderGardener> serviceOrderGardeners = new List<ServiceOrderGardener>();
-            foreach (Guid id in serviceOrderGardenerModel.GardenerIds)
+            try
             {
-                var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(id);
-                if(gardener == null)
+                _unitOfWork.BeginTransaction();
+                bool firstAdd = false;
+                var serviceOrderGardener = await _unitOfWork.ServiceOrderGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrder.Id && !x.IsDeleted);
+                if (serviceOrderGardener.Items.Count == 0)
                 {
-                    throw new Exception("Không tìm thấy người được thêm vào");
+                    firstAdd = true;
                 }
-                var gardeners = await _unitOfWork.ServiceOrderGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ServiceOrderId == serviceOrder.Id && !x.IsDeleted);
-                if (gardeners.Items.Count == 0)
+                List<ServiceOrderGardener> serviceOrderGardeners = new List<ServiceOrderGardener>();
+                foreach (Guid id in serviceOrderGardenerModel.GardenerIds)
                 {
-                    serviceOrderGardeners.Add(new ServiceOrderGardener()
+                    var gardener = await _unitOfWork.GardenerRepository.GetByIdAsync(id);
+                    if (gardener == null)
                     {
-                        ServiceOrderId = serviceOrder.Id,
-                        GardenerId = id,
-                        HasRequest = false,
-                    });
+                        throw new Exception("Không tìm thấy người được thêm vào");
+                    }
+                    var gardeners = await _unitOfWork.ServiceOrderGardenerRepository.GetAsync(isTakeAll: true, expression: x => x.GardenerId == id && x.ServiceOrderId == serviceOrder.Id && !x.IsDeleted);
+                    if (gardeners.Items.Count == 0)
+                    {
+                        serviceOrderGardeners.Add(new ServiceOrderGardener()
+                        {
+                            ServiceOrderId = serviceOrder.Id,
+                            GardenerId = id,
+                            HasRequest = false,
+                        });
+                    }
+                    else
+                    {
+                        throw new Exception("Dịch vụ này đã thêm đủ người!");
+                    }
+                }
+                await _unitOfWork.ServiceOrderGardenerRepository.AddRangeAsync(serviceOrderGardeners);
+                if (firstAdd)
+                {
+                    await AddTaskForServiceOrder(serviceOrder);
+                }
+                serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.Processing;
+                _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception ex)
+            {
+                _unitOfWork.RollbackTransaction();
+                throw new Exception(ex.Message);
+            }
+        }
+        private async Task AddTaskForServiceOrder(ServiceOrder serviceOrder)
+        {
+            if (serviceOrder.CustomerBonsaiId == null)
+                {
+                    var service = await _unitOfWork.ServiceRepository.GetAllQueryable()
+                        .AsNoTracking()
+                        .Include(x => x.ServiceBaseTasks)
+                        .ThenInclude(y => y.BaseTask)
+                        .FirstOrDefaultAsync(x => !x.IsDisable && x.Id == serviceOrder.ServiceId);
+                    if (service == null)
+                    {
+                        throw new Exception("Không tìm thấy dịch vụ");
+                    }
+                    List<GardenCareTask> gardenCareTasks = new List<GardenCareTask>();
+                    foreach (ServiceBaseTask serviceBaseTask in service.ServiceBaseTasks)
+                    {
+                        BaseTask baseTask = serviceBaseTask.BaseTask;
+                        gardenCareTasks.Add(new GardenCareTask()
+                        {
+                            BaseTaskId = baseTask.Id,
+                            ServiceOrderId = serviceOrder.Id
+                        });
+                    }
+                    await _unitOfWork.GardenCareTaskRepository.AddRangeAsync(gardenCareTasks);
                 }
                 else
                 {
-                    throw new Exception("Dịch vụ này đã thêm đủ người!");
+                    CustomerBonsai? customerBonsai = new CustomerBonsai();
+                    customerBonsai = await _unitOfWork.CustomerBonsaiRepository
+                        .GetAllQueryable()
+                        .AsNoTracking()
+                        .Include(x => x.Bonsai)
+                        .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == serviceOrder.CustomerBonsaiId);
+                    if (customerBonsai == null)
+                    {
+                        throw new Exception("Không tìm thấy bonsai");
+                    }
+                    var careSteps = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == customerBonsai.Bonsai.CategoryId && !x.IsDeleted);
+                    List<BonsaiCareStep> bonsaiCareSteps = new List<BonsaiCareStep>();
+                    foreach (CareStep careStep in careSteps.Items)
+                    {
+                        bonsaiCareSteps.Add(new BonsaiCareStep()
+                        {
+                            CareStepId = careStep.Id,
+                            ServiceOrderId = serviceOrder.Id
+                        });
+                    }
+                    await _unitOfWork.BonsaiCareStepRepository.AddRangeAsync(bonsaiCareSteps);
                 }
-            }
-            await _unitOfWork.ServiceOrderGardenerRepository.AddRangeAsync(serviceOrderGardeners);
-            serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.Processing;
-            _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
-            await _unitOfWork.SaveChangeAsync();
         }
     }
 }

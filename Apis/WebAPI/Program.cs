@@ -1,4 +1,5 @@
 using Application.Commons;
+using Application.Hubs;
 using Domain.Entities;
 using Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,6 +33,7 @@ builder.Services.AddCors(options =>
 var configuration = builder.Configuration.Get<AppConfiguration>();
 builder.Services.AddInfrastructuresService(builder.Configuration, builder.Environment);
 builder.Services.AddWebAPIService();
+builder.Services.AddSignalR();
 builder.Services.AddSingleton(configuration);
 builder.Services.AddAuthentication(options =>
 {
@@ -127,6 +129,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapHub<NotificationHub>("notification-hub");
 
 app.Run();
 
