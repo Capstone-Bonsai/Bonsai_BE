@@ -45,11 +45,11 @@ namespace Application.Services
                                     };
             if (isAdmin)
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && x.Code != "KHACHHANG", includes: includes);
             }
             else
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable, includes: includes);
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && x.Code != "KHACHHANG" && !x.isDisable && x.isSold != null && !x.isSold.Value, includes: includes);
             }
             return bonsais;
         }
@@ -63,12 +63,12 @@ namespace Application.Services
                                     };
             if (isAdmin)
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Code != "KHACHHANG",
                 isDisableTracking: true, includes: includes);
             }
             else
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.isSold != null && !x.isSold.Value,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Code != "KHACHHANG" && !x.isDisable && x.isSold != null && !x.isSold.Value,
                 isDisableTracking: true, includes: includes);
             }
 
@@ -77,7 +77,7 @@ namespace Application.Services
         public async Task<Pagination<Bonsai>?> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false)
         {
             var filter = new List<Expression<Func<Bonsai, bool>>>();
-            filter.Add(x => !x.IsDeleted);
+            filter.Add(x => !x.IsDeleted && x.Code != "KHACHHANG");
             if (!isAdmin)
                 filter.Add(x => !x.isDisable && x.isSold != null && !x.isSold.Value);
 
@@ -131,12 +131,12 @@ namespace Application.Services
                                     };
             if (isAdmin)
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == id,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == id && x.Code != "KHACHHANG",
                 isDisableTracking: true, includes: includes);
             }
             else
             {
-                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id && x.isSold != null && !x.isSold.Value,
+                bonsais = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && !x.isDisable && x.Id == id && x.isSold != null && !x.isSold.Value && x.Code != "KHACHHANG",
                 isDisableTracking: true, includes: includes);
             }
             return bonsais.Items[0];
@@ -342,7 +342,7 @@ namespace Application.Services
                                  x => x.Category,
                                  x => x.Style,
                                     };
-            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable && x.isSold == false && x.CategoryId == categoryId && !x.isSold.Value,
+            var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.isDisable && x.isSold == false && x.CategoryId == categoryId && !x.isSold.Value && x.Code != "KHACHHANG",
                 isDisableTracking: true, includes: includes);
             return bonsais;
         }
