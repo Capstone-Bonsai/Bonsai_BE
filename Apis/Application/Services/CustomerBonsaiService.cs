@@ -13,6 +13,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Utils;
+using System.Text.RegularExpressions;
 
 namespace Application.Services
 {
@@ -77,7 +78,7 @@ namespace Application.Services
             var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
             bonsai.Price = 0;
             bonsai.isDisable = false;
-            bonsai.Code = "KHACHHANG";
+            bonsai.Code = await generateCode();
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -120,6 +121,25 @@ namespace Application.Services
             {
                 _unitOfWork.RollbackTransaction();
                 throw;
+            }
+        }
+        private async Task<string> generateCode()
+        {
+            var lastCodeBonsai = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == categoryId && x.Code.Contains("KHACHHANG"), orderBy: query => query.OrderByDescending(x => x.Code));
+            if (lastCodeBonsai.Items.Count > 0)
+            {
+                var lastCodeNumericPart = Regex.Match(lastCodeBonsai.Items[0].Code, @"\d+").Value;
+                if (lastCodeNumericPart == "")
+                {
+                    return $"KHACHHANG00001";
+                }
+                var newCodeNumericPart = (int.Parse(lastCodeNumericPart) + 1).ToString().PadLeft(lastCodeNumericPart.Length, '0');
+                return $"KHACHHANG{newCodeNumericPart}";
+
+            }
+            else
+            {
+                return $"KHACHHANG00001";
             }
         }
         public async Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId)
