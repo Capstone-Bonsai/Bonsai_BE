@@ -21,7 +21,8 @@ namespace Application.ViewModels.ServiceOrderViewModels
         public ServiceOrderStatus ServiceOrderStatus { get; set; }
         [NotMapped]
         public List<string> Image { get; set; } = default!;
-        public ServiceType ServiceType { get; set; }
+        [NotMapped]
+        public int ServiceType { get; set; }
         [NotMapped]
         public Bonsai Bonsai { get; set; } = default!;
     }

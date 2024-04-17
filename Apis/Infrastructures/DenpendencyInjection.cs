@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.Hubs;
 using Application.Interfaces;
 using Application.Repositories;
 using Application.Services;
@@ -37,8 +38,9 @@ namespace Infrastructures
             services.AddScoped<ICustomerBonsaiService, CustomerBonsaiService>();
             services.AddScoped<IComplaintService, ComplaintService>();
             services.AddScoped<IServiceTypeService, ServiceTypeService>();
-
-
+            services.AddScoped<IUserConnectionService, UserConnectionService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
             services.AddScoped<IGardenerRepository, GardenerRepository>();
@@ -70,6 +72,7 @@ namespace Infrastructures
             
 
             services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddScoped<NotificationHub>();
             services.AddSingleton<FirebaseService>();
             services.AddScoped<IdUtil>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();

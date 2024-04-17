@@ -1,10 +1,13 @@
-﻿using Application.Interfaces;
+﻿using Application.Hubs;
+using Application.Interfaces;
 using Application.ViewModels.BonsaiViewModel;
-
+using Application.ViewModels.MessageViewModels;
 using Domain.Entities;
+using Firebase.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace WebAPI.Controllers
 {
@@ -14,12 +17,14 @@ namespace WebAPI.Controllers
     {
         private readonly IBonsaiService _bonsaiService;
         private readonly IClaimsService _claims;
+        private readonly INotificationService _notificationService;
 
         public BonsaiController(IBonsaiService bonsaiService,
-            IClaimsService claimsService)
+            IClaimsService claimsService , INotificationService notificationService)
         {
             _bonsaiService = bonsaiService;
             _claims = claimsService;
+            _notificationService = notificationService;
         }
         [HttpGet("Pagination")]
         public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
@@ -27,6 +32,7 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _bonsaiService.GetPagination(pageIndex, pageSize, _claims.GetIsAdmin);
+                await _notificationService.SendToStaff("Hello");
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");

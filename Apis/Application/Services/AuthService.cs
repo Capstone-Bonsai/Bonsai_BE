@@ -1,10 +1,14 @@
 ﻿using Application.Commons;
+using Application.Hubs;
 using Application.Validations.Auth;
 using Application.ViewModels.AuthViewModel;
+using Application.ViewModels.MessageViewModels;
 using Domain.Entities;
+using Firebase.Auth;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -36,7 +40,7 @@ namespace Application.Services
             _configuration = configuration;
             _environment = environment;
             _unit = unit;
-        }
+    }
         public async Task<LoginViewModel> Login(string email, string pass, string callbackUrl)
         {
             var user = await _userManager.FindByNameAsync(email);

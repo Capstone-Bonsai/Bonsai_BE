@@ -73,7 +73,7 @@ namespace Application.Services
 
                     if (service.ServiceType.TypeEnum != TypeEnum.Bonsai)
                     {
-                        throw new Exception("Đây là dịch vụ bonsai");
+                        throw new Exception("Đây là dịch vụ vườn");
                     }
                     if (serviceOrderModel.CustomerBonsaiId == null)
                     {
@@ -90,7 +90,7 @@ namespace Application.Services
                 {
                     if (service.ServiceType.TypeEnum != TypeEnum.Garden)
                     {
-                        throw new Exception("Đây là dịch vụ vườn!");
+                        throw new Exception("Đây là dịch vụ bonsai!");
                     }
                 }
                 var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAllQueryable()
@@ -198,8 +198,12 @@ namespace Application.Services
         {
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().Include(x => x.CustomerGarden.Customer).FirstOrDefaultAsync(x => x.Id == serviceOrderId);
             if (serviceOrder == null)
-                throw new Exception("Không tồn tại hợp đồng");
+                throw new Exception("Không tồn tại đơn đặt hàng dịch vụ");
             var serviceOrderForGardenerViewModel = _mapper.Map<ServiceOrderForGardenerViewModel>(serviceOrder);
+            if (serviceOrder.CustomerBonsaiId == null)
+                serviceOrderForGardenerViewModel.ServiceType = 2;
+            else
+                serviceOrderForGardenerViewModel.ServiceType = 1;
             var customerGardenImage = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceOrder.CustomerGardenId && !x.IsDeleted);
             if (customerGardenImage.Items.Count > 0)
             {
