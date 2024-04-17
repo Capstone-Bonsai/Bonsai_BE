@@ -12,6 +12,7 @@ using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Printing;
+using System.Net.WebSockets;
 
 namespace Infrastructures.Services
 {
@@ -159,7 +160,8 @@ namespace Infrastructures.Services
         }
         public async Task<Pagination<UserViewModel>> GetListUserAsync(int pageIndex = 0, int pageSize = 20)
         {
-            var listUser = await _userManager.Users.AsNoTracking().OrderBy(x => x.Email).ToListAsync();
+            var manager = await _userManager.GetUsersInRoleAsync("Manager");
+            var listUser = await _userManager.Users.AsNoTracking().Where(x => x.Id != manager.FirstOrDefault().Id).OrderBy(x => x.Email).ToListAsync();
             var itemCount = listUser.Count();
             var items = listUser.Skip(pageIndex * pageSize)
                                     .Take(pageSize)
