@@ -99,7 +99,7 @@ namespace Application.Services
             }
             catch (Exception)
             {
-                throw new Exception("Xảy ra lỗi trong quá trình nhập filter!");
+                throw new Exception("Xảy ra lỗi trong quá trình nhập bộ lọc!");
             }
 
             if (filterBonsaiModel.MinPrice != null)
@@ -146,7 +146,7 @@ namespace Application.Services
         {
 
             if (bonsaiModel == null)
-                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng điền đầy đủ thông tin!");
 
             var validationRules = new BonsaiModelValidator();
             var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModel);
@@ -181,7 +181,7 @@ namespace Application.Services
                         }
                         var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
                         if (url == null)
-                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+                            throw new Exception("Lỗi khi đăng ảnh lên Firebase!");
 
                         BonsaiImage bonsaiImage = new BonsaiImage()
                         {
@@ -203,7 +203,7 @@ namespace Application.Services
         public async Task Update(Guid id, BonsaiModel bonsaiModel)
         {
             if (bonsaiModel == null)
-                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng nhập thêm thông tin sản phẩm!");
+                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng điền đầy đủ thông tin!");
             var validationRules = new BonsaiModelValidator();
             var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModel);
             if (!resultBonsaiInfo.IsValid)
@@ -217,7 +217,7 @@ namespace Application.Services
             bonsai.DeliverySize = bonsaiModel.DeliverySize;
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(bonsai.Id);
             if (result == null)
-                throw new Exception("Không tìm thấy sản phẩm!");
+                throw new Exception("Không tìm thấy!");
             bonsai.Code = result.Code;
             bonsai.isDisable = false;
             bonsai.isSold = false;
@@ -276,7 +276,7 @@ namespace Application.Services
         {
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
             if (result == null)
-                throw new Exception("Không tìm thấy sản phẩm!");
+                throw new Exception("Không tìm thấy!");
             var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.BonsaiId == id && !x.IsDeleted);
             if (orderDetails.TotalItemsCount > 0)
             {
@@ -289,7 +289,7 @@ namespace Application.Services
             }
             catch (Exception)
             {
-                throw new Exception("Đã xảy ra lỗi trong quá trình xóa sản phẩm. Vui lòng thử lại!");
+                throw new Exception("Đã xảy ra lỗi trong quá trình xóa bonsai. Vui lòng thử lại!");
             }
         }
         public async Task<Pagination<Bonsai>> GetBoughtBonsai(Guid id)

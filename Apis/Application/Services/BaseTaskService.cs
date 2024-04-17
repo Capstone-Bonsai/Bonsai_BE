@@ -32,7 +32,7 @@ namespace Application.Services
         {
             if (model == null)
             {
-                throw new Exception("Vui lòng thêm các thông tin mua hàng.");
+                throw new Exception("Vui lòng điền đày đủ thông tin.");
             }
             var valiadte = new BaseTaskModelValidator();
             var results = await valiadte.ValidateAsync(model);
@@ -44,7 +44,7 @@ namespace Application.Services
             }
             var list = await _unit.BaseTaskRepository.GetAsync(isTakeAll: true, expression: x => x.Name.ToLower().Equals(model.Name.ToLower()) && !x.IsDeleted, isDisableTracking: true);
             if (list.Items.Count > 0)
-                throw new Exception("Tên nhiệm vụ này đã tồn tại!");
+                throw new Exception("Tên nhiệm vụ cơ bản này đã tồn tại!");
             var task = _mapper.Map<BaseTask>(model);
             try
             {
@@ -107,7 +107,7 @@ namespace Application.Services
 
             if (model == null)
             {
-                throw new Exception("Vui lòng thêm các thông tin mua hàng.");
+                throw new Exception("Vui lòng điền đầy đủ thông tin.");
             }
             var valiadte = new BaseTaskModelValidator();
             var results = await valiadte.ValidateAsync(model);
