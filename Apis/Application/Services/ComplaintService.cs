@@ -178,7 +178,7 @@ namespace Application.Services
                     }
                     else
                     {
-                        foreach (var item in serviceOrder.GardenCareTasks)
+                        foreach (var item in serviceOrder.BonsaiCareSteps)
                         {
                             if (item.CompletedTime == null) throw new InvalidOperationException("Không thể cập nhật trạng thái hoàn thành khiếu nại khi các nhiệm vụ của đơn đặt hàng dịch vụ này chưa được hoàn thành");
                         }

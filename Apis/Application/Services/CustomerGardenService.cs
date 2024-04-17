@@ -38,7 +38,7 @@ namespace Application.Services
         {
             if (customerGardenModel == null)
             {
-                throw new Exception("Không có thông tin vườn");
+                throw new Exception("Vui lòng điền đầy đủ thông tin");
             }
             var customerGarden = _mapper.Map<CustomerGarden>(customerGardenModel);
             var customer = await _idUtil.GetCustomerAsync(id);

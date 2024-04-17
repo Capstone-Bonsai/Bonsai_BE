@@ -44,7 +44,7 @@ namespace Application.Services
         {
             if (model == null)
             {
-                throw new Exception("Vui lòng thêm các thông tin mua hàng.");
+                throw new Exception("Vui lòng điền đầu đủ thông tin.");
             }
             else if (userId == null && model.OrderInfo == null)
             {
@@ -72,7 +72,7 @@ namespace Application.Services
 
             if (model.ListBonsai == null || model.ListBonsai.Count == 0)
             {
-                throw new Exception("Vui lòng chọn sản phẩm bạn muốn mua.");
+                throw new Exception("Vui lòng chọn bonsai bạn muốn mua.");
             }
             return null;
         }
@@ -88,7 +88,7 @@ namespace Application.Services
         {
             var order = await _unit.OrderRepository.GetByIdAsync(tempId);
             if (order == null)
-                throw new Exception("Đã xảy ra lối trong qua trình thanh toán. Vui lòng thanh toán lại sau!");
+                throw new Exception("Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thanh toán lại sau");
 
             double totalPrice = Math.Round(order.TotalPrice);
             string endpoint = _configuration["MomoServices:endpoint"];
@@ -255,7 +255,7 @@ namespace Application.Services
             {
                 var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
                 if (bonsai == null)
-                    throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");    
+                    throw new Exception("Không tìm thấy bonsai bạn muốn mua");    
                 bonsai.isSold = false;
                 bonsai.isDisable = false;
                 _unit.BonsaiRepository.Update(bonsai);
@@ -451,7 +451,7 @@ namespace Application.Services
             {
                 var bonsai = await _unit.BonsaiRepository.GetByIdAsync(bonsaiId);
                 if (bonsai == null)
-                    throw new Exception("Không tìm thấy sản phẩm bạn muốn mua");
+                    throw new Exception("Không tìm thấy bonsai bạn muốn mua");
                 else if (bonsai.isSold == null)
                     throw new Exception($"{bonsai.Name} không tồn tại");
                 else if(bonsai.isSold == true)
@@ -524,7 +524,7 @@ namespace Application.Services
             var order = await _unit.OrderRepository.GetByIdAsync(orderId);
             if (order == null)
             {
-                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
+                throw new Exception("Không tìm thấy");
             }
             if (orderStatus < order.OrderStatus)
             {
@@ -540,7 +540,7 @@ namespace Application.Services
             var order = await _unit.OrderRepository.GetByIdAsync(orderId);
             if (order == null)
             {
-                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
+                throw new Exception("Không tìm thấy");
             }
             try
             {
@@ -584,7 +584,7 @@ namespace Application.Services
             var order = await _unit.OrderRepository.GetByIdAsync(orderId);
             if (order == null)
             {
-                throw new Exception("Không tìm thấy đơn hàng bạn yêu cầu.");
+                throw new Exception("Không tìm thấy");
             }
             try
             {         

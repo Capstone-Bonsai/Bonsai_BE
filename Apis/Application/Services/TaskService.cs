@@ -240,7 +240,7 @@ namespace Application.Services
                   .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == updateNoteModel.ServiceOrderId);
             if (serviceOrder == null)
             {
-                throw new Exception("Không tìm thấy hợp đồng!");
+                throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ!");
             }
             if (serviceOrder.CustomerBonsaiId != null)
             {         

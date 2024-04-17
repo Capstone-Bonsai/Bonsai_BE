@@ -65,12 +65,12 @@ namespace Application.Services
         {
             if (careStepUpdateModel == null)
             {
-                throw new Exception("Vui lòng nhập lại!");
+                throw new Exception("Vui lòng điền đầy đủ thông tin!");
             }
             var careStep = await _unitOfWork.CareStepRepository.GetByIdAsync(id);
             if (careStep == null)
             {
-                throw new Exception("Không tìm thấy bước chăm sóc!");
+                throw new Exception("Không tìm thấy");
             }
             careStep.Step = careStepUpdateModel.CareStep;
             try
@@ -87,7 +87,7 @@ namespace Application.Services
         {
             var result = await _unitOfWork.CareStepRepository.GetByIdAsync(id);
             if (result == null)
-                throw new Exception("Không tìm thấy bước chăm sóc!");
+                throw new Exception("Không tìm thấy");
             try
             {
                 _unitOfWork.CareStepRepository.SoftRemove(result);

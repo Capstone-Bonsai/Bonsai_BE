@@ -65,7 +65,7 @@ namespace Application.Services
         {
             var result = await _unitOfWork.CategoryRepository.GetByIdAsync(id);
             if (result == null)
-                throw new Exception("Không tìm thấy phân loại!");
+                throw new Exception("Không tìm thấy!");
             var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == id && !x.IsDeleted);
             if (bonsais.TotalItemsCount > 0)
             {

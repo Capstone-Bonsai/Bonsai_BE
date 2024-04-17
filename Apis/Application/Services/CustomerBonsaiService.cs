@@ -40,7 +40,7 @@ namespace Application.Services
         {
             if (customerBonsaiModel == null)
             {
-                throw new Exception("Add sai data bonsai/vườn");
+                throw new Exception("Vui lòng điền đầy đủ thông tin");
             }
             var bonsai = await _unitOfWork.BonsaiRepository.GetByIdAsync(customerBonsaiModel.BonsaiId);
             if (bonsai == null)
@@ -55,7 +55,7 @@ namespace Application.Services
             var garden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(customerBonsaiModel.CustomerGardenId);
             if (garden == null)
             {
-                throw new Exception("Không tìm thấy thông tin bonsai");
+                throw new Exception("Không tìm thấy thông tin vườn");
             }
             var customerBonsai = _mapper.Map<CustomerBonsai>(customerBonsaiModel);
             await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
@@ -65,7 +65,7 @@ namespace Application.Services
         {
 
             if (bonsaiModelForCustomer == null)
-                throw new ArgumentNullException(nameof(bonsaiModelForCustomer), "Vui lòng nhập thêm thông tin sản phẩm!");
+                throw new ArgumentNullException(nameof(bonsaiModelForCustomer), "Vui lòng điền đầy đủ thông tin!");
 
             var validationRules = new BonsaiModelForCustomerValidator();
             var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModelForCustomer);
