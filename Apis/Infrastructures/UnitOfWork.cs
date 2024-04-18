@@ -37,6 +37,7 @@ namespace Infrastructures
         private readonly IDeliveryImageRepository _deliveryImageRepository;
         private readonly IServiceTypeRepository _serviceTypeRepository;
         private readonly IServiceOrderGardenerRepository _serviceOrderGardenerRepository;
+        private readonly INotificationRepository _notificationRepository;
         private IDbContextTransaction _transaction;
 
         public UnitOfWork(AppDbContext dbContext, IGardenerRepository gardenerRepository, ICustomerRepository customerRepository,
@@ -49,7 +50,7 @@ namespace Infrastructures
             IBonsaiCareStepRepository bonsaiCareStepRepository,
              IServiceOrderTransactionRepository serviceOrderTransactionRepository, IComplaintRepository complaintRepository, 
              IComplaintImageRepository complaintImageRepository, IContractRepository contractRepository, IDeliveryImageRepository deliveryImageRepository,
-             IServiceTypeRepository serviceTypeRepository, IServiceOrderGardenerRepository serviceOrderGardenerRepository
+             IServiceTypeRepository serviceTypeRepository, IServiceOrderGardenerRepository serviceOrderGardenerRepository, INotificationRepository notificationRepository
          )
         {
             _dbContext = dbContext;
@@ -81,6 +82,7 @@ namespace Infrastructures
             _deliveryImageRepository = deliveryImageRepository;
             _serviceTypeRepository = serviceTypeRepository;
             _serviceOrderGardenerRepository = serviceOrderGardenerRepository;
+            _notificationRepository = notificationRepository;
         }
 
 
@@ -139,6 +141,8 @@ namespace Infrastructures
         public IServiceTypeRepository ServiceTypeRepository => _serviceTypeRepository;
 
         public IServiceOrderGardenerRepository ServiceOrderGardenerRepository => _serviceOrderGardenerRepository;
+
+        public INotificationRepository NotificationRepository => _notificationRepository;
 
         public async Task<int> SaveChangeAsync()
         {

@@ -71,7 +71,7 @@ namespace Infrastructures
             services.AddScoped<IContractRepository, ContractRepository>();
             services.AddScoped<IDeliveryImageRepository, DeliveryImageRepository>();
             services.AddScoped<IServiceTypeRepository, ServiceTypeRepository>();
-            
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             services.AddScoped<IFirebaseService, FirebaseService>();
             services.AddScoped<NotificationHub>();

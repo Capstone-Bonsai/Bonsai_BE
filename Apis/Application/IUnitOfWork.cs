@@ -32,6 +32,7 @@ namespace Application
         public IServiceOrderRepository ServiceOrderRepository { get; }
         public IDeliveryImageRepository DeliveryImageRepository { get; }
         public IServiceTypeRepository ServiceTypeRepository { get; }
+        public INotificationRepository NotificationRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
         Task CommitTransactionAsync();
