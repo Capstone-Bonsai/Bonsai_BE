@@ -15,5 +15,7 @@ namespace Application.Interfaces
         Task Delete(Guid id);
         Task<Pagination<Bonsai>> GetBoughtBonsai(Guid id);
         Task<Pagination<Bonsai>> GetByCategory(int pageIndex, int pageSize, Guid categoryId);
+        Task DisableBonsai(Guid id);
+        Task<List<Bonsai>> getCurrentCart(List<Guid> bonsaiId);
     }
 }

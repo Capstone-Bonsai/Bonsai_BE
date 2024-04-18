@@ -111,6 +111,10 @@ namespace Infrastructures.Repositories
             }
             else
             {
+                if(pageIndex < 0 || pageSize < 0)
+                {
+                    throw new Exception("Số trang và sô lượng trong trang phải lớn hơn 0.");
+                }
                 if (orderBy == null)
                     paginationResult.Items = await query.Skip(pageSize * pageIndex).Take(pageSize).ToListAsync();
                 else

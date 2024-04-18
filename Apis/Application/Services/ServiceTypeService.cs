@@ -48,8 +48,13 @@ namespace Application.Services
             }
             if (serviceTypeModel.Description != null && serviceTypeModel.Description != "")
             {
+                if (serviceTypeModel.Description.Length > 1000)
+                {
+                    throw new Exception("Ghi chú không được quá 1000 kí tự");
+                }
                 serviceType.Description = serviceTypeModel.Description;
             }
+
             if (serviceTypeModel.Image != null)
             {
                 string newImageName = serviceType.Id + "_i" + serviceTypeModel.Image;

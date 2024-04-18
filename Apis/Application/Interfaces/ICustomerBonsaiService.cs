@@ -1,4 +1,5 @@
 ﻿using Application.Commons;
+using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.CustomerBonsaiViewModels;
 using Domain.Entities;
 using System;
@@ -15,5 +16,8 @@ namespace Application.Interfaces
         Task CreateBonsai(Guid gardenId, BonsaiModelForCustomer bonsaiModelForCustomer);
         Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId);
         Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer);
+        Task MoveBonsai(Guid customerId, Guid customerBonsaiId, Guid customerGardenId);
+        Task Update(Guid customerBonsaiId, BonsaiModel bonsaiModel);
+        Task<Pagination<CustomerBonsai>> GetBonsaiOfCustomer(Guid customerId, int pageIndex, int pageSize);
     }
 }

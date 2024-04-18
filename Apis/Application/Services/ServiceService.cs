@@ -323,6 +323,10 @@ namespace Application.Services
         public async Task<Pagination<ServiceViewModel>> GetServicePagination(int pageIndex, int pageSize, Guid serviceTypeId, Guid? customerBonsaId)
         {
             var serviceType = await _unit.ServiceTypeRepository.GetByIdAsync(serviceTypeId);
+            if (serviceType == null)
+            {
+                throw new Exception("Không tìm thấy loại dịch vụ");
+            }
             var services = await _unit.ServiceRepository.GetAllQueryable()
                         .AsNoTracking()
                         .Where(x => x.IsDeleted == false && x.ServiceType.Id == serviceTypeId)

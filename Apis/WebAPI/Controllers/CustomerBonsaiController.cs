@@ -79,5 +79,52 @@ namespace WebAPI.Controllers
             }
 
         }
+        [HttpPut("MoveBonsai")]
+        public async Task<IActionResult> MoveBonsai([FromRoute] Guid customerBonsaiId, Guid customerGardenId)
+        {
+            try
+            {
+                await _customerBonsaiService.MoveBonsai(_claims.GetCurrentUserId, customerBonsaiId, customerGardenId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("{customerBonsaiId}")]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Put([FromRoute] Guid customerBonsaiId, [FromForm] BonsaiModel bonsaiModel)
+        {
+            try
+            {
+                await _customerBonsaiService.Update(customerBonsaiId, bonsaiModel);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok("Cập nhật thành công!");
+        }
+         [HttpGet("Pagination")]
+        public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
+        {
+            try
+            {
+                var customerBonsai = await _customerBonsaiService.GetBonsaiOfCustomer(_claims.GetCurrentUserId, pageIndex, pageSize);
+                if (customerBonsai.Items.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy!");
+                }
+                else
+                {
+                    return Ok(customerBonsai);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -17,14 +17,12 @@ namespace WebAPI.Controllers
     {
         private readonly IBonsaiService _bonsaiService;
         private readonly IClaimsService _claims;
-        private readonly INotificationService _notificationService;
 
         public BonsaiController(IBonsaiService bonsaiService,
-            IClaimsService claimsService , INotificationService notificationService)
+            IClaimsService claimsService)
         {
             _bonsaiService = bonsaiService;
             _claims = claimsService;
-            _notificationService = notificationService;
         }
         [HttpGet("Pagination")]
         public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)
@@ -52,7 +50,6 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _bonsaiService.GetAll(_claims.GetIsAdmin);
-                await _notificationService.SendToStaff("Khách hàng đang tìm kiếm sản phẩm");
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");
@@ -161,6 +158,39 @@ namespace WebAPI.Controllers
             {
                 var products = await _bonsaiService.GetByCategory(pageIndex, pageSize, categoryId);
                 if (products.Items.Count == 0)
+                {
+                    return BadRequest("Không tìm thấy!");
+                }
+                else
+                {
+                    return Ok(products);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("Disable")]
+        public async Task<IActionResult> DisableBonsai([FromQuery] Guid bonsaiId)
+        {
+            try
+            {
+                await _bonsaiService.DisableBonsai(bonsaiId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("CurrentCart")]
+        public async Task<IActionResult> GetCurrentCart([FromBody] List<Guid> bonsaiId)
+        {
+            try
+            {
+                var products = await _bonsaiService.getCurrentCart(bonsaiId);
+                if (products.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");
                 }

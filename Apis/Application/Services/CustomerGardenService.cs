@@ -171,5 +171,70 @@ namespace Application.Services
             }
             return customerGarden;
         }
+
+        public async Task UpdateCustomerGarden(Guid customerGardenId, CustomerGardenModel customerGardenModel, Guid customerId)
+        {
+            if (customerGardenModel == null)
+            {
+                throw new Exception("Vui lòng điền đầy đủ thông tin");
+            }
+            var customerGarden = _mapper.Map<CustomerGarden>(customerGardenModel);
+            var customer = await _idUtil.GetCustomerAsync(customerId);
+            customerGarden.CustomerId = customer.Id;
+            customerGarden.Id = customerGardenId;
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                 _unitOfWork.CustomerGardenRepository.Update(customerGarden);
+                if (customerGardenModel.Image != null)
+                {
+                    var images = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == customerGardenId && !x.IsDeleted, isDisableTracking: true);
+                    if (customerGardenModel.OldImage != null)
+                    {
+                        foreach (CustomerGardenImage image in images.Items.ToList())
+                        {
+                            if (customerGardenModel.OldImage.Contains(image.Image))
+                            {
+                                //Bỏ những cái có trong danh sách cũ truyền về -> không xóa
+                                images.Items.Remove(image);
+                            }
+                        }
+
+                    }
+                    _unitOfWork.CustomerGardenImageRepository.SoftRemoveRange(images.Items);
+                    foreach (var singleImage in customerGardenModel.Image.Select((image, index) => (image, index)))
+                    {
+                        string newImageName = customerGarden.Id + "_i" + singleImage.index;
+                        string folderName = $"customerGarden/{customerGarden.Id}/Image";
+                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                        const long maxFileSize = 20 * 1024 * 1024;
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                        {
+                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                        }
+                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                        CustomerGardenImage customerGardenImage = new CustomerGardenImage()
+                        {
+                            CustomerGardenId = customerGarden.Id,
+                            Image = url
+                        };
+
+                        await _unitOfWork.CustomerGardenImageRepository.AddAsync(customerGardenImage);
+                    }
+                }
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                _unitOfWork.RollbackTransaction();
+                throw;
+            }
+
+        }
     }
 }

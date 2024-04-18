@@ -90,5 +90,19 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPut]
+        [Authorize(Roles = "Customer")]
+        public async Task<IActionResult> Put([FromRoute] Guid customerGardenId,[FromForm] CustomerGardenModel customerGardenModel)
+        {
+            try
+            {
+                await _customerGardenService.UpdateCustomerGarden(customerGardenId ,customerGardenModel, _claims.GetCurrentUserId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ namespace Application.Services
             if (serviceOrder == null)throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ của bạn");
             if(serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.Completed) throw new Exception("Đơn đặt hàng dịch vụ này đã hoàn thành nên không thể khiếu nại.");
             if (!serviceOrder.CustomerGarden.Customer.UserId.ToLower().Equals(userId.ToLower()))throw new Exception("Bạn không có quyền truy cập vào đơn đặt hàng dịch vụ này");
-            if (serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.TaskFinished || serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.ProcessedComplaint || serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.DoneTaskComplaint) { }else throw new Exception("Đơn đặt hàng dịch vụ này đang được xử lý nên không thể gửi khiếu nại.");
+            if (serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.TaskFinished || serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.DoneTaskComplaint) { }else throw new Exception("Đơn đặt hàng dịch vụ này đang được xử lý nên không thể gửi khiếu nại.");
             if(serviceOrder.EndDate.AddDays(3) < DateTime.Now) throw new Exception("Đơn đặt hàng dịch vụ này đã quá thời gian khiếu nại");
             _unitOfWork.BeginTransaction();
             if (model.ListImage == null || model.ListImage.Count == 0)
@@ -166,7 +166,7 @@ namespace Application.Services
                 else if(model.ComplaintStatus == Domain.Enums.ComplaintStatus.Completed)
                 {
                     if (complaint.ComplaintStatus != Domain.Enums.ComplaintStatus.Processing) throw new Exception("Trạng thái khiếu nại không hợp lệ.");
-                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.ProcessedComplaint;
+                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.DoneTaskComplaint;
                     _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                     await _unitOfWork.SaveChangeAsync();
                     if (serviceOrder.CustomerBonsaiId == null)

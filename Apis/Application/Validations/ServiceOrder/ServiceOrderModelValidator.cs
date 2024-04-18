@@ -1,4 +1,5 @@
-﻿using Application.ViewModels.ServiceGardenViewModels;
+﻿
+using Application.ViewModels.ServiceOrderViewModels;
 using Application.ViewModels.ServiceViewModels;
 using FluentValidation;
 using System;
@@ -7,11 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Application.Validations.ServiceGarden
+namespace Application.Validations.ServiceOrder
 {
-    public class ServiceGardenModelValidator : AbstractValidator<ServiceGardenModel>
+    public class ServiceOrderModelValidator : AbstractValidator<ServiceOrderModel>
     {
-        public ServiceGardenModelValidator()
+        public ServiceOrderModelValidator()
         {
             RuleFor(x => x.StartDate)
                 .NotEmpty().WithMessage("Ngày bắt đầu không được để trống.")

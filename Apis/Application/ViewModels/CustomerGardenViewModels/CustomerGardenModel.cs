@@ -14,5 +14,7 @@ namespace Application.ViewModels.CustomerGardenViewModels
         public float Square { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
+        [NotMapped]
+        public List<String>? OldImage { get; set; } = default!;
     }
 }

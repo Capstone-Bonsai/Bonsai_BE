@@ -3,6 +3,8 @@ using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
 using Application.Utils;
+using Application.Validations.Bonsai;
+using Application.Validations.ServiceOrder;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.ServiceOrderViewModels;
 using Application.ViewModels.TaskViewModels;
@@ -51,6 +53,14 @@ namespace Application.Services
         }
         public async Task CreateServiceOrder(ServiceOrderModel serviceOrderModel)
         {
+            var validationRules = new ServiceOrderModelValidator();
+            var resultServiceOrderInfo = await validationRules.ValidateAsync(serviceOrderModel);
+            if (!resultServiceOrderInfo.IsValid)
+            {
+                var errors = resultServiceOrderInfo.Errors.Select(x => x.ErrorMessage);
+                string errorMessage = string.Join(Environment.NewLine, errors);
+                throw new Exception(errorMessage);
+            }
             try
             {
                 _unitOfWork.BeginTransaction();

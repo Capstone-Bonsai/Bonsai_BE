@@ -76,6 +76,10 @@ namespace Application.Services
         }
         public async Task<Pagination<Bonsai>?> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false)
         {
+            if(filterBonsaiModel.Keyword != null && filterBonsaiModel.Keyword.Length > 50)
+            {
+                throw new Exception("Từ khóa phải dưới 50 kí tự");
+            }
             var filter = new List<Expression<Func<Bonsai, bool>>>();
             filter.Add(x => !x.IsDeleted && !x.Code.Contains("KHACHHANG"));
             if (!isAdmin)
@@ -156,6 +160,9 @@ namespace Application.Services
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
+            if (bonsaiModel.Image == null || bonsaiModel.Image.Count == 0)
+                throw new Exception("Vui lòng thêm hình ảnh");
+
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.isDisable = false;
             bonsai.Code = await generateCode(bonsaiModel.CategoryId);
@@ -212,6 +219,8 @@ namespace Application.Services
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
+            if ((bonsaiModel.Image == null || bonsaiModel.Image.Count == 0) && (bonsaiModel.OldImage == null || bonsaiModel.OldImage.Count == 0))
+                throw new Exception("Vui lòng thêm hình ảnh");
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.Id = id;
             bonsai.DeliverySize = bonsaiModel.DeliverySize;
@@ -346,6 +355,34 @@ namespace Application.Services
                 isDisableTracking: true, includes: includes);
             return bonsais;
         }
-
+        public async Task DisableBonsai(Guid id)
+        {
+            var bonsai = await _unitOfWork.BonsaiRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.Id == id && !x.Code.Contains("KHACHHANG"),
+                isDisableTracking: true);
+            if (!bonsai.Items[0].isDisable)
+                bonsai.Items[0].isDisable = true;
+            else
+                bonsai.Items[0].isDisable = false;
+            _unitOfWork.BonsaiRepository.Update(bonsai.Items[0]);
+            await _unitOfWork.SaveChangeAsync();
+        }
+        public async Task<List<Bonsai>> getCurrentCart(List<Guid> bonsaiId)
+        {
+            List<Bonsai> bonsais = new List<Bonsai>();
+            foreach(Guid id in bonsaiId)
+            {
+                var bonsai = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
+                if (bonsai == null)
+                {
+                    throw new Exception("Không tìm thấy bonsai " + id.ToString());
+                }
+                bonsais.Add(bonsai);
+            }
+            if(bonsaiId.Count != bonsais.Count)
+            {
+                throw new Exception("Số lượng cây trong cart khác với số lượng cây");
+            }
+            return bonsais;
+        }
     }
 }
