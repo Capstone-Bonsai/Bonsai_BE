@@ -237,7 +237,7 @@ namespace Application.Services
                 double bonsaiPrice = 0;
                 foreach (var item in listBonsaiId.Distinct())
                 {
-                    var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id ==item);
+                    var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id ==item && x.isSold == false && x.isDisable == false);
                     if (bonsai == null) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");
                     bonsaiPrice += bonsai.Price;
                     var fee = await CalculateFeeOfBonsai(bonsai.DeliverySize.Value, distance);

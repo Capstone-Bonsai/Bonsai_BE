@@ -191,7 +191,7 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     orderStatus = OrderStatus.Paid;
                 }
-                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().FirstOrDefaultAsync(x=>x.Id == orderId);
+                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id == orderId);
                 if (order == null)
                     throw new Exception("Không tìm thấy đơn hàng.");
                 var orderTransaction = new OrderTransaction();
@@ -216,11 +216,11 @@ namespace Application.Services
                 // Tạo transaction
                 orderTransaction.Signature = momo.signature;
                 await _unit.OrderTransactionRepository.AddAsync(orderTransaction);
-                
-                if(momo.resultCode != 0)
+
+                if (momo.resultCode != 0)
                 {
-                    var lists = new List<Bonsai>();    
-                    var listBonsai = await _unit.OrderDetailRepository.GetAllQueryable().Include(x=>x.Bonsai).Where(x=>x.IsDeleted == false && x.OrderId == orderId).ToListAsync();
+                    var lists = new List<Bonsai>();
+                    var listBonsai = await _unit.OrderDetailRepository.GetAllQueryable().Include(x => x.Bonsai).Where(x => x.IsDeleted == false && x.OrderId == orderId).ToListAsync();
                     foreach (var item in listBonsai)
                     {
                         item.Bonsai.isSold = false;
@@ -255,7 +255,7 @@ namespace Application.Services
             {
                 var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
                 if (bonsai == null)
-                    throw new Exception("Không tìm thấy bonsai bạn muốn mua");    
+                    throw new Exception("Không tìm thấy bonsai bạn muốn mua");
                 bonsai.isSold = false;
                 bonsai.isDisable = false;
                 _unit.BonsaiRepository.Update(bonsai);
@@ -265,7 +265,7 @@ namespace Application.Services
 
         public async Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
         {
-            IList< Order > listOrder = new List< Order >();
+            IList<Order> listOrder = new List<Order>();
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new Exception("Không tìm thấy người dùng!");
@@ -276,7 +276,7 @@ namespace Application.Services
             List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
 {
     x => x.Customer.ApplicationUser
-    
+
 };
             if (isCustomer && !isAdmin && !isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
@@ -297,7 +297,7 @@ namespace Application.Services
                    .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
                .ThenInclude(x => x.Bonsai.BonsaiImages)
-               .Where(x => x.GardenerId == gardener.Id && (x.OrderStatus == OrderStatus.Preparing || x.OrderStatus == OrderStatus.Delivering )).OrderByDescending(y => y.CreationDate).ToListAsync();
+               .Where(x => x.GardenerId == gardener.Id && (x.OrderStatus == OrderStatus.Preparing || x.OrderStatus == OrderStatus.Delivering)).OrderByDescending(y => y.CreationDate).ToListAsync();
             }
             else return null;
             var itemCount = listOrder.Count();
@@ -454,11 +454,13 @@ namespace Application.Services
                     throw new Exception("Không tìm thấy bonsai bạn muốn mua");
                 else if (bonsai.isSold == null)
                     throw new Exception($"{bonsai.Name} không tồn tại");
-                else if(bonsai.isSold == true)
+                else if (bonsai.isSold == true)
                     throw new Exception($"{bonsai.Name} đã được bán");
+                else if (bonsai.isDisable == true)
+                    throw new Exception($"{bonsai.Name} không khả dụng");
 
                 //tạo order đetail
-                var orderDetail =new OrderDetail();
+                var orderDetail = new OrderDetail();
                 orderDetail.BonsaiId = bonsaiId;
                 orderDetail.OrderId = orderId;
                 orderDetail.Price = bonsai.Price;
@@ -484,8 +486,8 @@ namespace Application.Services
                 var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.Id == orderId && !x.IsDeleted).FirstOrDefaultAsync();
                 if (order == null)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
-                
-                var listOrderDetail = await _unit.OrderDetailRepository.GetAllQueryable().Where(x=>x.OrderId ==orderId && !x.IsDeleted).AsNoTracking().ToListAsync();
+
+                var listOrderDetail = await _unit.OrderDetailRepository.GetAllQueryable().Where(x => x.OrderId == orderId && !x.IsDeleted).AsNoTracking().ToListAsync();
 
                 if (listOrderDetail == null || listOrderDetail.Count == 0)
                     throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
@@ -497,7 +499,7 @@ namespace Application.Services
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
                 deliveryPrice = await CalculateDeliveryPrice(order.Address, bonsaisId);
-                
+
                 order.DeliveryPrice = deliveryPrice.DeliveryFee;
                 order.ExpectedDeliveryDate = deliveryPrice.ExpectedDeliveryDate;
                 order.Price = total;
@@ -530,7 +532,7 @@ namespace Application.Services
             {
                 throw new Exception("Trạng thái không hợp lệ.");
             }
-            if(order.OrderStatus == OrderStatus.Delivered || order.OrderStatus == OrderStatus.DeliveryFailed || order.OrderStatus == OrderStatus.Failed) throw new Exception("Đơn hàng này đã kết thúc nên không thể cập nhật trạng thái.");
+            if (order.OrderStatus == OrderStatus.Delivered || order.OrderStatus == OrderStatus.DeliveryFailed || order.OrderStatus == OrderStatus.Failed) throw new Exception("Đơn hàng này đã kết thúc nên không thể cập nhật trạng thái.");
             order.OrderStatus = orderStatus;
             _unit.OrderRepository.Update(order);
             await _unit.SaveChangeAsync();
@@ -587,7 +589,7 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy");
             }
             try
-            {         
+            {
                 order.GardenerId = gardenerId;
                 order.OrderStatus = OrderStatus.Preparing;
                 _unit.OrderRepository.Update(order);

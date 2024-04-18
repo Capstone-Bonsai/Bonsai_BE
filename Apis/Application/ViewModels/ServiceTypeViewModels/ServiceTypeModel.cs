@@ -10,7 +10,7 @@ namespace Application.ViewModels.ServiceTypeViewModels
 {
     public class ServiceTypeModel
     {
-        public String? Description { get; set; } = default!;
+        public string? Description { get; set; } = default!;
         public IFormFile? Image { get; set; } = default!;
     }
 }

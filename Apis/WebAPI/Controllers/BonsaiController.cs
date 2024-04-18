@@ -184,7 +184,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("CurrentCart")]
+        [HttpPost("CurrentCart")]
         public async Task<IActionResult> GetCurrentCart([FromBody] List<Guid> bonsaiId)
         {
             try

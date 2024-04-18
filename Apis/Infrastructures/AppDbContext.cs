@@ -45,6 +45,8 @@ namespace Infrastructures
         public DbSet<ComplaintImage> ComplaintImage { get; set; }
         public DbSet<DeliveryImage> DeliveryImage { get; set; }
         public DbSet<ServiceType> ServiceType { get; set; }
+        public DbSet<Notification> Notification { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
