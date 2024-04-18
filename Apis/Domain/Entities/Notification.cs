@@ -12,7 +12,6 @@ namespace Domain.Entities
         [ForeignKey("ApplicationUser")]
         public string UserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
-        public string Role { get; set; }
         public string Title { get; set; }
         public string Message { get; set; }
         public bool IsRead { get; set; } = false;
