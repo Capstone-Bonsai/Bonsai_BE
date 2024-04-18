@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Infrastructures.Migrations
 {
     /// <inheritdoc />
@@ -97,9 +99,9 @@ namespace Infrastructures.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MaxDistance = table.Column<int>(type: "int", nullable: true),
+                    MaxDistance = table.Column<double>(type: "float", nullable: true),
                     Fee = table.Column<double>(type: "float", nullable: false),
-                    DeliveryType = table.Column<int>(type: "int", nullable: false),
+                    DeliverySize = table.Column<int>(type: "int", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -120,6 +122,8 @@ namespace Infrastructures.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TypeEnum = table.Column<int>(type: "int", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -334,6 +338,35 @@ namespace Infrastructures.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Notification",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ModificationBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeletionDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DeleteBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Notification", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Notification_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Staff",
                 columns: table => new
                 {
@@ -394,7 +427,6 @@ namespace Infrastructures.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDisable = table.Column<bool>(type: "bit", nullable: false),
-                    StandardPrice = table.Column<double>(type: "float", nullable: false),
                     Image = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -433,7 +465,7 @@ namespace Infrastructures.Migrations
                     Price = table.Column<double>(type: "float", nullable: false),
                     isDisable = table.Column<bool>(type: "bit", nullable: false),
                     isSold = table.Column<bool>(type: "bit", nullable: true),
-                    DeliveryType = table.Column<int>(type: "int", nullable: true),
+                    DeliverySize = table.Column<int>(type: "int", nullable: true),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -494,7 +526,6 @@ namespace Infrastructures.Migrations
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GardenerId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DeliveryType = table.Column<int>(type: "int", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpectedDeliveryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeliveryDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -644,6 +675,7 @@ namespace Infrastructures.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CustomerGardenId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CustomerBonsaiId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CustomerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CustomerPhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -653,10 +685,7 @@ namespace Infrastructures.Migrations
                     GardenSquare = table.Column<float>(type: "real", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     TotalPrice = table.Column<double>(type: "float", nullable: false),
-                    ContractStatus = table.Column<int>(type: "int", nullable: false),
-                    ServiceTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    NumberOfGardener = table.Column<int>(type: "int", nullable: false),
-                    ServiceId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ServiceOrderStatus = table.Column<int>(type: "int", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ModificationDate = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -675,16 +704,11 @@ namespace Infrastructures.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_ServiceOrder_ServiceType_ServiceTypeId",
-                        column: x => x.ServiceTypeId,
-                        principalTable: "ServiceType",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_ServiceOrder_Service_ServiceId",
                         column: x => x.ServiceId,
                         principalTable: "Service",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1014,6 +1038,15 @@ namespace Infrastructures.Migrations
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.InsertData(
+                table: "ServiceType",
+                columns: new[] { "Id", "CreatedBy", "CreationDate", "DeleteBy", "DeletionDate", "Description", "Image", "IsDeleted", "ModificationBy", "ModificationDate", "TypeEnum", "TypeName" },
+                values: new object[,]
+                {
+                    { new Guid("381e77b3-2cfa-4362-afae-fe588701616e"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "không có", "", false, null, null, 2, "Dịch vụ chăm sóc sân vườn" },
+                    { new Guid("70f34b1c-1a2c-40ad-a9b6-ec374db61354"), null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), null, null, "Không có", "", false, null, null, 1, "Dịch vụ chăm sóc bonsai" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -1153,6 +1186,11 @@ namespace Infrastructures.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Notification_UserId",
+                table: "Notification",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Order_CustomerId",
                 table: "Order",
                 column: "CustomerId");
@@ -1197,11 +1235,6 @@ namespace Infrastructures.Migrations
                 name: "IX_ServiceOrder_ServiceId",
                 table: "ServiceOrder",
                 column: "ServiceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ServiceOrder_ServiceTypeId",
-                table: "ServiceOrder",
-                column: "ServiceTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ServiceOrderGardener_GardenerId",
@@ -1272,6 +1305,9 @@ namespace Infrastructures.Migrations
 
             migrationBuilder.DropTable(
                 name: "Manager");
+
+            migrationBuilder.DropTable(
+                name: "Notification");
 
             migrationBuilder.DropTable(
                 name: "OrderDetail");
