@@ -26,7 +26,7 @@ namespace Infrastructures.Mappers
             CreateMap<CustomerGardenModel, CustomerGarden>();
             CreateMap<CustomerBonsaiModel, CustomerBonsai>().ReverseMap();
             CreateMap<BonsaiModelForCustomer, Bonsai>();
-            
+            CreateMap<ServiceOrder, OverallServiceOrderViewModel>().ReverseMap();
 
             CreateMap<ServiceOrder, ServiceOrderForGardenerViewModel>().ReverseMap();
             CreateMap<OrderModel, Order>().ReverseMap();
