@@ -193,37 +193,15 @@ namespace Application.Services
             return result;
         }
 
-        public async Task<Pagination<ServiceViewModel>> GetServicePagination(string? userId, int pageIndex = 0, int pageSize = 10)
+        public async Task<Pagination<ServiceViewModel>> GetServicePagination(int pageIndex = 0, int pageSize = 10)
         {
-            IList<Service> services = new List<Service>();
-            if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"))
-            {
-                services = await _unit.ServiceRepository.GetAllQueryable()
-                       .AsNoTracking()
-                       .Include(x => x.ServiceBaseTasks)
-                       .ThenInclude(x => x.BaseTask)
-                       .Where(x => x.IsDeleted == false && !x.IsDisable)
-                       .OrderByDescending(x => x.CreationDate).ToListAsync();
-            }
-            else
-            {
-                var user = await _userManager.FindByIdAsync(userId);
-                var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
-                var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
-                var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
 
-                if (isCustomer && !isAdmin && !isStaff)
-                    services = await _unit.ServiceRepository.GetAllQueryable()
-                        .AsNoTracking()
-                        .Include(x => x.ServiceBaseTasks)
-                        .ThenInclude(x => x.BaseTask).Where(x => x.IsDeleted == false && x.IsDisable == false).OrderByDescending(x => x.CreationDate).ToListAsync();
-                else if (isAdmin || isStaff)
-                    services = await _unit.ServiceRepository.GetAllQueryable()
+            var services = await _unit.ServiceRepository.GetAllQueryable()
                         .AsNoTracking()
                         .Include(x => x.ServiceBaseTasks)
                         .ThenInclude(x => x.BaseTask)
                         .Include(x => x.ServiceType).Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreationDate).ToListAsync();
-            }
+
             var itemCount = services.Count();
             var items = services.OrderByDescending(x => x.CreationDate)
                                     .Skip(pageIndex * pageSize)
@@ -239,6 +217,7 @@ namespace Application.Services
             };
 
             var result = _mapper.Map<Pagination<ServiceViewModel>>(res);
+     
             return result;
         }
 

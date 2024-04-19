@@ -20,5 +20,6 @@ namespace Application.ViewModels.ServiceViewModels
         public ServiceType ServiceType { get; set; }
         [NotMapped]
         public IList<string> Tasks { get; set; }
+        public IList<ServiceBaseTask> ServiceBaseTasks { get; set; }
     }
 }

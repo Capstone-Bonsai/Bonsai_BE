@@ -41,12 +41,12 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet]
+        [Authorize(Roles ="Staff,Manager")]
         public async Task<IActionResult> GetPagination(int pageIndex = 0, int pageSize = 10)
         {
             try
             {
-                var userId = _claims.GetCurrentUserId.ToString().ToLower();
-                var service = await _serviceService.GetServicePagination(userId, pageIndex, pageSize);
+                var service = await _serviceService.GetServicePagination(pageIndex, pageSize);
                 return Ok(service);
             }
             catch (Exception ex)
