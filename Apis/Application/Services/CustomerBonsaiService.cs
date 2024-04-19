@@ -78,7 +78,8 @@ namespace Application.Services
             }
             var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
             bonsai.Price = 0;
-            bonsai.isDisable = false;
+            bonsai.isDisable = true;
+            bonsai.isSold = null;
             bonsai.Code = await generateCode();
             try
             {
