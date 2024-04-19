@@ -25,7 +25,7 @@ namespace Application.ViewModels.ServiceOrderViewModels
         public string Address { get; set; }
         public double TotalPrice { get; set; }
         public ServiceOrderStatus ServiceOrderStatus { get; set; }
-        public ServiceType ServiceType { get; set; }
+        public Service Service { get; set; }
         public IList<BonsaiCareStep> BonsaiCareSteps { get; set; }
         public IList<Contract> Contracts { get; set; }
         public IList<GardenCareTask> GardenCareTasks { get; set; }
