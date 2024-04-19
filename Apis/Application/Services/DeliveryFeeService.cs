@@ -237,8 +237,9 @@ namespace Application.Services
                 double bonsaiPrice = 0;
                 foreach (var item in listBonsaiId.Distinct())
                 {
-                    var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id ==item && x.isSold == false && x.isDisable == false);
-                    if (bonsai == null) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");
+                    var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id ==item  && x.isDisable == false);
+                    if (bonsai == null) throw new Exception("Không tìm thấy bonsai mà bạn cần. ");
+                    if(bonsai.isSold == null|| bonsai.isSold == true ) throw new Exception("Không tìm thấy Bonsai mà bạn cần. ");
                     bonsaiPrice += bonsai.Price;
                     var fee = await CalculateFeeOfBonsai(bonsai.DeliverySize.Value, distance);
                     deliveryFee +=fee;
@@ -246,6 +247,62 @@ namespace Application.Services
                 finalFee.DeliveryFee = deliveryFee;
                 finalFee.PriceAllBonsai = bonsaiPrice;
                 finalFee.FinalPrice  = bonsaiPrice + deliveryFee;
+                finalFee.Distance = distance;
+                return finalFee;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<FeeViewModel> CalculateFeeOrder(string destination, IList<Guid> listBonsaiId)
+        {
+            string origin = _configuration["Origin:GeoLocation"];
+            int distance = 0;
+            var finalFee = new FeeViewModel();
+            var addressModel = await GetGeocoding(destination);
+            string codeKey = _configuration["GoongAPI"];
+            int duration = 0;
+            HttpResponseMessage response = await _httpClient.GetAsync($"https://rsapi.goong.io/DistanceMatrix?origins={origin}&destinations={addressModel.Geocoding}&vehicle=car&api_key={codeKey}");
+            if (response.IsSuccessStatusCode)
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                var res = JsonConvert.DeserializeObject<DistanceResponse>(content);
+                if (res != null && res.rows != null && res.rows.Count > 0)
+                {
+                    distance = res.rows.FirstOrDefault().elements.FirstOrDefault().distance.value / 1000;
+                    duration = res.rows.FirstOrDefault().elements.FirstOrDefault().duration.value;
+                }
+                else
+                {
+                    throw new Exception("Địa điểm giao hàng không hợp lệ.");
+                }
+                finalFee.Origin_addresses = "372b QL20, Liên Nghĩa, Đức Trọng, Lâm Đồng, Vietnam";
+                finalFee.Destination_addresses = addressModel.Address;
+            }
+            else
+            {
+                throw new Exception("Địa điểm giao hàng không hợp lệ.");
+            }
+            if (distance == 0) throw new Exception("Địa chỉ giao hàng không hợp lệ");
+            try
+            {
+                finalFee.DurationHour = duration / 3600;
+                finalFee.DurationMinute = (duration / 60) % 60;
+                finalFee.ExpectedDeliveryDate = DateTime.Now.AddHours(finalFee.DurationHour).AddMinutes(finalFee.DurationMinute);
+                double deliveryFee = 0;
+                double bonsaiPrice = 0;
+                foreach (var item in listBonsaiId.Distinct())
+                {
+                    var bonsai = await _unit.BonsaiRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.Id == item );
+                    if (bonsai == null) throw new Exception("Không tìm thấy bonsai mà bạn cần. ");
+                    bonsaiPrice += bonsai.Price;
+                    var fee = await CalculateFeeOfBonsai(bonsai.DeliverySize.Value, distance);
+                    deliveryFee += fee;
+                }
+                finalFee.DeliveryFee = deliveryFee;
+                finalFee.PriceAllBonsai = bonsaiPrice;
+                finalFee.FinalPrice = bonsaiPrice + deliveryFee;
                 finalFee.Distance = distance;
                 return finalFee;
             }

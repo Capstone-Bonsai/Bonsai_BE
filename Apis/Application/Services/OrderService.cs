@@ -494,11 +494,10 @@ namespace Application.Services
                 double total = 0;
                 foreach (var item in listOrderDetail)
                 {
-
                     total += item.Price;
                 }
                 FeeViewModel deliveryPrice = new FeeViewModel();
-                deliveryPrice = await CalculateDeliveryPrice(order.Address, bonsaisId);
+                deliveryPrice = await _deliveryFeeService.CalculateFeeOrder(order.Address, bonsaisId);
 
                 order.DeliveryPrice = deliveryPrice.DeliveryFee;
                 order.ExpectedDeliveryDate = deliveryPrice.ExpectedDeliveryDate;
