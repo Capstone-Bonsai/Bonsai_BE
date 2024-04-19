@@ -380,6 +380,7 @@ namespace Application.Services
             List<Expression<Func<ServiceOrder, object>>> includes = new List<Expression<Func<ServiceOrder, object>>>{
                                  x => x.Contract,
                                  x => x.Complaints,
+                                 x => x.Service.ServiceType
                                     };
             Pagination<ServiceOrder>? serviceOrders;
             if (isCustomer)
@@ -405,6 +406,14 @@ namespace Application.Services
             foreach (Complaint complaint in overallServiceOrderViewModel.Complaints)
             {
                 complaint.ComplaintImages = await GetIMageAsync(complaint.Id);
+            }
+            if(overallServiceOrderViewModel.CustomerBonsaiId != null && overallServiceOrderViewModel.CustomerBonsaiId.HasValue)
+            {
+                overallServiceOrderViewModel.CustomerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetByIdAsync(overallServiceOrderViewModel.CustomerBonsaiId.Value);
+            }
+            else
+            {
+                overallServiceOrderViewModel.CustomerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(overallServiceOrderViewModel.CustomerGardenId);
             }
             return overallServiceOrderViewModel;
         }
