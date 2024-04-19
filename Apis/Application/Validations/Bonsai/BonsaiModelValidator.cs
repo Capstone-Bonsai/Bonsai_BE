@@ -13,7 +13,7 @@ namespace Application.Validations.Bonsai
     {
         public BonsaiModelValidator()
         {
-            RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Category không được để trống.");
+            RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Danh mục không được để trống.");
 
             RuleFor(x => x.StyleId).NotEmpty().WithMessage("Kiểu dáng không được để trống.");
 
@@ -32,9 +32,11 @@ namespace Application.Validations.Bonsai
                 .GreaterThan(0).WithMessage("Chiều cao phải là số dương.");
 
             RuleFor(x => x.TrunkDimenter)
+                .NotEmpty().WithMessage("Hoành cây không được để trống.")
                .GreaterThan(0).WithMessage("Hoành cây phải là số dương.");
 
             RuleFor(x => x.NumberOfTrunk)
+                 .NotEmpty().WithMessage("Số thân không được để trống.")
                 .GreaterThan(0).WithMessage("Số thân phải là số nguyên dương.");
 
             RuleFor(x => x.Price)

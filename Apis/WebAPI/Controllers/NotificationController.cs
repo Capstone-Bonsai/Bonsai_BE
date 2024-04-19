@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var notifications = await _notificationService.GetNotification(_claims.GetIsCustomer, _claims.GetCurrentUserId,pageIndex, pageSize);
+                var notifications = await _notificationService.GetNotification(_claims.GetCurrentUserId,pageIndex, pageSize);
                 return Ok(notifications);   
             }
             catch (Exception ex)

@@ -160,9 +160,18 @@ namespace Application.Services
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
+            if (bonsaiModel.Price == null)
+            {
+                throw new Exception("Giá không được để trống.");
+            }
             if (bonsaiModel.Image == null || bonsaiModel.Image.Count == 0)
                 throw new Exception("Vui lòng thêm hình ảnh");
-
+            var category = _unitOfWork.CategoryRepository.GetByIdAsync(bonsaiModel.CategoryId);
+            if (category == null)
+                throw new Exception("Không tìm thấy danh mục!");
+            var style = _unitOfWork.StyleRepository.GetByIdAsync(bonsaiModel.StyleId);
+            if (style == null)
+                throw new Exception("Không tìm thấy kiểu dáng!");
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.isDisable = false;
             bonsai.Code = await generateCode(bonsaiModel.CategoryId);
@@ -209,6 +218,9 @@ namespace Application.Services
         }
         public async Task Update(Guid id, BonsaiModel bonsaiModel)
         {
+            var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
+            if (result == null)
+                throw new Exception("Không tìm thấy bonsai!");
             if (bonsaiModel == null)
                 throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng điền đầy đủ thông tin!");
             var validationRules = new BonsaiModelValidator();
@@ -224,9 +236,7 @@ namespace Application.Services
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.Id = id;
             bonsai.DeliverySize = bonsaiModel.DeliverySize;
-            var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(bonsai.Id);
-            if (result == null)
-                throw new Exception("Không tìm thấy!");
+           
             bonsai.Code = result.Code;
             bonsai.isDisable = false;
             bonsai.isSold = false;

@@ -10,8 +10,8 @@ namespace Application.Interfaces
 {
     public interface INotificationService
     {
-        Task SendMessageForUserId(Guid id, string message);
-        Task SendToStaff(string message);
-        Task<Pagination<Notification>> GetNotification(bool isCustomer, Guid customerId, int pageIndex, int pageSize);
+        Task SendMessageForUserId(Guid id, string title, string message);
+        Task SendToStaff(string title, string message);
+        Task<Pagination<Notification>> GetNotification(Guid userId, int pageIndex, int pageSize);
     }
 }

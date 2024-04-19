@@ -52,7 +52,6 @@ namespace WebAPI.Controllers
             try
             {
                 var products = await _bonsaiService.GetAll(_claims.GetIsAdmin);
-                await _notificationService.SendMessageForUserId(_claims.GetCurrentUserId, "Đây là thông báo");
                 if (products.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy!");
@@ -97,12 +96,20 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get([FromRoute] Guid id)
         {
-            var product = await _bonsaiService.GetById(id, _claims.GetIsAdmin);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _bonsaiService.GetById(id, _claims.GetIsAdmin);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
             }
-            return Ok(product);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
         [HttpPut("{id}")]
         [Authorize(Roles = "Manager")]

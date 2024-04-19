@@ -221,7 +221,8 @@ namespace Application.Services
                     services = await _unit.ServiceRepository.GetAllQueryable()
                         .AsNoTracking()
                         .Include(x => x.ServiceBaseTasks)
-                        .ThenInclude(x => x.BaseTask).Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreationDate).ToListAsync();
+                        .ThenInclude(x => x.BaseTask)
+                        .Include(x => x.ServiceType).Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreationDate).ToListAsync();
             }
             var itemCount = services.Count();
             var items = services.OrderByDescending(x => x.CreationDate)
@@ -334,6 +335,7 @@ namespace Application.Services
                                     .Skip(pageIndex * pageSize)
                                     .Take(pageSize)
                                     .ToListAsync();
+
             var totalCount = await _unit.ServiceRepository.GetAllQueryable()
     .AsNoTracking()
     .Where(x => x.IsDeleted == false && x.ServiceType.Id == serviceTypeId)

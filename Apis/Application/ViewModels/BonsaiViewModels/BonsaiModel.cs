@@ -14,7 +14,7 @@ namespace Application.ViewModels.BonsaiViewModel
         public int TrunkDimenter { get; set; }
         public float? Height { get; set; }
         public int NumberOfTrunk { get; set; }
-        public double Price { get; set; }
+        public double? Price { get; set; }
         public DeliverySize DeliverySize { get; set; }
         [NotMapped]
         public List<String>? OldImage { get; set; } = default!;

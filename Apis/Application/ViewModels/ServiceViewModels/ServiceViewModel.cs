@@ -17,6 +17,7 @@ namespace Application.ViewModels.ServiceViewModels
         public string Description { get; set; }
         public bool IsDisable { get; set; }
         public string Image { get; set; }
+        public ServiceType ServiceType { get; set; }
         [NotMapped]
         public IList<string> Tasks { get; set; }
     }
