@@ -587,6 +587,10 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
             }
+            if (serviceOrderStatus < serviceOrder.ServiceOrderStatus)
+            {
+                throw new Exception("Trạng thái không hợp lệ.");
+            }
             serviceOrder.ServiceOrderStatus = serviceOrderStatus;
             _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
             await _unitOfWork.SaveChangeAsync();

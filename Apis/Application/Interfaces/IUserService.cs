@@ -18,7 +18,7 @@ namespace Application.Interfaces
         public Task<List<string>> GetListRoleAsync();
         public Task Delete(string role, ApplicationUser user);
         Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize, Guid contractId);
-        Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize);
+        Task<Pagination<GardenerViewModel>> GetListGardenerAsync();
 
     }
 }

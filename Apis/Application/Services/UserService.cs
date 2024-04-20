@@ -441,17 +441,15 @@ namespace Infrastructures.Services
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return gardener;
         }
-        public async Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize)
+        public async Task<Pagination<GardenerViewModel>> GetListGardenerAsync()
         {
             var listUser = await _userManager.Users.Where(x => x.Gardener != null).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
             var itemCount = listUser.Count();
-            var items = listUser.Skip(pageIndex * pageSize)
-                                    .Take(pageSize)
-                                    .ToList();
+            var items = listUser.ToList();
             var result = new Pagination<ApplicationUser>()
             {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
+                PageIndex = 0,
+                PageSize = itemCount,
                 TotalItemsCount = itemCount,
                 Items = items,
             };

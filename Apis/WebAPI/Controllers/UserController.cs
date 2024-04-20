@@ -203,11 +203,11 @@ namespace WebAPI.Controllers
         }
         //[Authorize(Roles = "Staff")]
         [HttpGet("Gardener")]
-        public async Task<IActionResult> GetListGardener(int pageIndex, int pageSize)
+        public async Task<IActionResult> GetListGardener()
         {
             try
             {
-                var users = await _userService.GetListGardenerAsync(pageIndex, pageSize);
+                var users = await _userService.GetListGardenerAsync();
                 return Ok(users);
             }
             catch (Exception ex)
