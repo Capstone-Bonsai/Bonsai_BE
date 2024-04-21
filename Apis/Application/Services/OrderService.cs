@@ -28,7 +28,7 @@ namespace Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IDeliveryFeeService _deliveryFeeService;
-        private readonly FirebaseService _fireBaseService;
+        private readonly IFirebaseService _fireBaseService;
         private readonly IdUtil _idUtil;
         public OrderService(IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, IDeliveryFeeService deliveryFeeService, FirebaseService fireBaseService, IdUtil idUtil)
         {

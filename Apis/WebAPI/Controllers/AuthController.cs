@@ -193,7 +193,7 @@ namespace WebAPI.Controllers
         }*/
 
         [HttpPost("ForgotPassword")]
-        public async Task<IActionResult> ForgotPasswordForMobile(string email)
+        public async Task<IActionResult> ForgotPassword(string email)
         {
             try
             {
@@ -224,7 +224,7 @@ namespace WebAPI.Controllers
                     return BadRequest("Vui lòng không để trống Email của người dùng.");
                 }
                
-                var result = await _auth.ResetPasswordForMobileAsync(model);
+                var result = await _auth.ResetPasswordAsync(model);
                 return Ok(result);
             }
             catch (Exception e)
