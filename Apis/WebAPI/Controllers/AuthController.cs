@@ -16,23 +16,17 @@ namespace WebAPI.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
-        private readonly IAuthorizationService _authorizationService;
         private readonly IConfiguration _configuration;
         public readonly IWebHostEnvironment _environment;
         private readonly IUnitOfWork _unit;
 
         public AuthController(UserManager<ApplicationUser> userManager,
              SignInManager<ApplicationUser> signInManager,
-            IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-            IAuthorizationService authorizationService,
             IConfiguration configuration,
             IWebHostEnvironment environment, IUnitOfWork unit)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
-            _authorizationService = authorizationService;
             _configuration = configuration;
             _environment = environment;
             _unit = unit;
@@ -228,7 +222,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPasswordForMobile([FromBody] ResetPassModel model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPassModel model)
         {
             try
             {
