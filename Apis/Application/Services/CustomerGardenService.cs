@@ -158,19 +158,6 @@ namespace Application.Services
             var customerGardens = await _unitOfWork.CustomerGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return customerGardens;
         }
-        public async Task<CustomerGarden> GetById(Guid id, Guid customerId, bool isCustomer)
-        {
-            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(id);
-            if (customerGarden == null)
-            {
-                throw new Exception("Không tìm thấy");
-            }
-            if (isCustomer == true && customerGarden.CustomerId != customerId)
-            {
-                throw new Exception("Bạn không có quyền truy cập vườn này");
-            }
-            return customerGarden;
-        }
 
         public async Task UpdateCustomerGarden(Guid customerGardenId, CustomerGardenModel customerGardenModel, Guid customerId)
         {
@@ -234,7 +221,24 @@ namespace Application.Services
                 _unitOfWork.RollbackTransaction();
                 throw;
             }
-
+        }
+        public async Task<CustomerGarden> GetById(Guid customerGardenId, bool isCustomer, Guid userId)
+        {   
+            List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
+                                 x => x.Customer.ApplicationUser,
+                                 x => x.CustomerGardenImages
+                                    };
+            Pagination<CustomerGarden> customerGarden;
+            if (isCustomer)
+            {
+                var customer = await _idUtil.GetCustomerAsync(userId);
+                customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => x.Id == customerGardenId && x.CustomerId == customer.Id && !x.IsDeleted, includes: includes);
+            }
+            else
+            {
+                customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => x.Id == customerGardenId && !x.IsDeleted, includes: includes);
+            }
+            return customerGarden.Items[0];
         }
     }
 }

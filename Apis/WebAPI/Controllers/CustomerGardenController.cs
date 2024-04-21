@@ -104,5 +104,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            try
+            {
+                var bonsai = await _customerGardenService.GetById(id, _claims.GetIsCustomer, _claims.GetCurrentUserId);
+                return Ok(bonsai);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
     }
 }
