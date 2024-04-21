@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: my-container
-          image: us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/bonsai-be-image
+          image: us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/test-be-image
           ports:
             - containerPort: 8080
 

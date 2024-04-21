@@ -4,7 +4,7 @@ steps:
       [
         "build",
         "-t",
-        "us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/bonsai-be-image",
+        "us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/test-be-image",
         "./Apis",
       ]
     id: "Build Docker Image"
@@ -16,7 +16,7 @@ steps:
     args:
       [
         "push",
-        "us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/bonsai-be-image",
+        "us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/test-be-image",
       ]
     id: "Push Docker Image"
 
