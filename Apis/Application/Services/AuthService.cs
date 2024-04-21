@@ -1,5 +1,6 @@
 ﻿using Application.Commons;
 using Application.Hubs;
+using Application.Interfaces;
 using Application.Validations.Auth;
 using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.MessageViewModels;
@@ -21,7 +22,7 @@ using System.Text.Encodings.Web;
 
 namespace Application.Services
 {
-    public class AuthService
+    public class AuthService: IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
