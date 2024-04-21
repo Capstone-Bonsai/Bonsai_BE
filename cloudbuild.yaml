@@ -5,7 +5,7 @@ steps:
         "build",
         "-t",
         "us-central1-docker.pkg.dev/capstonebonsai/test-delpoy-repo/test-be-image",
-        "./apis",
+        "./Apis",
       ]
     id: "Build Docker Image"
 
