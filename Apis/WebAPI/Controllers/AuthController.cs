@@ -1,7 +1,9 @@
 ﻿using Application;
+using Application.Interfaces;
 using Application.Services;
 using Application.ViewModels.AuthViewModel;
 using Domain.Entities;
+using Firebase.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,28 +16,13 @@ namespace WebAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IAuthService _auth;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
-        private readonly IAuthorizationService _authorizationService;
-        private readonly IConfiguration _configuration;
-        public readonly IWebHostEnvironment _environment;
-        private readonly IUnitOfWork _unit;
 
-        public AuthController(UserManager<ApplicationUser> userManager,
-             SignInManager<ApplicationUser> signInManager,
-            IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-            IAuthorizationService authorizationService,
-            IConfiguration configuration,
-            IWebHostEnvironment environment, IUnitOfWork unit)
+        public AuthController(IAuthService authService,UserManager<ApplicationUser> userManager)
         {
+            _auth = authService;
             _userManager = userManager;
-            _signInManager = signInManager;
-            _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
-            _authorizationService = authorizationService;
-            _configuration = configuration;
-            _environment = environment;
-            _unit = unit;
         }
         [HttpGet("OtpHandler")]
         public async Task<IActionResult> OtpHandler(string Email, string Otp)
@@ -66,7 +53,7 @@ namespace WebAPI.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
-            var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+           
             try
             {
                 //var result = await _identityService.AuthenticateAsync(email, password);
@@ -102,7 +89,7 @@ namespace WebAPI.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+            
             try
             {
                 var validateResult = await _auth.ValidateAsync(model);
@@ -136,7 +123,7 @@ namespace WebAPI.Controllers
         [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string? code, string? userId)
         {
-            var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+            
             try
             {
                 await _auth.ConfirmEmailAsync(code, userId);
@@ -148,12 +135,12 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpPost("Login/Google")]
+        /*[HttpPost("Login/Google")]
         public async Task<IActionResult> LoginGoogle([FromBody] ExternalLoginModel model)
         {
             try
             {
-                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                
                 var result = await _auth.HandleExternalLoginAsync(model);
                 return Ok(result);
             }
@@ -162,7 +149,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-/*
+*//*
         [HttpPost("ResetPassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPassModel model)
         {
@@ -206,7 +193,7 @@ namespace WebAPI.Controllers
         }*/
 
         [HttpPost("ForgotPassword")]
-        public async Task<IActionResult> ForgotPasswordForMobile(string email)
+        public async Task<IActionResult> ForgotPassword(string email)
         {
             try
             {
@@ -217,7 +204,7 @@ namespace WebAPI.Controllers
                     return BadRequest("Không tìm thấy địa chỉ emal");
                 }
                 //lấy host để redirect về
-                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
+                
                 var token = await _userManager.GenerateTwoFactorTokenAsync(user,"Email");
                 await _auth.SendEmailAsync(email.Trim(), token, "ResetPasswordForMobile");
                 return Ok("Yêu cầu đổi mật khẩu đã được gửi thành công đến địa chỉ email của bạn. Vui lòng kiểm tra hộp thư đến của bạn và xác thực email để tiến hành đổi mật khẩu.");
@@ -228,7 +215,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpPost("ResetPassword")]
-        public async Task<IActionResult> ResetPasswordForMobile([FromBody] ResetPassModel model)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPassModel model)
         {
             try
             {
@@ -236,8 +223,8 @@ namespace WebAPI.Controllers
                 {
                     return BadRequest("Vui lòng không để trống Email của người dùng.");
                 }
-                var _auth = new AuthService(_userManager, _signInManager, _configuration, _environment, _unit);
-                var result = await _auth.ResetPasswordForMobileAsync(model);
+               
+                var result = await _auth.ResetPasswordAsync(model);
                 return Ok(result);
             }
             catch (Exception e)

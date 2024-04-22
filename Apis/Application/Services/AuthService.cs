@@ -1,5 +1,6 @@
 ﻿using Application.Commons;
 using Application.Hubs;
+using Application.Interfaces;
 using Application.Validations.Auth;
 using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.MessageViewModels;
@@ -21,24 +22,21 @@ using System.Text.Encodings.Web;
 
 namespace Application.Services
 {
-    public class AuthService
+    public class AuthService: IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly IWebHostEnvironment _environment;
         private readonly IUnitOfWork _unit;
 
         public AuthService
             (UserManager<ApplicationUser> userManager,
              SignInManager<ApplicationUser> signInManager,
-            IConfiguration configuration,
-            IWebHostEnvironment environment, IUnitOfWork unit)
+            IConfiguration configuration, IUnitOfWork unit)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _environment = environment;
             _unit = unit;
     }
         public async Task<LoginViewModel> Login(string email, string pass, string callbackUrl)
@@ -244,7 +242,7 @@ namespace Application.Services
                 throw new Exception("Xác nhận Email không thành công! Link xác nhận không chính xác hoặc đã hết hạn! Vui lòng sử dụng đúng link được gửi từ Thanh Sơn Garden tới Email của bạn!");
             }
         }
-        public async Task<LoginViewModel> HandleExternalLoginAsync(ExternalLoginModel model)
+/*        public async Task<LoginViewModel> HandleExternalLoginAsync(ExternalLoginModel model)
         {
             var payload = await VerifyGoogleToken(model);
             if (payload == null)
@@ -318,7 +316,7 @@ namespace Application.Services
             {
                 throw new Exception($"Lỗi đăng nhâp Google: {ex.Message}");
             }
-        }
+        }*/
         public async Task<string> CreateJwtToken(ApplicationUser user)
         {
             //tạo token
@@ -395,7 +393,7 @@ namespace Application.Services
             return result;
 
         }
-        public async Task<string> ResetPasswordAsync(ResetPassModel model)
+        /*public async Task<string> ResetPasswordAsync(ResetPassModel model)
         {
             if (model.UserId == null || model.Code == null)
             {
@@ -424,9 +422,9 @@ namespace Application.Services
                 // Đặt lại mật khẩu không thành công
                 throw new Exception("Không thể đặt lại mật khẩu. Vui lòng sử dụng đường dẫn đã được gửi tới trong email của bạn!");
             }
-        }
+        }*/
 
-        public async Task<string> ResetPasswordForMobileAsync(ResetPassModel model)
+        public async Task<string> ResetPasswordAsync(ResetPassModel model)
         {
             if (model.Email == null || model.Code == null)
             {
