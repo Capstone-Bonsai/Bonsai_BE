@@ -73,6 +73,28 @@ namespace WebAPI.Controllers
             }
         }
 
+        [Authorize(Roles ="Manager")]
+        [HttpPut("Id")]
+        public async Task<IActionResult> Put([FromForm] UserRequestModel model, string id)
+        {
+            try
+            {
+                var result = await _userService.UpdateUserAsync(model, id);
+                if (result == null)
+                {
+                    return Ok("Thay đổi thông tin người dùng thành công!");
+                }
+                else
+                {
+                    return BadRequest(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Authorize]
         [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()

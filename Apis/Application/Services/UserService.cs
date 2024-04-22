@@ -119,8 +119,8 @@ namespace Infrastructures.Services
                         url = await _fireBaseService.UploadFileToFirebaseStorage(model.Avatar, newImageName, folderName);
                         if (url == null)
                             throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+                        user.AvatarUrl = url;
                     }
-                    user.AvatarUrl = url;
                     user.UserName = model.Username;
                     user.NormalizedUserName = model.Username.ToUpper();
                     user.Fullname = model.Fullname;
