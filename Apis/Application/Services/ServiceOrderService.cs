@@ -13,6 +13,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
 using Firebase.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,7 @@ namespace Application.Services
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
+            
             try
             {
                 _unitOfWork.BeginTransaction();
@@ -79,11 +81,15 @@ namespace Application.Services
 .FirstOrDefaultAsync(x => !x.IsDeleted && !x.IsDisable && x.Id == serviceOrderModel.ServiceId);
                 if (serviceOrderModel.CustomerGardenId == null)
                 {
+                    var _serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceOrderModel.CustomerBonsaiId && (x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Completed && x.ServiceOrderStatus != ServiceOrderStatus.Canceled));
+                    if (_serviceOrder.Items == null || _serviceOrder.Items.Count == 0)
+                    {
+                        throw new Exception("Đang có đơn hàng dịch vụ thuộc bonsai này chưa hoàn thành, vui lòng chọn cây khác!");
+                    }
                     //Check service có phải service bonsai hay k
-
                     if (service.ServiceType.TypeEnum != TypeEnum.Bonsai)
                     {
-                        throw new Exception("Đây là dịch vụ vườn");
+                        throw new Exception("Vui lòng chọn dịch vụ bonsai!");
                     }
                     if (serviceOrderModel.CustomerBonsaiId == null)
                     {
@@ -100,7 +106,17 @@ namespace Application.Services
                 {
                     if (service.ServiceType.TypeEnum != TypeEnum.Garden)
                     {
-                        throw new Exception("Đây là dịch vụ bonsai!");
+                        throw new Exception("Vui lòng chọn dịch vụ vườn!");
+                    }
+                    var _serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceOrderModel.CustomerGardenId && (x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Completed && x.ServiceOrderStatus != ServiceOrderStatus.Canceled));
+                    if (_serviceOrder.Items == null || _serviceOrder.Items.Count == 0)
+                    {
+                        throw new Exception("Đang có đơn hàng dịch vụ thuộc vườn này chưa hoàn thành, vui lòng chọn vườn khác!");
+                    }
+                    var _customerGarden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(serviceOrderModel.CustomerGardenId.Value);
+                    if (_customerGarden == null)
+                    {
+                        throw new Exception("Không tìm thấy vườn này!");
                     }
                 }
                 var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAllQueryable()
@@ -407,7 +423,7 @@ namespace Application.Services
             {
                 complaint.ComplaintImages = await GetIMageAsync(complaint.Id);
             }
-            if(overallServiceOrderViewModel.CustomerBonsaiId != null && overallServiceOrderViewModel.CustomerBonsaiId.HasValue)
+            if (overallServiceOrderViewModel.CustomerBonsaiId != null && overallServiceOrderViewModel.CustomerBonsaiId.HasValue)
             {
                 overallServiceOrderViewModel.CustomerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetByIdAsync(overallServiceOrderViewModel.CustomerBonsaiId.Value);
             }
@@ -534,9 +550,7 @@ namespace Application.Services
         }
         public async Task AddContractImage(Guid contractId, ServiceOrderImageModel serviceOrderImageModel)
         {
-            if (serviceOrderImageModel == null)
-                throw new ArgumentNullException(nameof(serviceOrderImageModel), "Vui lòng nhập đúng thông tin!");
-            if (serviceOrderImageModel.Image == null || serviceOrderImageModel.Image.Count == 0)
+            if (serviceOrderImageModel.Contract == null)
             {
                 throw new Exception("Không có hình ảnh!");
             }
@@ -550,29 +564,26 @@ namespace Application.Services
                 _unitOfWork.BeginTransaction();
                 var images = await _unitOfWork.ContractRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == contractId && !x.IsDeleted, isDisableTracking: true);
                 _unitOfWork.ContractRepository.SoftRemoveRange(images.Items);
-                foreach (var singleImage in serviceOrderImageModel.Image.Select((image, index) => (image, index)))
+                string newImageName = serviceOrder.Id + "_i" + serviceOrderImageModel.Contract;
+                string folderName = $"contract/{serviceOrder.Id}/pdf";
+                string imageExtension = Path.GetExtension(serviceOrderImageModel.Contract.FileName);
+                string[] validImageExtensions = {".pdf"};
+                const long maxFileSize = 20 * 1024 * 1024;
+                if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || serviceOrderImageModel.Contract.Length > maxFileSize)
                 {
-                    string newImageName = serviceOrder.Id + "_i" + singleImage.index;
-                    string folderName = $"serviceOrder/{serviceOrder.Id}/Image";
-                    string imageExtension = Path.GetExtension(singleImage.image.FileName);
-                    string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-                    const long maxFileSize = 20 * 1024 * 1024;
-                    if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
-                    {
-                        throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
-                    }
-                    var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
-                    if (url == null)
-                        throw new Exception("Lỗi khi đăng ảnh lên firebase!");
-
-                    Contract contractImage = new Contract()
-                    {
-                        ServiceOrderId = contractId,
-                        Image = url
-                    };
-
-                    await _unitOfWork.ContractRepository.AddAsync(contractImage);
+                    throw new Exception("Có chứa file không phải pdf hoặc quá dung lượng tối đa(>20MB)!");
                 }
+                var url = await _fireBaseService.UploadFileToFirebaseStorage(serviceOrderImageModel.Contract, newImageName, folderName);
+                if (url == null)
+                    throw new Exception("Lỗi khi đăng pdf lên firebase!");
+
+                Contract contractImage = new Contract()
+                {
+                    ServiceOrderId = contractId,
+                    Image = url
+                };
+
+                await _unitOfWork.ContractRepository.AddAsync(contractImage);
                 await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)

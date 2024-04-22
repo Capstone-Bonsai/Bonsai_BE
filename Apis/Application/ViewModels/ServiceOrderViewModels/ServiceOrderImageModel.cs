@@ -10,6 +10,6 @@ namespace Application.ViewModels.ServiceOrderViewModels
 {
     public class ServiceOrderImageModel
     {
-        public List<IFormFile>? Image { get; set; } = default!;
+        public IFormFile? Contract { get; set; } = default!;
     }
 }

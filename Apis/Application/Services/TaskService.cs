@@ -121,6 +121,10 @@ namespace Application.Services
         }
         public async Task UpdateProgress(TaskModel taskModel)
         {
+            if (taskModel.FinishedTasks == null || taskModel.FinishedTasks.Count == 0)
+            {
+                throw new Exception("Chưa chọn công việc nào");
+            }
             var serviceOrder = await _unitOfWork.ServiceOrderRepository
                   .GetAllQueryable()
                   .AsNoTracking()
