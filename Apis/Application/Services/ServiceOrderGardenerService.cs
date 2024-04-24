@@ -30,7 +30,7 @@ namespace Application.Services
             var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             if (contract == null)
             {
-                throw new Exception("Không tìm thấy hợp đồng!");
+                throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ chăm sóc!");
             }
             var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(y => y.ServiceOrderId == contractId)).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
             var itemCount = listUser.Count();
@@ -71,7 +71,7 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(serviceOrderGardenerModel.ServiceOrderId);
             if (serviceOrder == null)
             {
-                throw new Exception("Không tìm thấy hợp đồng");
+                throw new Exception("Không tìm thấy  đơn đặt hàng dịch vụ chăm sóc!");
             }
             try
             {

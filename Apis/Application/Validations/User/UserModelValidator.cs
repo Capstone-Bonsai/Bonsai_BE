@@ -9,7 +9,7 @@ namespace Application.Validations.User
         {
             RuleFor(x => x.Username).NotEmpty().WithMessage("Tên đăng nhập không được để trống.")
                 .MaximumLength(50)
-                .WithMessage("Tên đăng nhập không quá 50 ký tự.").MustAsync(IsLetterOrDigitOnly).WithMessage("Tên đăng nhập chỉ được chứa chữ hoặc số."); ;
+                .WithMessage("Tên đăng nhập không quá 50 ký tự.").MustAsync(IsLetterOrDigitOnly) ;
             RuleFor(x => x.PhoneNumber).NotEmpty().WithMessage("Số điện thoại không được để trống.")
                .MaximumLength(10)
                 .WithMessage("Số điện thoại phải có 10 ký tự.").MinimumLength(10)
