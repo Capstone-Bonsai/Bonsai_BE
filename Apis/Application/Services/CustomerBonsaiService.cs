@@ -76,6 +76,14 @@ namespace Application.Services
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
+            if (bonsaiModelForCustomer.Image == null || bonsaiModelForCustomer.Image.Count == 0)
+                throw new Exception("Vui lòng thêm hình ảnh");
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(bonsaiModelForCustomer.CategoryId);
+            if (category == null)
+                throw new Exception("Không tìm thấy danh mục!");
+            var style = await _unitOfWork.StyleRepository.GetByIdAsync(bonsaiModelForCustomer.StyleId);
+            if (style == null)
+                throw new Exception("Không tìm thấy kiểu dáng!");
             var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
             bonsai.Price = 0;
             bonsai.isDisable = true;

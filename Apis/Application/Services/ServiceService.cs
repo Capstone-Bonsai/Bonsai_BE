@@ -166,6 +166,7 @@ namespace Application.Services
                        .AsNoTracking()
                        .Include(x => x.ServiceBaseTasks)
                        .ThenInclude(x => x.BaseTask)
+                       .Include(x => x.ServiceType)
                        .FirstOrDefaultAsync(x => x.IsDeleted == false && !x.IsDisable && x.Id == id);
                       
             }
@@ -185,7 +186,9 @@ namespace Application.Services
                     services = await _unit.ServiceRepository.GetAllQueryable()
                         .AsNoTracking()
                         .Include(x => x.ServiceBaseTasks)
-                        .ThenInclude(x => x.BaseTask).FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == id);
+                        .ThenInclude(x => x.BaseTask)
+                        .Include(x => x.ServiceType)
+                        .FirstOrDefaultAsync(x => x.IsDeleted == false && x.Id == id);
             }
             if (services == null)
                 throw new Exception("Không tìm thấy");
@@ -200,7 +203,9 @@ namespace Application.Services
                         .AsNoTracking()
                         .Include(x => x.ServiceBaseTasks)
                         .ThenInclude(x => x.BaseTask)
-                        .Include(x => x.ServiceType).Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreationDate).ToListAsync();
+                        .Include(x => x.ServiceType)
+                        .Include(x => x.ServiceType)
+                        .Where(x => x.IsDeleted == false).OrderByDescending(x => x.CreationDate).ToListAsync();
 
             var itemCount = services.Count();
             var items = services.OrderByDescending(x => x.CreationDate)
@@ -332,7 +337,7 @@ namespace Application.Services
                     var task = await _unit.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == customerBonsai.Bonsai.CategoryId);
                     if (task == null)
                     {
-
+                        throw new Exception("Danh mục này chưa sẵn sàng để chăm sóc");
                     }
                     List<string> taskList = task.Items.Select(t => t.Step.ToString()).ToList();
                     service.Tasks = taskList;

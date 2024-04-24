@@ -166,10 +166,10 @@ namespace Application.Services
             }
             if (bonsaiModel.Image == null || bonsaiModel.Image.Count == 0)
                 throw new Exception("Vui lòng thêm hình ảnh");
-            var category = _unitOfWork.CategoryRepository.GetByIdAsync(bonsaiModel.CategoryId);
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(bonsaiModel.CategoryId);
             if (category == null)
                 throw new Exception("Không tìm thấy danh mục!");
-            var style = _unitOfWork.StyleRepository.GetByIdAsync(bonsaiModel.StyleId);
+            var style = await _unitOfWork.StyleRepository.GetByIdAsync(bonsaiModel.StyleId);
             if (style == null)
                 throw new Exception("Không tìm thấy kiểu dáng!");
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
@@ -335,7 +335,7 @@ namespace Application.Services
             List<Expression<Func<Bonsai, object>>> includes = new List<Expression<Func<Bonsai, object>>>{
                                  x => x.Category,
                                     };
-            var lastCodeBonsai = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == categoryId, orderBy: query => query.OrderByDescending(x => x.Code), includes: includes);
+            var lastCodeBonsai = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.CategoryId == categoryId && !x.Code.Contains("KHACHHANG"), orderBy: query => query.OrderByDescending(x => x.Code), includes: includes);
             if (lastCodeBonsai.Items.Count > 0)
             {
                 var lastCodeNumericPart = Regex.Match(lastCodeBonsai.Items[0].Code, @"\d+").Value;
