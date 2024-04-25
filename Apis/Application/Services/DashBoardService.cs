@@ -47,20 +47,33 @@ namespace Application.Services
             if (totalOrderIncome == 0) return new List<OrderCircleGraph>();
             List<OrderCircleGraph> orderCircleGraphs = new List<OrderCircleGraph>();
             var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted);
-            foreach(Category category in categories.Items)
+            double previousPercentSum = 0; 
+            double currentPercent = 0;
+
+            foreach (Category category in categories.Items)
             {
                 var orderDetail = await _unitOfWork.OrderDetailRepository.GetAllQueryable()
                     .AsNoTracking()
                     .Where(x => x.Bonsai.CategoryId == category.Id && x.Order.OrderStatus >= Domain.Enums.OrderStatus.Paid && x.CreationDate >= DateTime.Now.AddDays(-30))
                     .ToListAsync();
-                double totalCategoryOrderDetailPrice = orderDetail.Sum(x => x.Price);
-                double percent = (totalCategoryOrderDetailPrice / totalOrderIncome) * 100;
-                orderCircleGraphs.Add(new OrderCircleGraph()
+                if (category != categories.Items.Last()) 
                 {
-                    CategoryName = category.Name,
-                    Percent = percent
-                });
+                    double totalCategoryOrderDetailPrice = orderDetail.Sum(x => x.Price);
+                    double percent = (totalCategoryOrderDetailPrice / totalOrderIncome) * 100;
+                    currentPercent = Math.Round(percent, 2);
+                    previousPercentSum += currentPercent;
+                    orderCircleGraphs.Add(new OrderCircleGraph()
+                    {
+                        CategoryName = category.Name,
+                        Percent = currentPercent
+                    });
+                }
             }
+            orderCircleGraphs.Add(new OrderCircleGraph()
+            {
+                CategoryName = categories.Items.Last().Name,
+                Percent = 100 - previousPercentSum 
+            });
             return orderCircleGraphs;
         }
         private async Task<List<ServiceOrderCircleGraph>> GetServiceOrderCircleGraph(double totalServiceOrderIncome)
@@ -68,20 +81,33 @@ namespace Application.Services
             if (totalServiceOrderIncome == 0) return new List<ServiceOrderCircleGraph>();
             List<ServiceOrderCircleGraph> serviceOrderCircleGraphs = new List<ServiceOrderCircleGraph>();
             var services = await _unitOfWork.ServiceRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted);
+            double previousPercentSum = 0;
+            double currentPercent = 0; 
+
             foreach (Service service in services.Items)
             {
                 var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable()
                     .AsNoTracking()
                     .Where(x => x.Service.Id == service.Id && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.CreationDate >= DateTime.Now.AddDays(-30))
-                    .ToListAsync();
-                double totalCategoryOrderDetailPrice = serviceOrder.Sum(x => x.TotalPrice);
-                double percent = (totalCategoryOrderDetailPrice / totalServiceOrderIncome) * 100;
-                serviceOrderCircleGraphs.Add(new ServiceOrderCircleGraph()
+                    .ToListAsync();            
+                if (service != services.Items.Last()) 
                 {
-                    ServiceName = service.Name,
-                    Percent = percent
-                });
+                    double totalServiceOrderPrice = serviceOrder.Sum(x => x.TotalPrice);
+                    double percent = (totalServiceOrderPrice / totalServiceOrderIncome) * 100;
+                    currentPercent = Math.Round(percent, 2);
+                    previousPercentSum += currentPercent;
+                    serviceOrderCircleGraphs.Add(new ServiceOrderCircleGraph()
+                    {
+                        ServiceName = service.Name,
+                        Percent = currentPercent
+                    });
+                }
             }
+            serviceOrderCircleGraphs.Add(new ServiceOrderCircleGraph()
+            {
+                ServiceName = services.Items.Last().Name,
+                Percent = 100 - previousPercentSum
+            });
             return serviceOrderCircleGraphs;
         }
     }

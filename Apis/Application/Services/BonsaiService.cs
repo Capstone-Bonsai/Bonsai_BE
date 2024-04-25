@@ -121,7 +121,7 @@ namespace Application.Services
                                  x => x.Style,
                                     };
             var bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: finalFilter,
-                isDisableTracking: true, includes: includes);
+                isDisableTracking: true, includes: includes, orderBy: x => x.OrderByDescending(bonsai => bonsai.CreationDate));
             return bonsais;
         }
 
