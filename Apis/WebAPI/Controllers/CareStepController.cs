@@ -28,14 +28,7 @@ namespace WebAPI.Controllers
             try
             {
                 var careSteps = await _careStepService.GetCareStepsByCategoryId(categoryId);
-                if (careSteps.Items.Count == 0)
-                {
-                    return BadRequest("Không tìm thấy");
-                }
-                else
-                {
-                    return Ok(careSteps);
-                }
+                return Ok(careSteps);
             }
             catch (Exception ex)
             {
