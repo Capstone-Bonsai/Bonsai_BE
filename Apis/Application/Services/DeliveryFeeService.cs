@@ -161,7 +161,7 @@ namespace Application.Services
                                 if (a == 0)
                                     items.Items.Add("từ km đầu tiên");
                                 else 
-                                    items.Items.Add("từ km thứ " +( tempDistance[a] + 1) + " tiếp theo");
+                                    items.Items.Add("từ km thứ " +( tempDistance[a] + 1));
                             }
                             else
                             {
