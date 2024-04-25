@@ -25,9 +25,9 @@ namespace Application.Services
         private readonly IBonsaiService _bonsaiService;
         private readonly FirebaseService _fireBaseService;
         private readonly IdUtil _idUtil;
+        private readonly INotificationService _notificationService;
 
-
-        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService, IdUtil idUtil)
+        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService, IdUtil idUtil, INotificationService notificationService)
 
         {
             _unitOfWork = unitOfWork;
@@ -35,6 +35,7 @@ namespace Application.Services
             _bonsaiService = bonsaiService;
             _fireBaseService = fireBaseService;
             _idUtil = idUtil;
+            _notificationService = notificationService;
 
         }
         public async Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId)
@@ -286,6 +287,7 @@ namespace Application.Services
                                  x => x.Bonsai.BonsaiImages,
                                  x => x.CustomerGarden
                                     };
+            await _notificationService.SendMessageForUserId(customerId, "Đây là thông báo", "Địt mẹ thằng thái");
             var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetAsync(expression: x => x.CustomerGarden.CustomerId == customer.Id, pageIndex: pageIndex, pageSize: pageSize, includes: includes);
             return customerBonsai;
         }
