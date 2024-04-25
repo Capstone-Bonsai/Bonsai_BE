@@ -3,6 +3,7 @@ using Application.Utils;
 using Application.ViewModels.DashboardViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -109,6 +110,45 @@ namespace Application.Services
                 Percent = 100 - previousPercentSum
             });
             return serviceOrderCircleGraphs;
+        }
+        public async Task<List<RevenueLineGraph>> GetRevenueLineGraph(RevenueInputType revenueInputType)
+        {
+            List<RevenueLineGraph> revenueLineGraphs = new List<RevenueLineGraph>();
+            switch (revenueInputType)
+            {
+                case RevenueInputType.month:
+                    var orders = await _unitOfWork.OrderRepository.GetAsync(
+                        isTakeAll: true,
+                        expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
+                                         x.OrderStatus >= Domain.Enums.OrderStatus.Paid
+                    );
+
+                    var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(
+                        isTakeAll: true,
+                        expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
+                                         x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid
+                    );
+                    var groupedOrders = orders.Items.GroupBy(o => new DateTime(o.CreationDate.Year, o.CreationDate.Month, 1));
+                    var groupedServiceOrders = serviceOrders.Items.GroupBy(so => new DateTime(so.CreationDate.Year, so.CreationDate.Month, 1));
+                    foreach (var month in Enumerable.Range(0, 12).Select(offset => DateTime.Now.Date.AddMonths(-11).AddMonths(offset)))
+                    {
+                        var monthStart = new DateTime(month.Year, month.Month, 1);
+                        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+                        double totalOrderIncome = groupedOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(o => o.Price) ?? 0;
+                        double totalServiceOrderIncome = groupedServiceOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(so => so.TotalPrice) ?? 0;
+
+                        revenueLineGraphs.Add(new RevenueLineGraph()
+                        {
+                            time = month,
+                            OrderTotal = totalOrderIncome,
+                            ServiceOrderTotal = totalServiceOrderIncome
+                        });
+                    }
+                    break;
+
+            }
+            return revenueLineGraphs;
         }
     }
 }

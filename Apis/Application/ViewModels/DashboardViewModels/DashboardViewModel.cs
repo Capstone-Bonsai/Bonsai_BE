@@ -26,4 +26,10 @@ namespace Application.ViewModels.DashboardViewModels
         public string ServiceName { get; set; } = default!;
         public double Percent { get; set; }
     }
+    public class RevenueLineGraph
+    {
+        public DateTime time { get; set; }
+        public double OrderTotal { get; set; }
+        public double ServiceOrderTotal { get; set; }
+    }
 }
