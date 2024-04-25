@@ -144,6 +144,7 @@ namespace Application.Services
                 user.PhoneNumber = model.PhoneNumber;
                 user.IsRegister = true;
                 var result =  await _userManager.UpdateAsync(user);
+               
                 if (result.Succeeded)
                 {
                     var temp= await _userManager.AddPasswordAsync(user, model.Password);
@@ -173,7 +174,7 @@ namespace Application.Services
             {
                 throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ!");
             }
-
+            
             //sign in  
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
             if (signInResult.Succeeded)
@@ -445,6 +446,7 @@ namespace Application.Services
             {
                 throw new Exception("Mã OTP không chính xác.");
             }
+            await _userManager.SetTwoFactorEnabledAsync(user, false);
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
             if (result.Succeeded)
