@@ -12,9 +12,11 @@ namespace Application.Validations.User
     {
         public UserCreateModelValidator()
         {
+            RuleFor(x => x.UserName).NotEmpty().WithMessage("Tên đăng nhập không được để trống.").MaximumLength(50)
+               .WithMessage("Tên đăng nhập không quá 50 ký tự.").MustAsync(IsLetterOrDigitOnly).WithMessage("Tên đăng nhập chỉ được chứa chữ hoặc số.");
             RuleFor(x => x.Email).NotEmpty().WithMessage("Email không được để trống.")
-                 .MaximumLength(50)
-                 .WithMessage("Email không quá 50 ký tự.").EmailAddress().WithMessage("Email không đúng.");
+                .MaximumLength(50)
+                .WithMessage("Email không quá 50 ký tự.").EmailAddress().WithMessage("Email không đúng.");
             RuleFor(x => x.PhoneNumber).NotEmpty().WithMessage("Số điện thoại không được để trống.")
                .MaximumLength(10)
                 .WithMessage("Số điện thoại phải có 10 ký tự.").MinimumLength(10)
@@ -22,10 +24,8 @@ namespace Application.Validations.User
                 .MustAsync(IsPhoneNumberStartWith).WithMessage("Số điện thoại chỉ được bắt đầu bằng các đầu số 03, 05, 07, 08, 09.");
             RuleFor(x => x.Fullname).NotEmpty().WithMessage("Họ tên không được để trống.")
                 .MaximumLength(50)
-                .WithMessage("Họ tên ngắn không quá 50 ký tự.");
-            RuleFor(x => x.Role).NotEmpty().WithMessage("Vai trò của tài khoản không được để trống.").MustAsync(IsInRole).WithMessage("Vai trò không hợp lệ.");
+                .WithMessage("Họ tên không quá 50 ký tự.");
         }
-
         public async Task<bool> IsPhoneNumberValid(string phoneNumber, CancellationToken cancellationToken)
         {
             foreach (char c in phoneNumber)

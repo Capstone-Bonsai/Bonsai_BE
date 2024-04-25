@@ -12,6 +12,8 @@ namespace Application.ViewModels.UserViewModels
     {
         public string Email { get; set; }
         public string Fullname { get; set; }
+        public string UserName { get; set; }
+
         [NotMapped]
         public IFormFile? Avatar { get; set; }
         public string PhoneNumber { get; set; }
