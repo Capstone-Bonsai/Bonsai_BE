@@ -6,6 +6,7 @@ using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.DeliveryFeeViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Firebase.Auth;
 using Microsoft.AspNetCore.DataProtection.XmlEncryption;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -221,6 +222,10 @@ namespace Application.Services
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy bonsai!");
+            if ((result.isSold != null && result.isSold.Value == true) || result.Code.Contains("KHACHHANG"))
+            {
+                throw new Exception("Cây này thuộc về khách hàng, không thể xóa");
+            }
             if (bonsaiModel == null)
                 throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng điền đầy đủ thông tin!");
             var validationRules = new BonsaiModelValidator();
@@ -236,7 +241,6 @@ namespace Application.Services
             var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
             bonsai.Id = id;
             bonsai.DeliverySize = bonsaiModel.DeliverySize;
-           
             bonsai.Code = result.Code;
             bonsai.isDisable = false;
             bonsai.isSold = false;
@@ -296,6 +300,10 @@ namespace Application.Services
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy!");
+            if ((result.isSold != null && result.isSold.Value == true )|| result.Code.Contains("KHACHHANG"))
+            {
+                throw new Exception("Cây này thuộc về khách hàng, không thể xóa");
+            }
             var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.BonsaiId == id && !x.IsDeleted);
             if (orderDetails.TotalItemsCount > 0)
             {
