@@ -288,7 +288,7 @@ namespace Application.Services
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                    .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
-               .ThenInclude(x => x.Bonsai.BonsaiImages)
+               .ThenInclude(x => x.Bonsai.BonsaiImages).Include(x=>x.OrderTransaction)
                .OrderByDescending(y => y.CreationDate).ToListAsync();
             else if (isGardener)
             {
@@ -378,7 +378,7 @@ namespace Application.Services
         public async Task<Customer> GetCustomerAsync(OrderModel model, string? userId)
         {
             ApplicationUser? user = null;
-            if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000"))
+            if (userId == null || userId.Equals("00000000-0000-0000-0000-000000000000")) //iff not login
             {
                 if (model.OrderInfo == null)
                     throw new Exception("Vui lòng thêm các thông tin người mua hàng.");
@@ -409,7 +409,7 @@ namespace Application.Services
                     }
                 }
             }
-            else
+            else //if login
             {
                 user = await _userManager.FindByIdAsync(userId);
             }

@@ -240,7 +240,7 @@ namespace Infrastructures.Services
             }
             else
             {
-                var temp = await _userManager.Users.Where(x => x.UserName.ToLower().Equals(model.Email.ToLower())).FirstOrDefaultAsync();
+                var temp = await _userManager.Users.Where(x => x.UserName.ToLower().Equals(model.UserName.ToLower())).FirstOrDefaultAsync();
                 if (temp != null)
                     throw new Exception("Tên đăng nhập này đã được sử dụng!");
                 try
@@ -248,7 +248,7 @@ namespace Infrastructures.Services
                     string url = null;
                     ApplicationUser newUser = new ApplicationUser()
                     {
-                        UserName = model.Email,
+                        UserName = model.UserName,
                         Email = model.Email,
                         Fullname = model.Fullname,
                         PhoneNumber = model.PhoneNumber,

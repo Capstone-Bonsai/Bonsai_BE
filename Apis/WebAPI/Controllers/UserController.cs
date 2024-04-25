@@ -154,7 +154,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromForm]UserCreateModel model)
         {
@@ -184,7 +184,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        //[Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
