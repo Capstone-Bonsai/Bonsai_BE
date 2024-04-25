@@ -157,5 +157,20 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        
+        [HttpPost("SendNotification")]
+        //[Authorize(Roles = "Customer")]
+        public async Task<IActionResult> CreateNotificationForStaff(Guid orderId)
+        {
+            try
+            {
+                await _orderService.CreateNotificationForStaff(_claimsService.GetCurrentUserId, orderId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

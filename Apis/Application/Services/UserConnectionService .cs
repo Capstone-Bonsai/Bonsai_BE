@@ -10,11 +10,11 @@ namespace Application.Services
 {
     public class UserConnectionService : IUserConnectionService
     {
-        private readonly Dictionary<string, string> _userConnectionMap = new Dictionary<string, string>();
+        public static readonly Dictionary<string, string> _userConnectionMap = new Dictionary<string, string>();
 
         public string GetConnectionIdForUser(string userId)
         {
-            if (_userConnectionMap.TryGetValue(userId, out string connectionId))
+            if (_userConnectionMap.TryGetValue(userId, out string? connectionId))
             {
                 return connectionId;
             }

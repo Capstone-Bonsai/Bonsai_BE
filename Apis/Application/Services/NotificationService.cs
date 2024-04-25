@@ -31,14 +31,17 @@ namespace Application.Services
         public async Task SendMessageForUserId(Guid id, string title, string message)
         {
             var connectionId = _userConnectionService.GetConnectionIdForUser(id.ToString());
-            await _unitOfWork.NotificationRepository.AddAsync(new Notification()
+            if (connectionId != null)
             {
-                Title = title,
-                UserId = id.ToString(),
-                Message = message,
-            });
-            await _unitOfWork.SaveChangeAsync();
-            await _hubContext.Clients.User(connectionId).SendAsync(title, message);
+                await _unitOfWork.NotificationRepository.AddAsync(new Notification()
+                {
+                    Title = title,
+                    UserId = id.ToString(),
+                    Message = message,
+                });
+                await _unitOfWork.SaveChangeAsync();
+                await _hubContext.Clients.Client(connectionId).SendAsync(title, message);
+            }  
         }
         public async Task SendToStaff(string title, string message)
         {

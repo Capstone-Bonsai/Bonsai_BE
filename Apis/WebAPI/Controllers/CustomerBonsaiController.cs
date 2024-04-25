@@ -126,5 +126,18 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        public async Task<IActionResult> Post([FromForm] BonsaiModelForCustomer bonsaiModelForCustomer)
+        {
+            try
+            {
+                await _customerBonsaiService.CreateBonsaiWithNewGarden(bonsaiModelForCustomer);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
     }
 }

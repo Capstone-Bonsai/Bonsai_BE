@@ -13,6 +13,8 @@ namespace Application.Validations.Bonsai
     {
         public BonsaiModelForCustomerValidator()
         {
+            RuleFor(x => x.Address).MaximumLength(200).WithMessage("Tên không quá 200 ký tự.");
+            RuleFor(x => x.Square).GreaterThan(0).WithMessage("Diện tích vườn lớn hơn 0.");
             RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Danh mục không được để trống.");
 
             RuleFor(x => x.StyleId).NotEmpty().WithMessage("Kiểu dáng không được để trống.");

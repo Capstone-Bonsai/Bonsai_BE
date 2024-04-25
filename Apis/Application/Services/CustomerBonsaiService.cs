@@ -25,9 +25,8 @@ namespace Application.Services
         private readonly IBonsaiService _bonsaiService;
         private readonly FirebaseService _fireBaseService;
         private readonly IdUtil _idUtil;
-        private readonly INotificationService _notificationService;
 
-        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService, IdUtil idUtil, INotificationService notificationService)
+        public CustomerBonsaiService(IUnitOfWork unitOfWork, IMapper mapper, IBonsaiService bonsaiService, FirebaseService fireBaseService, IdUtil idUtil)
 
         {
             _unitOfWork = unitOfWork;
@@ -35,8 +34,6 @@ namespace Application.Services
             _bonsaiService = bonsaiService;
             _fireBaseService = fireBaseService;
             _idUtil = idUtil;
-            _notificationService = notificationService;
-
         }
         public async Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId)
         {
@@ -287,9 +284,89 @@ namespace Application.Services
                                  x => x.Bonsai.BonsaiImages,
                                  x => x.CustomerGarden
                                     };
-            await _notificationService.SendMessageForUserId(customerId, "Đây là thông báo", "Địt mẹ thằng thái");
             var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetAsync(expression: x => x.CustomerGarden.CustomerId == customer.Id, pageIndex: pageIndex, pageSize: pageSize, includes: includes);
             return customerBonsai;
+        }
+        public async Task CreateBonsaiWithNewGarden(BonsaiModelForCustomer bonsaiModelForCustomer)
+        {
+            
+            if (bonsaiModelForCustomer == null)
+                throw new ArgumentNullException(nameof(bonsaiModelForCustomer), "Vui lòng điền đầy đủ thông tin!");
+
+            var validationRules = new BonsaiModelForCustomerValidator();
+            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModelForCustomer);
+            if (!resultBonsaiInfo.IsValid)
+            {
+                var errors = resultBonsaiInfo.Errors.Select(x => x.ErrorMessage);
+                string errorMessage = string.Join(Environment.NewLine, errors);
+                throw new Exception(errorMessage);
+            }
+            if (bonsaiModelForCustomer.Image == null || bonsaiModelForCustomer.Image.Count == 0)
+                throw new Exception("Vui lòng thêm hình ảnh");
+            var category = await _unitOfWork.CategoryRepository.GetByIdAsync(bonsaiModelForCustomer.CategoryId);
+            if (category == null)
+                throw new Exception("Không tìm thấy danh mục!");
+            var style = await _unitOfWork.StyleRepository.GetByIdAsync(bonsaiModelForCustomer.StyleId);
+            if (style == null)
+                throw new Exception("Không tìm thấy kiểu dáng!");
+            if (bonsaiModelForCustomer.Address == null || bonsaiModelForCustomer.Square == null)
+            {
+                throw new Exception("Chưa nhập đủ thông tin vườn");
+            }
+            CustomerGarden customerGarden = new CustomerGarden()
+            {
+                Address = bonsaiModelForCustomer.Address,
+                Square = bonsaiModelForCustomer.Square.Value
+            };
+            await _unitOfWork.CustomerGardenRepository.AddAsync(customerGarden);
+            var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
+            bonsai.Price = 0;
+            bonsai.isDisable = true;
+            bonsai.isSold = null;
+            bonsai.Code = await generateCode();
+            try
+            {
+                _unitOfWork.BeginTransaction();
+                await _unitOfWork.BonsaiRepository.AddAsync(bonsai);
+                if (bonsaiModelForCustomer.Image != null)
+                {
+                    foreach (var singleImage in bonsaiModelForCustomer.Image.Select((image, index) => (image, index)))
+                    {
+                        string newImageName = bonsai.Id + "_i" + singleImage.index;
+                        string folderName = $"bonsai/{bonsai.Id}/Image";
+                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                        //Kiểm tra xem có phải là file ảnh không.
+                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                        const long maxFileSize = 20 * 1024 * 1024;
+                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                        {
+                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                        }
+                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                        if (url == null)
+                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                        BonsaiImage bonsaiImage = new BonsaiImage()
+                        {
+                            BonsaiId = bonsai.Id,
+                            ImageUrl = url
+                        };
+
+                        await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
+                    }
+                }
+                await _unitOfWork.CustomerBonsaiRepository.AddAsync(new CustomerBonsai()
+                {
+                    BonsaiId = bonsai.Id,
+                    CustomerGardenId = customerGarden.Id
+                });
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch (Exception)
+            {
+                _unitOfWork.RollbackTransaction();
+                throw;
+            }
         }
     }
 }

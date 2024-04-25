@@ -9,7 +9,7 @@ namespace Domain.Entities
         public Guid CustomerId { get; set; }
         public Guid? GardenerId { get; set; }
         public string Address { get; set; }
-        public DateTime OrderDate { get; set; }
+        public DateTime OrderDate { get; set; } = new DateTime(2020, 1, 1);
         public DateTime? ExpectedDeliveryDate { get; set; }
         public DateTime? DeliveryDate { get; set; }
         public double Price { get; set; }

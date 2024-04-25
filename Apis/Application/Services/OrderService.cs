@@ -30,7 +30,8 @@ namespace Application.Services
         private readonly IDeliveryFeeService _deliveryFeeService;
         private readonly IFirebaseService _fireBaseService;
         private readonly IdUtil _idUtil;
-        public OrderService(IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, IDeliveryFeeService deliveryFeeService, FirebaseService fireBaseService, IdUtil idUtil)
+        private readonly INotificationService _notificationService;
+        public OrderService(IConfiguration configuration, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, IDeliveryFeeService deliveryFeeService, FirebaseService fireBaseService, IdUtil idUtil, INotificationService notificationService)
         {
             _configuration = configuration;
             _unit = unitOfWork;
@@ -39,6 +40,7 @@ namespace Application.Services
             _deliveryFeeService = deliveryFeeService;
             _fireBaseService = fireBaseService;
             _idUtil = idUtil;
+            _notificationService = notificationService;
         }
         public async Task<IList<string>> ValidateOrderModel(OrderModel model, string userId)
         {
@@ -429,7 +431,6 @@ namespace Application.Services
             try
             {
                 var order = _mapper.Map<Order>(model);
-                order.OrderDate = DateTime.Now;
                 order.CustomerId = customerId;
                 order.Price = 0;
                 order.DeliveryPrice = 0;
@@ -597,6 +598,27 @@ namespace Application.Services
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+        public async Task CreateNotificationForStaff(Guid userId,Guid orderId)
+        {
+            var order = await _unit.OrderRepository
+                .GetAllQueryable()
+                .Include(x => x.Customer.ApplicationUser)
+                .Where(x => x.Id == orderId)
+                .FirstOrDefaultAsync();
+            if (order == null)
+            {
+                return;
+            }
+
+            if (order.OrderDate != new DateTime(2020, 1, 1))
+            { 
+                await _notificationService.SendToStaff("Thông báo đơn đặt hàng", $"Đơn đặt hàng {order.Customer.ApplicationUser.Email} đã thanh toán thành công");
+                await _notificationService.SendMessageForUserId(Guid.Parse(order.Customer.ApplicationUser.Id), "Thông báo đơn đặt hàng", $"Đơn đặt hàng đã thanh toán thành công");
+                order.OrderDate = DateTime.Now;
+                _unit.OrderRepository.Update(order);
+                await _unit.SaveChangeAsync();
             }
         }
     }

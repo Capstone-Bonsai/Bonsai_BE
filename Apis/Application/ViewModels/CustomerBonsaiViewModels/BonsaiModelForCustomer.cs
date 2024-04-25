@@ -6,6 +6,8 @@ namespace Application.ViewModels.CustomerBonsaiViewModels
 {
     public class BonsaiModelForCustomer
     {
+        public string? Address { get; set; }
+        public float? Square { get; set; }
         public Guid CategoryId { get; set; }
         public Guid StyleId { get; set; }
         public string Name { get; set; }

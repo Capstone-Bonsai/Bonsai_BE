@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Application.Services;
 using Application.ViewModels.MessageViewModels;
 using Domain.Entities;
 using Firebase.Auth;
@@ -20,10 +21,12 @@ namespace Application.Hubs
         public static List<string> _staffConnections = new List<string>();
         private readonly IClaimsService _claimsService;
         private readonly UserManager<ApplicationUser> _userManager;
-        public NotificationHub(IClaimsService claimsService, UserManager<ApplicationUser> userManager)
+        private readonly IUserConnectionService _userConnectionService;
+        public NotificationHub(IClaimsService claimsService, UserManager<ApplicationUser> userManager, IUserConnectionService userConnectionService)
         {
             _claimsService = claimsService;
             _userManager = userManager;
+            _userConnectionService = userConnectionService;
         }
         public override async Task OnConnectedAsync()
         {
@@ -38,6 +41,10 @@ namespace Application.Hubs
                     _staffConnections.Add(connectionId);
                 }        
             }
+            else
+            {
+                _userConnectionService.AddOrUpdateConnectionId(userId, connectionId);
+            }
             await base.OnConnectedAsync();
         }
         public override async Task OnDisconnectedAsync(Exception exception)
@@ -49,6 +56,10 @@ namespace Application.Hubs
             if (isStaff && _staffConnections.Contains(connectionId))
             {
                 _staffConnections.Remove(connectionId);
+            }
+            else
+            {
+                _userConnectionService.RemoveConnectionId(userId);
             }
 
             await base.OnDisconnectedAsync(exception);
