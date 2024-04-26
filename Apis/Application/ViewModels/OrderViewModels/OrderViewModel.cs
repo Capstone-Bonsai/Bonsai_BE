@@ -8,7 +8,7 @@ namespace Application.ViewModels.OrderViewModels
         public Guid CustomerId { get; set; }
         public Guid? GardenerId { get; set; }
         public string Address { get; set; }
-        public DateTime OrderDate { get; set; }
+        public DateTime CreationDate { get; set; }
         public DateTime? ExpectedDeliveryDate { get; set; }
         public double Price { get; set; }
         public double DeliveryPrice { get; set; }

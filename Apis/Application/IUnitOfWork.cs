@@ -35,6 +35,7 @@ namespace Application
         public INotificationRepository NotificationRepository { get; }
         public Task<int> SaveChangeAsync();
         void BeginTransaction();
+        void BeginTransactionLocking();
         Task CommitTransactionAsync();
         void RollbackTransaction();
         public void ClearTrack();

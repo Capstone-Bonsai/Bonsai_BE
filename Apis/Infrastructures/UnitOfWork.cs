@@ -152,6 +152,11 @@ namespace Infrastructures
         {
             _transaction = _dbContext.Database.BeginTransaction();
         }
+
+        public void BeginTransactionLocking()
+        {
+            _transaction = _dbContext.Database.BeginTransaction(System.Data.IsolationLevel.Serializable);
+        }
         public async Task CommitTransactionAsync()
         {
             try
