@@ -612,7 +612,7 @@ namespace Application.Services
                 return;
             }
 
-            if (order.OrderDate != new DateTime(2020, 1, 1))
+            if (order.OrderDate == new DateTime(2020, 1, 1) && (order.OrderStatus == OrderStatus.Paid))
             { 
                 await _notificationService.SendToStaff("Thông báo đơn đặt hàng", $"Đơn đặt hàng {order.Customer.ApplicationUser.Email} đã thanh toán thành công");
                 await _notificationService.SendMessageForUserId(Guid.Parse(order.Customer.ApplicationUser.Id), "Thông báo đơn đặt hàng", $"Đơn đặt hàng đã thanh toán thành công");

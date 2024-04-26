@@ -224,7 +224,7 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy bonsai!");
             if ((result.isSold != null && result.isSold.Value == true) || result.Code.Contains("KHACHHANG"))
             {
-                throw new Exception("Cây này thuộc về khách hàng, không thể xóa");
+                throw new Exception("Cây này thuộc về khách hàng, không thể cập nhật!");
             }
             if (bonsaiModel == null)
                 throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng điền đầy đủ thông tin!");
@@ -303,11 +303,6 @@ namespace Application.Services
             if ((result.isSold != null && result.isSold.Value == true )|| result.Code.Contains("KHACHHANG"))
             {
                 throw new Exception("Cây này thuộc về khách hàng, không thể xóa");
-            }
-            var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.BonsaiId == id && !x.IsDeleted);
-            if (orderDetails.TotalItemsCount > 0)
-            {
-                throw new Exception("Tồn tại đơn hàng thuộc về cây này, không thể xóa!");
             }
             try
             {
