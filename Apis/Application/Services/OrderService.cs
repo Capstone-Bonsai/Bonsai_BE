@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using System.Data;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq.Expressions;
 
@@ -341,7 +342,7 @@ namespace Application.Services
         public async Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId)
         {
             var customer = await GetCustomerAsync(model, userId);
-            _unit.BeginTransaction();
+            _unit.BeginTransactionLocking();
             try
             {
                 Guid orderId = await CreateOrder(model, customer.Id);
