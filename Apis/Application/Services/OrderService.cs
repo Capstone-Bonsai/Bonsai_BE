@@ -357,6 +357,8 @@ namespace Application.Services
             catch (Exception ex)
             {
                 _unit.RollbackTransaction();
+                if (ex.Message.Contains("An exception has been raised that is likely due to a transient failure")) throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+
                 throw new Exception(ex.Message);
             }
         }
