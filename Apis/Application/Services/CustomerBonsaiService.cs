@@ -277,7 +277,7 @@ namespace Application.Services
             await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
             await _unitOfWork.SaveChangeAsync();
         }
-        public async Task<Pagination<CustomerBonsai>> GetBonsaiOfCustomer(Guid customerId, int pageIndex, int pageSize)
+        public async Task<Pagination<CustomerBonsaiViewModel>> GetBonsaiOfCustomer(Guid customerId, int pageIndex, int pageSize)
         {
             var customer = await _idUtil.GetCustomerAsync(customerId);
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
@@ -285,9 +285,10 @@ namespace Application.Services
                                  x => x.CustomerGarden
                                     };
             var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetAsync(expression: x => x.CustomerGarden.CustomerId == customer.Id, pageIndex: pageIndex, pageSize: pageSize, includes: includes);
-            return customerBonsai;
+            var viewModel = _mapper.Map<Pagination<CustomerBonsaiViewModel>>(customerBonsai);
+            return viewModel;
         }
-        public async Task CreateBonsaiWithNewGarden(BonsaiModelForCustomer bonsaiModelForCustomer)
+        public async Task CreateBonsaiWithNewGarden(Guid userId, BonsaiModelForCustomer bonsaiModelForCustomer)
         {
             
             if (bonsaiModelForCustomer == null)
@@ -313,10 +314,13 @@ namespace Application.Services
             {
                 throw new Exception("Chưa nhập đủ thông tin vườn");
             }
+            var customer = await _idUtil.GetCustomerAsync(userId);
             CustomerGarden customerGarden = new CustomerGarden()
             {
+                CustomerId = customer.Id,
                 Address = bonsaiModelForCustomer.Address,
                 Square = bonsaiModelForCustomer.Square.Value
+                
             };
             await _unitOfWork.CustomerGardenRepository.AddAsync(customerGarden);
             var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);

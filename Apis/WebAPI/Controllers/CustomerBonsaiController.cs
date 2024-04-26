@@ -112,14 +112,7 @@ namespace WebAPI.Controllers
             try
             {
                 var customerBonsai = await _customerBonsaiService.GetBonsaiOfCustomer(_claims.GetCurrentUserId, pageIndex, pageSize);
-                if (customerBonsai.Items.Count == 0)
-                {
-                    return BadRequest("Không tìm thấy!");
-                }
-                else
-                {
-                    return Ok(customerBonsai);
-                }
+                return Ok(customerBonsai);
             }
             catch (Exception ex)
             {
@@ -131,7 +124,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                await _customerBonsaiService.CreateBonsaiWithNewGarden(bonsaiModelForCustomer);
+                await _customerBonsaiService.CreateBonsaiWithNewGarden(_claims.GetCurrentUserId,bonsaiModelForCustomer);
             }
             catch (Exception ex)
             {
