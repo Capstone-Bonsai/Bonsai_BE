@@ -3,7 +3,9 @@ using Application.Interfaces;
 using Application.Repositories;
 using Application.Services.Momo;
 using Application.Utils;
+using Application.Validations.Auth;
 using Application.Validations.Order;
+using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.BonsaiViewModel;
 using Application.ViewModels.DeliveryFeeViewModels;
 using Application.ViewModels.OrderViewModels;
@@ -19,6 +21,7 @@ using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq.Expressions;
+using System.Text.Encodings.Web;
 
 namespace Application.Services
 {
@@ -80,6 +83,68 @@ namespace Application.Services
             return null;
         }
 
+        public async Task GenerateTokenAsync(OrderInfoModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                var result = await CreateUserAsync(model);
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                }
+                else
+                {
+                    user = await _userManager.FindByEmailAsync(model.Email);
+                    //tạo account customer.
+                    try
+                    {
+                        await _userManager.AddToRoleAsync(user, "Customer");
+                        Customer cus = new Customer { UserId = user.Id };
+                        await _unit.CustomerRepository.AddAsync(cus);
+                        await _unit.SaveChangeAsync();
+                    }
+                    catch (Exception)
+                    {
+                        await _userManager.DeleteAsync(user);
+                        throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
+                    }
+                }
+            }
+            else
+            {
+                user = await _userManager.FindByEmailAsync(model.Email);
+                if (user.PhoneNumber != model.PhoneNumber && user.IsRegister == true)
+                {
+                    throw new Exception("Vui lòng nhập đúng số điện thoại của tài khoản đã đăng ký!");
+                }
+                else if (user.PhoneNumber != model.PhoneNumber && user.IsRegister == false)
+                {
+                    throw new Exception($"Vui lòng nhập đúng số điện thoại của đã đặt hàng ({FormatPhoneNumber(user.PhoneNumber.ToString())})!");
+                }
+            }
+            var isCustomer = await _userManager.IsInRoleAsync(user, "Customer");
+            if (!isCustomer)
+                throw new Exception("Bạn không có quyền để thực hiện hành động này!");
+            var customer = await _unit.CustomerRepository.GetAllQueryable().FirstOrDefaultAsync(x => x.UserId.ToLower().Equals(user.Id.ToLower()));
+            if (customer == null)
+                throw new Exception("Không tìm thấy thông tin người dùng");
+
+            var token = await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
+            await SendEmailAsync(model.Email.Trim(), token);
+        }
+        public async Task<bool> SendEmailAsync(string email, string callbackUrl)
+        {
+
+            MailService mail = new MailService();
+            var temp = mail.SendEmail(email, "Xác nhận email từ Thanh Sơn Garden",
+            $"<h2 style=\" color: #00B214;\">Xác thực email từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{email}</strong>"
+            + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã quan tâm tới Thanh Sơn Garden." +
+            " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần xác thực địa chỉ email.</p>"+ $"Mã xác thực: {callbackUrl}" );
+            var result = (temp) ? true : false;
+            return result;
+
+        }
 
         public async Task<string> CreateOrderAsync(OrderModel model, string userId)
         {
@@ -289,6 +354,7 @@ namespace Application.Services
                .Include(x => x.OrderDetails)
                .ThenInclude(x => x.Bonsai.BonsaiImages).Include(x=>x.OrderTransaction)
                .Include(x => x.DeliveryImages)
+
                .OrderByDescending(y => y.CreationDate).ToListAsync();
             else if (isGardener)
             {
@@ -348,7 +414,15 @@ namespace Application.Services
         }
         public async Task<Guid> CreateOrderByTransaction(OrderModel model, string? userId)
         {
+
             var customer = await GetCustomerAsync(model, userId);
+            var user = await _userManager.FindByIdAsync(customer.UserId);
+            var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider, model.OtpCode);
+            if (!isValid)
+            {
+                throw new Exception("Mã OTP không chính xác.");
+            }
+            await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
             _unit.BeginTransactionLocking();
             try
             {
@@ -369,6 +443,8 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
+
+
 
         public async Task<IdentityResult> CreateUserAsync(OrderInfoModel model)
         {
@@ -397,27 +473,16 @@ namespace Application.Services
                 user = await _userManager.FindByEmailAsync(model.OrderInfo.Email);
                 if (user == null)
                 {
-                    var result = await CreateUserAsync(model.OrderInfo);
-                    if (!result.Succeeded)
-                    {
-                        throw new Exception("Đã xảy ra lỗi trong quá trình đặt hàng!");
+                    throw new Exception("Vui lòng xác thực email của bạn trước khi đặt hàng");
+                }
+                else
+                {
+                    if(user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == true){
+                        throw new Exception("Vui lòng nhập đúng số điện thoại của tài khoản đã đăng ký!");
                     }
-                    else
+                    else if(user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == false)
                     {
-                        user = await _userManager.FindByEmailAsync(model.OrderInfo.Email);
-                        //tạo account customer.
-                        try
-                        {
-                            await _userManager.AddToRoleAsync(user, "Customer");
-                            Customer cus = new Customer { UserId = user.Id };
-                            await _unit.CustomerRepository.AddAsync(cus);
-                            await _unit.SaveChangeAsync();
-                        }
-                        catch (Exception)
-                        {
-                            await _userManager.DeleteAsync(user);
-                            throw new Exception("Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại!");
-                        }
+                        throw new Exception($"Vui lòng nhập đúng số điện thoại của đã đặt hàng ({FormatPhoneNumber(user.PhoneNumber.ToString())})!");
                     }
                 }
             }
@@ -435,6 +500,20 @@ namespace Application.Services
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return customer;
         }
+
+        private string FormatPhoneNumber(string phoneNumber)
+        {
+            if (phoneNumber.Length != 10)
+            {
+                throw new ArgumentException("Số điện thoại không đúng định dang.");
+            }
+
+            string firstTwoDigits = phoneNumber.Substring(0, 2);
+            string lastThreeDigits = phoneNumber.Substring(7, 3);
+
+            return $"{firstTwoDigits}*****{lastThreeDigits}";
+        }
+
 
         public async Task<Guid> CreateOrder(OrderModel model, Guid customerId)
         {
@@ -610,7 +689,7 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
-        public async Task CreateNotificationForStaff(Guid userId,Guid orderId)
+        public async Task CreateNotificationForStaff(Guid userId, Guid orderId)
         {
             var order = await _unit.OrderRepository
                 .GetAllQueryable()
@@ -623,7 +702,7 @@ namespace Application.Services
             }
 
             if (order.OrderDate == new DateTime(2020, 1, 1) && (order.OrderStatus == OrderStatus.Paid))
-            { 
+            {
                 await _notificationService.SendToStaff("Thông báo đơn đặt hàng", $"Đơn đặt hàng {order.Customer.ApplicationUser.Email} đã thanh toán thành công");
                 await _notificationService.SendMessageForUserId(Guid.Parse(order.Customer.ApplicationUser.Id), "Thông báo đơn đặt hàng", $"Đơn đặt hàng đã thanh toán thành công");
                 order.OrderDate = DateTime.Now;

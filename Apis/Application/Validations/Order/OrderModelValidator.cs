@@ -11,6 +11,8 @@ namespace Application.Validations.Order
                 .WithMessage("Địa chỉ chi tiết không quá 100 ký tự.");
             RuleFor(x => x.Note).MaximumLength(1000)
                 .WithMessage("Ghi chú không quá 1000 ký tự.");
+            RuleFor(x => x.OtpCode).NotEmpty().WithMessage("Mã OTP không được để trống").MaximumLength(6)
+                .WithMessage("Địa chỉ chi tiết không quá 100 ký tự.");
         }
     }
 }
