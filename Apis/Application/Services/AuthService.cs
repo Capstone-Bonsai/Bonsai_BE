@@ -139,6 +139,10 @@ namespace Application.Services
             }
             else
             {
+                if(user.PhoneNumber != model.PhoneNumber)
+                {
+                    throw new Exception($"Vui lòng nhập đúng số điện thoại của đã đặt hàng ({FormatPhoneNumber(user.PhoneNumber.ToString())})!");
+                }
                 user.UserName = model.Username;
                 user.Fullname = model.Fullname;
                 user.PhoneNumber = model.PhoneNumber;
@@ -152,6 +156,19 @@ namespace Application.Services
                 }
                 return result;
             }
+        }
+
+        private string FormatPhoneNumber(string phoneNumber)
+        {
+            if (phoneNumber.Length != 10)
+            {
+                throw new ArgumentException("Phone number must be 10 digits long.");
+            }
+
+            string firstTwoDigits = phoneNumber.Substring(0, 2);
+            string lastThreeDigits = phoneNumber.Substring(7, 3);
+
+            return $"{firstTwoDigits}*****{lastThreeDigits}";
         }
         public async Task<bool> IsInRoleAsync(string userId, string role)
         {
@@ -174,7 +191,7 @@ namespace Application.Services
             {
                 throw new KeyNotFoundException($"Tài khoản này hiện tại đang bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ!");
             }
-            
+            await _userManager.SetTwoFactorEnabledAsync(user, false);
             //sign in  
             var signInResult = await _signInManager.PasswordSignInAsync(user, password, false, false);
             if (signInResult.Succeeded)

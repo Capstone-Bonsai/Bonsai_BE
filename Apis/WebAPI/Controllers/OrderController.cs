@@ -1,9 +1,15 @@
 ﻿using Application.Interfaces;
 using Application.Services.Momo;
+using Application.Validations.Auth;
+using Application.Validations.Order;
 using Application.ViewModels;
+using Application.ViewModels.AuthViewModel;
 using Application.ViewModels.OrderViewModels;
+using Domain.Entities;
 using Domain.Enums;
+using Firebase.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -14,11 +20,13 @@ namespace WebAPI.Controllers
     {
         private readonly IOrderService _orderService;
         private readonly IClaimsService _claimsService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OrderController(IOrderService orderService, IClaimsService claimsService)
+        public OrderController(IOrderService orderService, IClaimsService claimsService,UserManager<ApplicationUser> userManager)
         {
             _orderService = orderService;
             _claimsService = claimsService;
+            _userManager = userManager;
         }
         [HttpPost]
         public async Task<IActionResult> CreateOrderAsync([FromBody] OrderModel model)
@@ -76,6 +84,28 @@ namespace WebAPI.Controllers
 
         }
 
+
+        [HttpPost("OTPGeneration")]
+        public async Task<IActionResult> GenerateTokenAsync([FromForm] OrderInfoModel model)
+        {
+            var validateError = await ValidateAsync(model);
+            if (validateError == null)
+            {
+                try
+                {
+                    await _orderService.GenerateTokenAsync(model);
+                    return Ok("Mã xác thực đã được gửi về email. Vui lòng truy cập email để nhận mã OTP");
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+            }
+            else
+            {
+                return BadRequest(validateError);
+            }
+        }
 
         [HttpGet("{orderId}")]
         [Authorize]
@@ -170,6 +200,47 @@ namespace WebAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [NonAction]
+        private async Task<IList<string>> ValidateAsync(OrderInfoModel model)
+        {
+            var validator = new OrderInfoModelValidator();
+            var result = await validator.ValidateAsync(model);
+            if (!result.IsValid)
+            {
+                var errors = new List<string>();
+                errors.AddRange(result.Errors.Select(x => x.ErrorMessage));
+                return errors;
+            }
+            return null;
+        }
+
+
+        [HttpGet("OtpHandler")]
+        public async Task<IActionResult> OtpHandler(string Email, string Otp)
+        {
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(Email);
+                if (user == null)
+                {
+                    return NotFound("Không tìm thấy người dùng.");
+                }
+                var result = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider, Otp);
+                if (result)
+                {
+                    return Ok("Mã OTP chính xác");
+                }
+                else
+                {
+                    return BadRequest("Mã OTP không chính xác");
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }

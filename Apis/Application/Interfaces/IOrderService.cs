@@ -19,5 +19,6 @@ namespace Application.Interfaces
         Task FinishDeliveryOrder(Guid orderId, FinishDeliveryOrderModel finishDeliveryOrderModel);
         Task AddGardenerForOrder(Guid orderId, Guid gardenerId);
         Task CreateNotificationForStaff(Guid userId, Guid orderId);
+        public Task GenerateTokenAsync(OrderInfoModel model);
     }
 }
