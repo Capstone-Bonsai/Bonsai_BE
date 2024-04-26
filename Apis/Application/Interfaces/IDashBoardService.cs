@@ -11,6 +11,6 @@ namespace Application.Interfaces
     public interface IDashBoardService
     {
         Task<DashboardViewModel> GetDashboardAsync();
-        Task<List<RevenueLineGraph>> GetRevenueLineGraph(RevenueInputType revenueInputType);
+        Task<List<RevenueLineGraph>> GetRevenueLineGraph();
     }
 }

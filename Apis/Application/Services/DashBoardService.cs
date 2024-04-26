@@ -48,7 +48,7 @@ namespace Application.Services
             if (totalOrderIncome == 0) return new List<OrderCircleGraph>();
             List<OrderCircleGraph> orderCircleGraphs = new List<OrderCircleGraph>();
             var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted);
-            double previousPercentSum = 0; 
+            double previousPercentSum = 0;
             double currentPercent = 0;
 
             foreach (Category category in categories.Items)
@@ -57,7 +57,7 @@ namespace Application.Services
                     .AsNoTracking()
                     .Where(x => x.Bonsai.CategoryId == category.Id && x.Order.OrderStatus >= Domain.Enums.OrderStatus.Paid && x.CreationDate >= DateTime.Now.AddDays(-30))
                     .ToListAsync();
-                if (category != categories.Items.Last()) 
+                if (category != categories.Items.Last())
                 {
                     double totalCategoryOrderDetailPrice = orderDetail.Sum(x => x.Price);
                     double percent = (totalCategoryOrderDetailPrice / totalOrderIncome) * 100;
@@ -73,7 +73,7 @@ namespace Application.Services
             orderCircleGraphs.Add(new OrderCircleGraph()
             {
                 CategoryName = categories.Items.Last().Name,
-                Percent = 100 - previousPercentSum 
+                Percent = 100 - previousPercentSum
             });
             return orderCircleGraphs;
         }
@@ -83,15 +83,15 @@ namespace Application.Services
             List<ServiceOrderCircleGraph> serviceOrderCircleGraphs = new List<ServiceOrderCircleGraph>();
             var services = await _unitOfWork.ServiceRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted);
             double previousPercentSum = 0;
-            double currentPercent = 0; 
+            double currentPercent = 0;
 
             foreach (Service service in services.Items)
             {
                 var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable()
                     .AsNoTracking()
                     .Where(x => x.Service.Id == service.Id && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.CreationDate >= DateTime.Now.AddDays(-30))
-                    .ToListAsync();            
-                if (service != services.Items.Last()) 
+                    .ToListAsync();
+                if (service != services.Items.Last())
                 {
                     double totalServiceOrderPrice = serviceOrder.Sum(x => x.TotalPrice);
                     double percent = (totalServiceOrderPrice / totalServiceOrderIncome) * 100;
@@ -111,42 +111,37 @@ namespace Application.Services
             });
             return serviceOrderCircleGraphs;
         }
-        public async Task<List<RevenueLineGraph>> GetRevenueLineGraph(RevenueInputType revenueInputType)
+        public async Task<List<RevenueLineGraph>> GetRevenueLineGraph()
         {
             List<RevenueLineGraph> revenueLineGraphs = new List<RevenueLineGraph>();
-            switch (revenueInputType)
+
+            var orders = await _unitOfWork.OrderRepository.GetAsync(
+                isTakeAll: true,
+                expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
+                                 x.OrderStatus >= Domain.Enums.OrderStatus.Paid
+            );
+
+            var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(
+                isTakeAll: true,
+                expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
+                                 x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid
+            );
+            var groupedOrders = orders.Items.GroupBy(o => new DateTime(o.CreationDate.Year, o.CreationDate.Month, 1));
+            var groupedServiceOrders = serviceOrders.Items.GroupBy(so => new DateTime(so.CreationDate.Year, so.CreationDate.Month, 1));
+            foreach (var month in Enumerable.Range(0, 12).Select(offset => DateTime.Now.Date.AddMonths(-11).AddMonths(offset)))
             {
-                case RevenueInputType.month:
-                    var orders = await _unitOfWork.OrderRepository.GetAsync(
-                        isTakeAll: true,
-                        expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
-                                         x.OrderStatus >= Domain.Enums.OrderStatus.Paid
-                    );
+                var monthStart = new DateTime(month.Year, month.Month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-                    var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(
-                        isTakeAll: true,
-                        expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
-                                         x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid
-                    );
-                    var groupedOrders = orders.Items.GroupBy(o => new DateTime(o.CreationDate.Year, o.CreationDate.Month, 1));
-                    var groupedServiceOrders = serviceOrders.Items.GroupBy(so => new DateTime(so.CreationDate.Year, so.CreationDate.Month, 1));
-                    foreach (var month in Enumerable.Range(0, 12).Select(offset => DateTime.Now.Date.AddMonths(-11).AddMonths(offset)))
-                    {
-                        var monthStart = new DateTime(month.Year, month.Month, 1);
-                        var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+                double totalOrderIncome = groupedOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(o => o.Price) ?? 0;
+                double totalServiceOrderIncome = groupedServiceOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(so => so.TotalPrice) ?? 0;
 
-                        double totalOrderIncome = groupedOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(o => o.Price) ?? 0;
-                        double totalServiceOrderIncome = groupedServiceOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(so => so.TotalPrice) ?? 0;
-
-                        revenueLineGraphs.Add(new RevenueLineGraph()
-                        {
-                            time = month,
-                            OrderTotal = totalOrderIncome,
-                            ServiceOrderTotal = totalServiceOrderIncome
-                        });
-                    }
-                    break;
-
+                revenueLineGraphs.Add(new RevenueLineGraph()
+                {
+                    time = month,
+                    OrderTotal = totalOrderIncome,
+                    ServiceOrderTotal = totalServiceOrderIncome
+                });
             }
             return revenueLineGraphs;
         }

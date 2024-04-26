@@ -389,7 +389,11 @@ namespace Application.Services
             List<Bonsai> bonsais = new List<Bonsai>();
             foreach(Guid id in bonsaiId)
             {
-                var bonsai = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
+                var bonsai = await _unitOfWork.BonsaiRepository
+                    .GetAllQueryable()
+                    .Include(x => x.BonsaiImages)
+                    .Where(x => x.Id == id)
+                    .FirstOrDefaultAsync();
                 if (bonsai == null)
                 {
                     throw new Exception("Không tìm thấy bonsai " + id.ToString());

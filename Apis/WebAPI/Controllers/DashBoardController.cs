@@ -36,11 +36,11 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("RevenueLineGraph")]
-        public async Task<IActionResult> Get(RevenueInputType revenueInputType)
+        public async Task<IActionResult> GetLineGraph()
         {
             try
             {
-                var dashboard = await _dashBoardService.GetRevenueLineGraph(revenueInputType);
+                var dashboard = await _dashBoardService.GetRevenueLineGraph();
                 if (dashboard == null)
                 {
                     return BadRequest("Không tìm thấy!");
