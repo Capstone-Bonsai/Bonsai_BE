@@ -21,7 +21,7 @@ namespace Application.Services
         }
         public async Task<Pagination<Category>> GetCategories()
         {
-            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
+            var categories = await _unitOfWork.CategoryRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true, orderBy: x => x.OrderBy(cate => cate.Name.Contains("Khác")));
             return categories;
         }
         public async Task AddCategory(CategoryModel categoryModel)
