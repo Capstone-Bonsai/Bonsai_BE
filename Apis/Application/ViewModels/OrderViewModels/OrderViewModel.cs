@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Application.ViewModels.OrderViewModels
 {
@@ -19,5 +20,8 @@ namespace Application.ViewModels.OrderViewModels
         public virtual Customer Customer { get; set; }
         public virtual OrderTransaction OrderTransaction { get; set; }
         public IList<OrderDetail> OrderDetails { get; set; }
+        public IList<DeliveryImage> DeliveryImages { get; set; }
+        [NotMapped]
+        public virtual Gardener Gardener { get; set; }
     }
 }

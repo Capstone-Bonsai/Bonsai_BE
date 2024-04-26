@@ -13,6 +13,7 @@ namespace Domain.Entities
 
         [JsonIgnore]
         public virtual Customer? Customer { get; set; }
+        [JsonIgnore]
         public virtual Gardener? Gardener { get; set; }
         public virtual Manager? Manager { get; set; }
         public virtual Staff? Staff { get; set; }

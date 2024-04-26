@@ -276,22 +276,19 @@ namespace Application.Services
             var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
-            List<Expression<Func<Order, object>>> includes = new List<Expression<Func<Order, object>>>
-{
-    x => x.Customer.ApplicationUser
-
-};
             if (isCustomer && !isAdmin && !isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                     .Include(x => x.Customer)
                 .Include(x => x.OrderDetails)
                 .ThenInclude(x => x.Bonsai.BonsaiImages)
+                .Include(x => x.DeliveryImages)
                 .Where(x => x.Customer.UserId.ToLower() == userId).OrderByDescending(y => y.CreationDate).ToListAsync();
             else if (isAdmin || isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                    .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
                .ThenInclude(x => x.Bonsai.BonsaiImages).Include(x=>x.OrderTransaction)
+               .Include(x => x.DeliveryImages)
                .OrderByDescending(y => y.CreationDate).ToListAsync();
             else if (isGardener)
             {
@@ -318,6 +315,16 @@ namespace Application.Services
             };
 
             var result = _mapper.Map<Pagination<OrderViewModel>>(res);
+            foreach(OrderViewModel orderViewModel in result.Items)
+            {
+                if (orderViewModel.GardenerId != null)
+                {
+                    orderViewModel.Gardener = await _unit.GardenerRepository.GetAllQueryable()
+                   .Where(x => x.Id == orderViewModel.GardenerId)
+                   .Include(x => x.ApplicationUser)
+                   .FirstOrDefaultAsync();
+                }   
+            }
             return result;
         }
         public async Task<Order> GetByIdAsync(string userId, Guid orderId)

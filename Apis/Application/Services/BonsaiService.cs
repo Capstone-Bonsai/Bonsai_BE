@@ -304,6 +304,11 @@ namespace Application.Services
             {
                 throw new Exception("Cây này thuộc về khách hàng, không thể xóa");
             }
+            var orderDetails = await _unitOfWork.OrderDetailRepository.GetAsync(pageIndex: 0, pageSize: 1, expression: x => x.BonsaiId == id && !x.IsDeleted);
+            if (orderDetails.TotalItemsCount > 0)
+            {
+                throw new Exception("Tồn tại đơn hàng thuộc về cây này, không thể xóa!");
+            }
             try
             {
                 _unitOfWork.BonsaiRepository.SoftRemove(result);
