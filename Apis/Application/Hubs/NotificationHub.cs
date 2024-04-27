@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Application.Hubs
 {
-    [Authorize]
+    //[Authorize]
     public class NotificationHub : Hub
     {
         public static List<string> _staffConnections = new List<string>();
@@ -31,7 +31,7 @@ namespace Application.Hubs
         public override async Task OnConnectedAsync()
         {
             string connectionId = Context.ConnectionId;
-            string userId = _claimsService.GetCurrentUserId.ToString();
+           /* string userId = _claimsService.GetCurrentUserId.ToString();
             var user = await _userManager.FindByIdAsync(userId);
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             if (isStaff)
@@ -44,7 +44,8 @@ namespace Application.Hubs
             else
             {
                 _userConnectionService.AddOrUpdateConnectionId(userId, connectionId);
-            }
+            }*/
+            await Clients.Client(connectionId).SendAsync("Hello", "Connect success");
             await base.OnConnectedAsync();
         }
         public override async Task OnDisconnectedAsync(Exception exception)

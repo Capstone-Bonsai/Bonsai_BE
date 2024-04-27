@@ -73,7 +73,7 @@ namespace Application.Services
             orderCircleGraphs.Add(new OrderCircleGraph()
             {
                 CategoryName = categories.Items.Last().Name,
-                Percent = 100 - previousPercentSum
+                Percent = Math.Round(100 - previousPercentSum ,2)
             });
             return orderCircleGraphs;
         }
@@ -104,10 +104,11 @@ namespace Application.Services
                     });
                 }
             }
+            previousPercentSum = Math.Round(previousPercentSum, 2);
             serviceOrderCircleGraphs.Add(new ServiceOrderCircleGraph()
             {
                 ServiceName = services.Items.Last().Name,
-                Percent = 100 - previousPercentSum
+                Percent = Math.Round(100 - previousPercentSum, 2)
             });
             return serviceOrderCircleGraphs;
         }
