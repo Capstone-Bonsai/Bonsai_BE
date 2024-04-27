@@ -259,7 +259,7 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     orderStatus = OrderStatus.Paid;
                 }
-                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().FirstOrDefaultAsync(x => x.Id == orderId);
+                var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).ThenInclude(x => x.Bonsai).Include(c => c.Customer.ApplicationUser).AsNoTracking().FirstOrDefaultAsync(x => x.Id == orderId);
                 if (order == null)
                     throw new Exception("Không tìm thấy đơn hàng.");
                 var orderTransaction = new OrderTransaction();
@@ -284,21 +284,6 @@ namespace Application.Services
                 // Tạo transaction
                 orderTransaction.Signature = momo.signature;
                 await _unit.OrderTransactionRepository.AddAsync(orderTransaction);
-
-                if (momo.resultCode != 0)
-                {
-                    var lists = new List<Bonsai>();
-                    var listBonsai = await _unit.OrderDetailRepository.GetAllQueryable().Include(x => x.Bonsai).Where(x => x.IsDeleted == false && x.OrderId == orderId).ToListAsync();
-                    foreach (var item in listBonsai)
-                    {
-                        item.Bonsai.isSold = false;
-                        item.Bonsai.isDisable = false;
-                        lists.Add(item.Bonsai);
-                    }
-                    _unit.ClearTrack();
-                    _unit.BonsaiRepository.UpdateRange(lists);
-                    await _unit.SaveChangeAsync();
-                }
                 //Update Order Status
                 order.OrderStatus = orderStatus;
                 _unit.OrderRepository.Update(order);
@@ -307,28 +292,64 @@ namespace Application.Services
                 {
                     await UpdateBonsaiFromOrder(orderId);
                 }
+                if (momo.resultCode == 0)
+                {
+                    await SendOrderEmail(order);
+                }
             }
             catch (Exception exx)
             {
                 throw new Exception($"tạo Transaction lỗi: {exx.Message}");
             }
         }
+        public async Task SendOrderEmail(Order order)
+        {
+            var start = order.ExpectedDeliveryDate.Value.ToString("dd/M/yyyy");
+            var end = order.ExpectedDeliveryDate.Value.AddDays(2).ToString("dd/M/yyyy");
+            var orderDate = order.CreationDate.AddDays(2).ToString("dd/M/yyyy");
+            MailService mail = new MailService();
+            var ordertemp = $"<div style=\"font-weight: bold;\">Ngày đặt hàng: </div>{orderDate}<div style=\"font-weight: bold;\">Khách hàng: </div>{order.Customer.ApplicationUser.Fullname}" +
+                $"<div style=\"font-weight: bold;\">Email: </div>{order.Customer.ApplicationUser.Email}<div style=\"font-weight: bold;\">Địa chỉ: </div>{order.Address}" +
+                $"<div style=\"font-weight: bold;\">Số điện thoại: </div>{order.Customer.ApplicationUser.PhoneNumber}<div style=\"font-weight: bold;\">Phí giao hàng: </div>{order.DeliveryPrice} VND<div style=\"font-weight: bold;\">Tổng đơn hàng:</div> {order.TotalPrice} VND<div style=\"font-weight: bold;\">Ngày dự kiến giao hàng: </div> {start} - {end}";
+            var table = "<table style=\"font-family: Arial, Helvetica, sans-serif; border-collapse: collapse; width: 100%;\">\r\n  <tr>\r\n    <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #04AA6D; color: white; padding-top: 12px; padding-bottom: 12px;\">Tên Bonsai</th>\r\n    <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #04AA6D; color: white; padding-top: 12px; padding-bottom: 12px;\">Mã bonsai</th>\r\n    <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #04AA6D; color: white; padding-top: 12px; padding-bottom: 12px;\">Giá tiền</th>\r\n  </tr>";
+            foreach (var item in order.OrderDetails)
+            {
+                table = table + $"<tr style=\"background-color: #f2f2f2;\">\r\n    <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Bonsai.Name}</td>\r\n  <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Bonsai.Code}</td>\r\n    <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Price}</td>\r\n  </tr>";
+            }
+            table = table + "</table>";
+            var temp = mail.SendEmail(order.Customer.ApplicationUser.Email, "Thông tin đơn hàng từ Thanh Sơn Garden",
+            $"<h2 style=\" color: #00B214;\">Thông tin đơn hàng từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{order.Customer.ApplicationUser.Email}</strong>"
+            + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã quan tâm tới Thanh Sơn Garden." +
+            " Dưới đây là thông tin đơn hàng của bạn. Bạn có thể đăng nhập vào Thanh Sơn Garden để theo dõi tình trạng đơn hàng của mình.</p> <hr/>" + ordertemp + table);
+
+
+        }
 
         public async Task UpdateBonsaiFromOrder(Guid orderId)
         {
-            var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
-            if (order == null)
-                throw new Exception("Không tìm thấy đơn hàng.");
-            foreach (var item in order.OrderDetails)
+             _unit.BeginTransaction();
+            try
             {
-                var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
-                if (bonsai == null)
-                    throw new Exception("Không tìm thấy bonsai bạn muốn mua");
-                bonsai.isSold = false;
-                bonsai.isDisable = false;
-                _unit.BonsaiRepository.Update(bonsai);
-                await _unit.SaveChangeAsync();
+                var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
+                if (order == null)
+                    throw new Exception("Không tìm thấy đơn hàng.");
+                foreach (var item in order.OrderDetails)
+                {
+                    var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
+                    if (bonsai == null)
+                        throw new Exception("Không tìm thấy bonsai bạn muốn mua");
+                    bonsai.isSold = false;
+                    bonsai.isDisable = false;
+                    _unit.BonsaiRepository.Update(bonsai);
+                    await _unit.SaveChangeAsync();
+                }
+                await _unit.CommitTransactionAsync();
             }
+            catch (Exception ex)
+            {
+                _unit.RollbackTransaction();
+            }
+            
         }
         public async Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
         {
@@ -424,10 +445,14 @@ namespace Application.Services
 
             var customer = await GetCustomerAsync(model, userId);
             var user = await _userManager.FindByIdAsync(customer.UserId);
-            var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider, model.OtpCode);
-            if (!isValid)
+            if(userId == null)
             {
-                throw new Exception("Mã OTP không chính xác.");
+                if (model.OtpCode == null) throw new Exception("Vui lòng xác thực email trước khi thực hiện đăt hàng.");
+                var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider, model.OtpCode);
+                if (!isValid)
+                {
+                    throw new Exception("Mã OTP không chính xác hoặc đã hết hiệu lực.");
+                }
             }
             await _userManager.GenerateTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider);
             _unit.BeginTransactionLocking();
@@ -450,9 +475,6 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
-
-
-
         public async Task<IdentityResult> CreateUserAsync(OrderInfoModel model)
         {
             var user = new ApplicationUser
@@ -486,7 +508,8 @@ namespace Application.Services
                 {
                     if (user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == true)
                     {
-                        throw new Exception("Vui lòng nhập đúng số điện thoại của tài khoản đã đăng ký!");
+
+                        throw new Exception($"Vui lòng nhập đúng số điện thoại của tài khoản đã đăng ký ({FormatPhoneNumber(user.PhoneNumber.ToString())})!");
                     }
                     else if (user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == false)
                     {
@@ -521,8 +544,6 @@ namespace Application.Services
 
             return $"{firstTwoDigits}*****{lastThreeDigits}";
         }
-
-
         public async Task<Guid> CreateOrder(OrderModel model, Guid customerId)
         {
             try
@@ -542,7 +563,6 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
-
         public async Task CreateOrderDetail(Guid bonsaiId, Guid orderId)
         {
             try
@@ -575,8 +595,6 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
-
-
         public async Task UpdateOrder(Guid orderId, List<Guid> bonsaisId)
         {
             try
@@ -610,8 +628,6 @@ namespace Application.Services
                 throw new Exception(ex.Message);
             }
         }
-
-
         public async Task<FeeViewModel> CalculateDeliveryPrice(string destination, IList<Guid> listBonsaiId)
         {
             var distance = await _deliveryFeeService.CalculateFee(destination, listBonsaiId);
@@ -718,6 +734,10 @@ namespace Application.Services
                 await _unit.SaveChangeAsync();
             }
         }
+
+
+
+
     }
 }
 

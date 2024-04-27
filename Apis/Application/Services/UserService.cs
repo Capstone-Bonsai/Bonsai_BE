@@ -70,12 +70,8 @@ namespace Infrastructures.Services
                 }
                 else
                 {
-                    List<string> err = new List<string>();
-                    foreach (var item in result.Errors)
-                    {
-                        err.Add(item.Description);
-                    }
-                    return err;
+
+                    throw new Exception($"Mật khẩu không chính xác.");
                 }
             }
             catch (Exception ex)
