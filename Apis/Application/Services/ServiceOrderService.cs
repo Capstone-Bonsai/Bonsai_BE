@@ -181,7 +181,15 @@ namespace Application.Services
             }
             else
             {
-                var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, orderBy: x => x.OrderByDescending(contract => contract.ServiceOrderStatus), includes: includes);
+                var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize,
+                    orderBy: x => x.OrderBy(order => order.ServiceOrderStatus == ServiceOrderStatus.Pending ? 1 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.Paid ? 2 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.Complained ? 3 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.TaskFinished ? 4 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.DoneTaskComplaint ? 5 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.Processing ? 6 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.ProcessingComplaint ? 7 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.ComplaintCanceled ? 8 : 9), includes: includes);
                 return serviceOrders;
             }
         }

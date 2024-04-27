@@ -140,7 +140,7 @@ namespace Application.Services
             var temp = mail.SendEmail(email, "Xác nhận email từ Thanh Sơn Garden",
             $"<h2 style=\" color: #00B214;\">Xác thực email từ Thanh Sơn Garden</h2>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\">Xin chào <strong>{email}</strong>"
             + ",</p>\r\n<p style=\"margin-bottom: 10px;\r\n    text-align: left;\"> Cảm ơn bạn đã quan tâm tới Thanh Sơn Garden." +
-            " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần xác thực địa chỉ email.</p>"+ $"Mã xác thực: {callbackUrl}" );
+            " Để có được trải nghiệm dịch vụ và được hỗ trợ tốt nhất, bạn cần xác thực địa chỉ email.</p>" + $"Mã xác thực: {callbackUrl}");
             var result = (temp) ? true : false;
             return result;
 
@@ -330,7 +330,6 @@ namespace Application.Services
                 await _unit.SaveChangeAsync();
             }
         }
-
         public async Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
         {
             IList<Order> listOrder = new List<Order>();
@@ -341,21 +340,30 @@ namespace Application.Services
             var isAdmin = await _userManager.IsInRoleAsync(user, "Manager");
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             var isGardener = await _userManager.IsInRoleAsync(user, "Gardener");
+
             if (isCustomer && !isAdmin && !isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                     .Include(x => x.Customer)
                 .Include(x => x.OrderDetails)
                 .ThenInclude(x => x.Bonsai.BonsaiImages)
                 .Include(x => x.DeliveryImages)
-                .Where(x => x.Customer.UserId.ToLower() == userId).OrderByDescending(y => y.CreationDate).ToListAsync();
+                .Where(x => x.Customer.UserId.ToLower() == userId)
+                .OrderByDescending(order => order.CreationDate)
+                .ToListAsync();
             else if (isAdmin || isStaff)
                 listOrder = await _unit.OrderRepository.GetAllQueryable().AsNoTracking()
                    .Include(x => x.Customer.ApplicationUser)
                .Include(x => x.OrderDetails)
-               .ThenInclude(x => x.Bonsai.BonsaiImages).Include(x=>x.OrderTransaction)
+               .ThenInclude(x => x.Bonsai.BonsaiImages).Include(x => x.OrderTransaction)
                .Include(x => x.DeliveryImages)
-
-               .OrderByDescending(y => y.CreationDate).ToListAsync();
+               .OrderBy(order => order.OrderStatus == OrderStatus.Paid ? 1 :
+                       order.OrderStatus == OrderStatus.Preparing ? 2 :
+                       order.OrderStatus == OrderStatus.Delivering ? 3 :
+                       order.OrderStatus == OrderStatus.Delivered ? 4 :
+                       order.OrderStatus == OrderStatus.Failed ? 5 :
+                       order.OrderStatus == OrderStatus.DeliveryFailed ? 6 : 7)
+               .ThenByDescending(order => order.CreationDate)
+               .ToListAsync();
             else if (isGardener)
             {
                 var gardener = await _idUtil.GetGardenerAsync(Guid.Parse(userId));
@@ -367,8 +375,7 @@ namespace Application.Services
             }
             else return null;
             var itemCount = listOrder.Count();
-            var items = listOrder.OrderByDescending(x => x.CreationDate)
-                                    .Skip(pageIndex * pageSize)
+            var items = listOrder.Skip(pageIndex * pageSize)
                                     .Take(pageSize)
                                     .ToList();
 
@@ -381,7 +388,7 @@ namespace Application.Services
             };
 
             var result = _mapper.Map<Pagination<OrderViewModel>>(res);
-            foreach(OrderViewModel orderViewModel in result.Items)
+            foreach (OrderViewModel orderViewModel in result.Items)
             {
                 if (orderViewModel.GardenerId != null)
                 {
@@ -389,7 +396,7 @@ namespace Application.Services
                    .Where(x => x.Id == orderViewModel.GardenerId)
                    .Include(x => x.ApplicationUser)
                    .FirstOrDefaultAsync();
-                }   
+                }
             }
             return result;
         }
@@ -477,10 +484,11 @@ namespace Application.Services
                 }
                 else
                 {
-                    if(user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == true){
+                    if (user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == true)
+                    {
                         throw new Exception("Vui lòng nhập đúng số điện thoại của tài khoản đã đăng ký!");
                     }
-                    else if(user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == false)
+                    else if (user.PhoneNumber != model.OrderInfo.PhoneNumber && user.IsRegister == false)
                     {
                         throw new Exception($"Vui lòng nhập đúng số điện thoại của đã đặt hàng ({FormatPhoneNumber(user.PhoneNumber.ToString())})!");
                     }
