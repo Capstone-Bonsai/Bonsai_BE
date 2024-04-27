@@ -161,6 +161,11 @@ namespace Application.Services
 
         public async Task UpdateCustomerGarden(Guid customerGardenId, CustomerGardenModel customerGardenModel, Guid customerId)
         {
+            var garden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(customerGardenId);
+            if (garden == null)
+            {
+                throw new Exception("Không tìm thấy vườn");
+            }
             if (customerGardenModel == null)
             {
                 throw new Exception("Vui lòng điền đầy đủ thông tin");
