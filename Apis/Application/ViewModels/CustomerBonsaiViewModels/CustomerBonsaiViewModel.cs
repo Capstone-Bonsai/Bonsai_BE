@@ -15,5 +15,7 @@ namespace Application.ViewModels.CustomerBonsaiViewModels
         public Guid CustomerGardenId { get; set; }
         public Bonsai Bonsai { get; set; }
         public CustomerGardenViewModel CustomerGarden { get; set; }
+        public Guid Id { get; set; }
+        public DateTime CreationDate { get; set; }
     }
 }
