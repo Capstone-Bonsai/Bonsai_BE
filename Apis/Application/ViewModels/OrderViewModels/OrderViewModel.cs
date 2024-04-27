@@ -19,6 +19,7 @@ namespace Application.ViewModels.OrderViewModels
         public string OrderType { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual OrderTransaction OrderTransaction { get; set; }
+        public DateTime? DeliveryDate { get; set; }
         public IList<OrderDetail> OrderDetails { get; set; }
         public IList<DeliveryImage> DeliveryImages { get; set; }
         [NotMapped]

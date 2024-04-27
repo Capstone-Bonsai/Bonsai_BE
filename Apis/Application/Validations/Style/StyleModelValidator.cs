@@ -14,7 +14,7 @@ namespace Application.Validations.Style
         public StyleModelValidator()
         {
             RuleFor(style => style.Name)
-           .NotEmpty().WithMessage("Tên kiểu dáng không được để trống.");
+           .NotEmpty().WithMessage("Tên kiểu dáng không được để trống.").MaximumLength(100).WithMessage("Tên kiểu dáng không quá 100 ký tự.");
         }
     }
 }

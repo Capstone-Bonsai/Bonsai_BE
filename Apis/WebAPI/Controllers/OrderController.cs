@@ -235,7 +235,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    return BadRequest("Mã OTP không chính xác");
+                    return BadRequest("Mã OTP không chính xác hoặc đã hết hiệu lực.");
                 }
             }
             catch (Exception e)

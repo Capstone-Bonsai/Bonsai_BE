@@ -8,7 +8,8 @@ namespace Application.Validations.Category
         public CategoryModelValidator()
         {
             RuleFor(tag => tag.Name)
-           .NotEmpty().WithMessage("Tên danh mục không được để trống.").MaximumLength(100).WithMessage("Tên danh mục không được quá 100 ký tự.");
+           .NotEmpty().WithMessage("Tên danh mục không được để trống.")
+           .MaximumLength(100).WithMessage("Tên danh mục không được quá 100 ký tự.");
         }
     }
 }
