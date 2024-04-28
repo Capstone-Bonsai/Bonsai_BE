@@ -179,7 +179,7 @@ namespace Application.Services
             if (isCustomer)
             {
                 var customer = await _idUtil.GetCustomerAsync(id);
-                var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGarden.CustomerId == customer.Id, orderBy: x => x.OrderByDescending(contract => contract.ServiceOrderStatus), includes: includes);
+                var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.CustomerGarden.CustomerId == customer.Id, orderBy: x => x.OrderByDescending(contract => contract.CreationDate), includes: includes);
                 return serviceOrders;
             }
             else
