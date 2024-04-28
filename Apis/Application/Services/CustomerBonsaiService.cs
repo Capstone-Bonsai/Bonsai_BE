@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Application.Utils;
 using System.Text.RegularExpressions;
 using Application.ViewModels.BonsaiViewModel;
+using Firebase.Auth;
 
 namespace Application.Services
 {
@@ -291,7 +292,7 @@ namespace Application.Services
         }
         public async Task CreateBonsaiWithNewGarden(Guid userId, BonsaiModelForCustomer bonsaiModelForCustomer)
         {
-            
+            await CheckGarden(userId);
             if (bonsaiModelForCustomer == null)
                 throw new ArgumentNullException(nameof(bonsaiModelForCustomer), "Vui lòng điền đầy đủ thông tin!");
 
@@ -371,6 +372,50 @@ namespace Application.Services
             {
                 _unitOfWork.RollbackTransaction();
                 throw;
+            }
+        }
+        public async Task CreateNewGardenForBoughtBonsai(Guid userId, AddGardenForBoughtBonsai addGardenForBoughtBonsai)
+        {
+            await CheckGarden(userId);
+            if (addGardenForBoughtBonsai.Image == null || addGardenForBoughtBonsai.Image.Count == 0)
+                throw new Exception("Vui lòng thêm hình ảnh");
+            if (addGardenForBoughtBonsai.Address == null || addGardenForBoughtBonsai.Square == 0 || addGardenForBoughtBonsai.Address == "")
+            {
+                throw new Exception("Chưa nhập đủ thông tin vườn");
+            }
+            var customer = await _idUtil.GetCustomerAsync(userId);
+            CustomerGarden customerGarden = new CustomerGarden()
+            {
+                CustomerId = customer.Id,
+                Address = addGardenForBoughtBonsai.Address,
+                Square = addGardenForBoughtBonsai.Square
+
+            };
+            await _unitOfWork.CustomerGardenRepository.AddAsync(customerGarden);
+            var bonsai = await _unitOfWork.BonsaiRepository.GetByIdAsync(addGardenForBoughtBonsai.BonsaiId);
+            if (bonsai == null)
+            {
+                throw new Exception("Không tìm thấy thông tin bonsai");
+            }
+            var listBoughtBonsai = await _bonsaiService.GetBoughtBonsai(userId);
+            if (!listBoughtBonsai.Items.Any(x => x.Id == bonsai.Id))
+            {
+                throw new Exception("Cây này không tồn tại trong danh sách đã mua");
+            }
+            await _unitOfWork.CustomerBonsaiRepository.AddAsync(new CustomerBonsai()
+            {
+                CustomerGardenId = customerGarden.Id,
+                BonsaiId = bonsai.Id,
+            });
+            await _unitOfWork.SaveChangeAsync();
+        }
+        private async Task CheckGarden(Guid userId)
+        {
+            var customer = await _idUtil.GetCustomerAsync(userId);
+            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.CustomerId == customer.Id);
+            if (customerGarden.Items.Count > 5)
+            {
+                throw new Exception("Tài khoản này đã tạo 5 vườn");
             }
         }
     }

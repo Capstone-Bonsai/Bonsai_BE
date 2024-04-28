@@ -20,5 +20,6 @@ namespace Application.Interfaces
         Task Update(Guid customerBonsaiId, BonsaiModel bonsaiModel);
         Task<Pagination<CustomerBonsaiViewModel>> GetBonsaiOfCustomer(Guid customerId, int pageIndex, int pageSize);
         Task CreateBonsaiWithNewGarden(Guid userId, BonsaiModelForCustomer bonsaiModelForCustomer);
+        Task CreateNewGardenForBoughtBonsai(Guid userId, AddGardenForBoughtBonsai addGardenForBoughtBonsai);
     }
 }

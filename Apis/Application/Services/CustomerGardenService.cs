@@ -40,6 +40,7 @@ namespace Application.Services
             {
                 throw new Exception("Vui lòng điền đầy đủ thông tin");
             }
+            await CheckGarden(id);
             var customerGarden = _mapper.Map<CustomerGarden>(customerGardenModel);
             var customer = await _idUtil.GetCustomerAsync(id);
             customerGarden.CustomerId = customer.Id;
@@ -244,6 +245,15 @@ namespace Application.Services
                 customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => x.Id == customerGardenId && !x.IsDeleted, includes: includes);
             }
             return customerGarden.Items[0];
+        }
+        private async Task CheckGarden(Guid userId)
+        {
+            var customer = await _idUtil.GetCustomerAsync(userId);
+            var customerGarden = await _unitOfWork.CustomerGardenRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.CustomerId == customer.Id);
+            if (customerGarden.Items.Count > 5)
+            {
+                throw new Exception("Tài khoản này đã tạo 5 vườn");
+            }
         }
     }
 }

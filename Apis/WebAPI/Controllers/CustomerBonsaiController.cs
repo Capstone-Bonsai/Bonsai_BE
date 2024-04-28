@@ -132,5 +132,18 @@ namespace WebAPI.Controllers
             }
             return Ok();
         }
+        [HttpPost("NewGardenForBought")]
+        public async Task<IActionResult> Post([FromForm] AddGardenForBoughtBonsai addGardenForBoughtBonsai)
+        {
+            try
+            {
+                await _customerBonsaiService.CreateNewGardenForBoughtBonsai(_claims.GetCurrentUserId, addGardenForBoughtBonsai);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return Ok();
+        }
     }
 }
