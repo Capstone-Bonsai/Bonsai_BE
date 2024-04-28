@@ -76,7 +76,7 @@ namespace Application.Services
             {
                 throw new Exception("Dữ liệu trong file không đúng định dạng!");
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 throw new Exception("Đã xảy ra lỗi khi truy cập vào file!");
             }
