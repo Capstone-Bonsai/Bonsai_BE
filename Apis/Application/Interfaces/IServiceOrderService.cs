@@ -22,7 +22,7 @@ namespace Application.Interfaces
         Task HandleIpnAsync(MomoRedirect momo);
         Task<string> PaymentContract(Guid contractId, string userId);
         Task<OverallServiceOrderViewModel> GetServiceOrderById(Guid serviceOrderId, bool isCustomer, Guid userId);
-        Task AddContractImage(Guid contractId, ServiceOrderImageModel serviceOrderImageModel);
+        Task AddContract(Guid contractId, ServiceOrderImageModel serviceOrderImageModel);
         Task UpdateServiceOrderStatus(Guid serviceOrderId, ServiceOrderStatus serviceOrderStatus);
         Task CancelOverdueServiceOrder(); 
     }

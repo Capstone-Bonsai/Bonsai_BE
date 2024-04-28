@@ -149,13 +149,13 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpPost("Image/{serviceOrderId}")]
+        [HttpPost("AddContract/{serviceOrderId}")]
         [Authorize(Roles = "Staff,Manager")]
         public async Task<IActionResult> AddIMage([FromRoute] Guid serviceOrderId, [FromForm] ServiceOrderImageModel serviceOrderImageModel)
         {
             try
             {
-                await _serviceOrderService.AddContractImage(serviceOrderId, serviceOrderImageModel);
+                await _serviceOrderService.AddContract(serviceOrderId, serviceOrderImageModel);
                 return Ok();
             }
             catch (Exception ex)

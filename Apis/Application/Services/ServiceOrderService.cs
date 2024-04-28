@@ -564,7 +564,7 @@ namespace Application.Services
         {
             if (serviceOrderImageModel.Contract == null)
             {
-                throw new Exception("Không có hình ảnh!");
+                throw new Exception("Không có file!");
             }
             //var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
             var serviceOrder = await _unitOfWork.ServiceOrderRepository
