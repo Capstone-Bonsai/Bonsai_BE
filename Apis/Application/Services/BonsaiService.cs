@@ -28,13 +28,15 @@ namespace Application.Services
         private readonly FirebaseService _fireBaseService;
         private readonly IMapper _mapper;
         private readonly IdUtil _idUtil;
+        private readonly INotificationService _notificationService;
 
-        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, IdUtil idUtil)
+        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, IdUtil idUtil,INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fireBaseService = fireBaseService;
             _idUtil = idUtil;
+            _notificationService = notificationService;
         }
 
         public async Task<Pagination<Bonsai>> GetPagination(int pageIndex, int pageSize, bool isAdmin = false)
@@ -53,6 +55,8 @@ namespace Application.Services
             {
                 bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.Code.Contains("KHACHHANG") && !x.isDisable && x.isSold != null && !x.isSold.Value, includes: includes);
             }
+
+           
             return bonsais;
         }
         public async Task<Pagination<Bonsai>> GetAll(bool isAdmin = false)
