@@ -17,14 +17,13 @@ namespace WebAPI.Controllers
     {
         private readonly IBonsaiService _bonsaiService;
         private readonly IClaimsService _claims;
-        private readonly INotificationService _notificationService;
+
 
         public BonsaiController(IBonsaiService bonsaiService,
-            IClaimsService claimsService, INotificationService notificationService)
+            IClaimsService claimsService)
         {
             _bonsaiService = bonsaiService;
             _claims = claimsService;
-            _notificationService = notificationService;
         }
         [HttpGet("Pagination")]
         public async Task<IActionResult> GetPagination([FromQuery] int pageIndex, int pageSize)

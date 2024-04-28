@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Hangfire;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles ="Manager")]
     public class JobController : ControllerBase
     {
         private readonly IServiceOrderService _serviceOrderService;
