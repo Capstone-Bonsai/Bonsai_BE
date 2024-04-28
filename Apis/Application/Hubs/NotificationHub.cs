@@ -63,8 +63,8 @@ namespace Application.Hubs
             {
                 _userConnectionService.AddOrUpdateConnectionId(user.Id, connectionId);
             }
-
-            await Clients.Client(connectionId).SendAsync("Hello", "Connect success");
+            int numberOfConnectedClients = _staffConnections.Count + _userConnectionService.GetAllConnectionIds().Count();
+            await Clients.Client(connectionId).SendAsync("Hello", numberOfConnectedClients);
             await base.OnConnectedAsync();
         }
         public override async Task OnDisconnectedAsync(Exception exception)
