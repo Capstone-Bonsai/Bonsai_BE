@@ -44,13 +44,13 @@ namespace Application.Hubs
             { 
                 Context.Abort();
                 return; }
-            string username = JwtHandler(token);
-            if (username == null)
+            string userId = JwtHandler(token);
+            if (userId == null)
             {
                 Context.Abort();
                 return;
             }
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByIdAsync(userId);
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             if (isStaff)
             {
@@ -77,13 +77,13 @@ namespace Application.Hubs
                 Context.Abort();
                 return;
             }
-            string username = JwtHandler(token);
-            if (username == null)
+            string userId = JwtHandler(token);
+            if (userId == null)
             {
                 Context.Abort();
                 return;
             }
-            var user = await _userManager.FindByNameAsync(username);
+            var user = await _userManager.FindByIdAsync(userId);
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             if (isStaff && _staffConnections.Contains(connectionId))
             {
@@ -112,7 +112,7 @@ namespace Application.Hubs
             try
             {
                 var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
-                return claimsPrincipal.Identity.Name;
+                return claimsPrincipal.FindFirstValue("userId").ToString(); ;
 
             }
             catch (Exception ex)
