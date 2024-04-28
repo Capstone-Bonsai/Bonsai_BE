@@ -1,7 +1,9 @@
 ﻿using Application.Interfaces;
+using Application.Utils;
 using Application.ViewModels.TaskViewModels;
 using AutoMapper;
 using Domain.Entities;
+using Firebase.Auth;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -17,11 +19,15 @@ namespace Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly IdUtil _idUtil;
+        private readonly INotificationService _notificationService;
 
-        public TaskService(IUnitOfWork unitOfWork, IMapper mapper)
+        public TaskService(IUnitOfWork unitOfWork, IMapper mapper, IdUtil idUtil, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _idUtil = idUtil;
+            _notificationService = notificationService;
         }
        public async Task<TaskViewModel> GetTasksOfServiceOrder(Guid serviceOrderId)
         {
@@ -128,6 +134,7 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository
                   .GetAllQueryable()
                   .AsNoTracking()
+                  .Include(x => x.CustomerGarden)
                   .FirstOrDefaultAsync(x => !x.IsDeleted && x.Id == taskModel.ServiceOrderId);
             if (serviceOrder == null)
             {
@@ -153,18 +160,22 @@ namespace Application.Services
                 {
                     if (serviceOrder.ServiceOrderStatus == Domain.Enums.ServiceOrderStatus.ProcessingComplaint)
                     {
+                        
                         serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.DoneTaskComplaint;
                           var complaint = await _unitOfWork.ComplaintRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderId == serviceOrder.Id && x.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing);
                         if (complaint.Items.Count != 0) {
                             complaint.Items[0].ComplaintStatus = Domain.Enums.ComplaintStatus.Completed;
                             _unitOfWork.ComplaintRepository.Update(complaint.Items[0]);
-                        }     
+                        }
                     }
                     else
                     {
                         serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.TaskFinished;
                     } 
                     _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
+                    var userId = await _idUtil.GetApplicationUserId(serviceOrder.CustomerGarden.CustomerId);
+                    await _notificationService.SendMessageForUserId(userId, "Hoàn thành công việc", $"Đơn đặt hàng dịch vụ tại {serviceOrder.CustomerGarden.Address} đã hoàn thành công việc!");
+                    await _notificationService.SendToStaff("Hoàn thành công việc", $"Đơn đặt hàng dịch vụ tại {serviceOrder.CustomerGarden.Address} đã hoàn thành công việc!");
                 }
                 await _unitOfWork.SaveChangeAsync();
             }

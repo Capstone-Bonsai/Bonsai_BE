@@ -85,11 +85,10 @@ namespace Application.Services
                 if (serviceOrderModel.CustomerGardenId == null)
                 {
                     var _serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerBonsaiId == serviceOrderModel.CustomerBonsaiId && (x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Completed && x.ServiceOrderStatus != ServiceOrderStatus.Canceled));
-                    if (_serviceOrder.Items == null || _serviceOrder.Items.Count == 0)
+                    if (_serviceOrder.Items != null && _serviceOrder.Items.Count != 0)
                     {
                         throw new Exception("Đang có đơn hàng dịch vụ thuộc bonsai này chưa hoàn thành, vui lòng chọn cây khác!");
                     }
-                    //Check service có phải service bonsai hay k
                     if (service.ServiceType.TypeEnum != TypeEnum.Bonsai)
                     {
                         throw new Exception("Vui lòng chọn dịch vụ bonsai!");
@@ -112,7 +111,7 @@ namespace Application.Services
                         throw new Exception("Vui lòng chọn dịch vụ vườn!");
                     }
                     var _serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == serviceOrderModel.CustomerGardenId && (x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Completed && x.ServiceOrderStatus != ServiceOrderStatus.Canceled));
-                    if (_serviceOrder.Items == null || _serviceOrder.Items.Count == 0)
+                    if (_serviceOrder.Items != null && _serviceOrder.Items.Count != 0)
                     {
                         throw new Exception("Đang có đơn hàng dịch vụ thuộc vườn này chưa hoàn thành, vui lòng chọn vườn khác!");
                     }
@@ -468,20 +467,20 @@ namespace Application.Services
                                  x => x.CareStep
                                     };
                 var bonsaiCareSteps = await _unitOfWork.BonsaiCareStepRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.ServiceOrderId == serviceOrderId, includes: includes);
-                if (bonsaiCareSteps.Items.Count == 0)
+                if (bonsaiCareSteps.Items != null)
                 {
-                    throw new Exception("Không tìm thấy bất cứ công việc nào của phân loại này");
-                }
-                foreach (BonsaiCareStep bonsaiCareStep in bonsaiCareSteps.Items)
-                {
-                    tasks.Add(new TaskOfServiceOrder()
+                    foreach (BonsaiCareStep bonsaiCareStep in bonsaiCareSteps.Items)
                     {
-                        Id = bonsaiCareStep.Id,
-                        Name = bonsaiCareStep.CareStep.Step,
-                        CompletedTime = bonsaiCareStep.CompletedTime,
-                        Note = bonsaiCareStep.Note,
-                    });
+                        tasks.Add(new TaskOfServiceOrder()
+                        {
+                            Id = bonsaiCareStep.Id,
+                            Name = bonsaiCareStep.CareStep.Step,
+                            CompletedTime = bonsaiCareStep.CompletedTime,
+                            Note = bonsaiCareStep.Note,
+                        });
+                    }
                 }
+               
             }
             else
             {
@@ -498,20 +497,19 @@ namespace Application.Services
                                  x => x.BaseTask
                                     };
                     var gardenCareTasks = await _unitOfWork.GardenCareTaskRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted && x.ServiceOrderId == serviceOrderId, includes: includes);
-                    if (gardenCareTasks.Items.Count == 0)
+                    if (gardenCareTasks.Items != null)
                     {
-                        throw new Exception("Không tìm thấy bất cứ công việc nào của phân loại này");
-                    }
-                    foreach (GardenCareTask gardenCareTask in gardenCareTasks.Items)
-                    {
-                        tasks.Add(new TaskOfServiceOrder()
+                        foreach (GardenCareTask gardenCareTask in gardenCareTasks.Items)
                         {
-                            Id = gardenCareTask.Id,
-                            Name = gardenCareTask.BaseTask.Name,
-                            CompletedTime = gardenCareTask.CompletedTime,
-                            Note = gardenCareTask.Note,
-                        });
-                    }
+                            tasks.Add(new TaskOfServiceOrder()
+                            {
+                                Id = gardenCareTask.Id,
+                                Name = gardenCareTask.BaseTask.Name,
+                                CompletedTime = gardenCareTask.CompletedTime,
+                                Note = gardenCareTask.Note,
+                            });
+                        }
+                    }   
                 }
                 else
                 {
@@ -599,6 +597,9 @@ namespace Application.Services
                     ServiceOrderId = contractId,
                     Image = url
                 };
+
+                await _unitOfWork.ContractRepository.AddAsync(contractImage);
+                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {

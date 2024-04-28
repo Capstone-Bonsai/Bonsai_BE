@@ -652,7 +652,11 @@ namespace Application.Services
         }
         public async Task FinishDeliveryOrder(Guid orderId, FinishDeliveryOrderModel finishDeliveryOrderModel)
         {
-            var order = await _unit.OrderRepository.GetByIdAsync(orderId);
+            var order = await _unit.OrderRepository
+                .GetAllQueryable()
+                .Where(x => x.Id == orderId)
+                .Include(x => x.Customer.ApplicationUser)
+                .FirstOrDefaultAsync();
             if (order == null)
             {
                 throw new Exception("Không tìm thấy");
@@ -687,6 +691,10 @@ namespace Application.Services
 
                 _unit.OrderRepository.Update(order);
                 await _unit.CommitTransactionAsync();
+
+                var userId = await _idUtil.GetApplicationUserId(order.CustomerId);
+                await _notificationService.SendMessageForUserId(userId, "Giao hàng thành công", $"Đơn hàng đến đã được giao thành công");
+                await _notificationService.SendToStaff("Giao hàng thành công", $"Đơn hàng tới {order.Customer.ApplicationUser.Email} đã được giao thành công");
             }
             catch (Exception ex)
             {
