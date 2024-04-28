@@ -275,7 +275,7 @@ namespace Application.Services
                 throw new Exception("Đây không phải là vườn của bạn");
             }
             customerBonsai.CustomerGardenId = customerGardenId;
-            await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
+            _unitOfWork.CustomerBonsaiRepository.Update(customerBonsai);
             await _unitOfWork.SaveChangeAsync();
         }
         public async Task<Pagination<CustomerBonsaiViewModel>> GetBonsaiOfCustomer(Guid customerId, int pageIndex, int pageSize)

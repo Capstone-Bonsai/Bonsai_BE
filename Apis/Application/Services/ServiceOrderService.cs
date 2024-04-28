@@ -41,8 +41,10 @@ namespace Application.Services
         private readonly IdUtil _idUtil;
         private readonly FirebaseService _fireBaseService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly INotificationService _notificationService;
         public ServiceOrderService(IConfiguration configuration, IUnitOfWork unitOfWork, IMapper mapper,
-            IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager)
+            IDeliveryFeeService deliveryFeeService, IdUtil idUtil, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager,
+            INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -51,6 +53,7 @@ namespace Application.Services
             _idUtil = idUtil;
             _fireBaseService = fireBaseService;
             _userManager = userManager;
+            _notificationService = notificationService;
         }
         public async Task CreateServiceOrder(ServiceOrderModel serviceOrderModel)
         {
@@ -563,7 +566,12 @@ namespace Application.Services
             {
                 throw new Exception("Không có hình ảnh!");
             }
-            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
+            //var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository
+                .GetAllQueryable()
+                .Where(x => x.Id == contractId)
+                .Include(x => x.CustomerGarden)
+                .FirstOrDefaultAsync();
             if (serviceOrder == null)
             {
                 throw new Exception("Không tìm thấy hợp đồng!");
@@ -591,9 +599,6 @@ namespace Application.Services
                     ServiceOrderId = contractId,
                     Image = url
                 };
-
-                await _unitOfWork.ContractRepository.AddAsync(contractImage);
-                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
@@ -605,7 +610,7 @@ namespace Application.Services
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(serviceOrderId);
             if (serviceOrder == null)
             {
-                throw new Exception("Không tìm thấy hợp đồng!");
+                throw new Exception("Không tìm thấy đơn hàng dịch vụ!");
             }
             if (serviceOrderStatus < serviceOrder.ServiceOrderStatus)
             {
