@@ -560,7 +560,7 @@ namespace Application.Services
             }
             return imageList.Items;
         }
-        public async Task AddContractImage(Guid contractId, ServiceOrderImageModel serviceOrderImageModel)
+        public async Task AddContract(Guid contractId, ServiceOrderImageModel serviceOrderImageModel)
         {
             if (serviceOrderImageModel.Contract == null)
             {
