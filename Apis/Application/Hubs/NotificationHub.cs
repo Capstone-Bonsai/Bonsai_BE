@@ -6,8 +6,12 @@ using Firebase.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -22,37 +26,64 @@ namespace Application.Hubs
         private readonly IClaimsService _claimsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserConnectionService _userConnectionService;
-        public NotificationHub(IClaimsService claimsService, UserManager<ApplicationUser> userManager, IUserConnectionService userConnectionService)
+        private readonly IConfiguration _configuration;
+
+        public NotificationHub(IClaimsService claimsService, UserManager<ApplicationUser> userManager, IUserConnectionService userConnectionService, IConfiguration configuration)
         {
             _claimsService = claimsService;
             _userManager = userManager;
             _userConnectionService = userConnectionService;
+            _configuration = configuration;
         }
         public override async Task OnConnectedAsync()
         {
             string connectionId = Context.ConnectionId;
-           /* string userId = _claimsService.GetCurrentUserId.ToString();
-            var user = await _userManager.FindByIdAsync(userId);
+            var httpContext = Context.GetHttpContext();
+            var token = httpContext.Request.Query["access_token"];
+            if (token.IsNullOrEmpty())
+            { 
+                Context.Abort();
+                return; }
+            string username = JwtHandler(token);
+            if (username == null)
+            {
+                Context.Abort();
+                return;
+            }
+            var user = await _userManager.FindByNameAsync(username);
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             if (isStaff)
             {
-                if (!_staffConnections.Contains(userId))
+                if (!_staffConnections.Contains(user.Id))
                 {
                     _staffConnections.Add(connectionId);
-                }        
+                }
             }
             else
             {
-                _userConnectionService.AddOrUpdateConnectionId(userId, connectionId);
-            }*/
+                _userConnectionService.AddOrUpdateConnectionId(user.Id, connectionId);
+            }
+
             await Clients.Client(connectionId).SendAsync("Hello", "Connect success");
             await base.OnConnectedAsync();
         }
         public override async Task OnDisconnectedAsync(Exception exception)
         {
             string connectionId = Context.ConnectionId;
-            string userId = _claimsService.GetCurrentUserId.ToString();
-            var user = await _userManager.FindByIdAsync(userId);
+            var httpContext = Context.GetHttpContext();
+            var token = httpContext.Request.Query["access_token"];
+            if (token.IsNullOrEmpty())
+            {
+                Context.Abort();
+                return;
+            }
+            string username = JwtHandler(token);
+            if (username == null)
+            {
+                Context.Abort();
+                return;
+            }
+            var user = await _userManager.FindByNameAsync(username);
             var isStaff = await _userManager.IsInRoleAsync(user, "Staff");
             if (isStaff && _staffConnections.Contains(connectionId))
             {
@@ -60,10 +91,35 @@ namespace Application.Hubs
             }
             else
             {
-                _userConnectionService.RemoveConnectionId(userId);
+                _userConnectionService.RemoveConnectionId(user.Id);
             }
 
             await base.OnDisconnectedAsync(exception);
+        }
+        private string JwtHandler(string token)
+        {
+            string secretKey = _configuration["JWT:SecrectKey"];
+
+            // Giải mã JWT
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidAudience = _configuration["JWT:ValidAudience"],
+                ValidIssuer = _configuration["JWT:ValidIssuer"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecrectKey"]))
+            };
+
+            try
+            {
+                var claimsPrincipal = tokenHandler.ValidateToken(token, validationParameters, out _);
+                return claimsPrincipal.Identity.Name;
+
+            }
+            catch (Exception ex)
+            {
+                var message = ex.Message;
+                return null;
+            }
         }
     }
 }

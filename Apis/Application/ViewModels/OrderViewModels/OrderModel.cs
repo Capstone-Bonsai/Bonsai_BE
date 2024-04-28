@@ -6,7 +6,7 @@ namespace Application.ViewModels.OrderViewModels
         public OrderInfoModel? OrderInfo { get; set; }
         public string Address { get; set; }
         public string? Note { get; set; }
-        public string OtpCode { get; set; }
+        public string? OtpCode { get; set; }
         public List<Guid> ListBonsai { get; set; }
 
     }
