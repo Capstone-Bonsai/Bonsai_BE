@@ -15,7 +15,7 @@ namespace Application.Interfaces
         Task AddBonsaiForCustomer(CustomerBonsaiModel customerBonsaiModel, Guid customerId);
         Task CreateBonsai(Guid gardenId, BonsaiModelForCustomer bonsaiModelForCustomer);
         Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId);
-        Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer);
+        Task<CustomerBonsaiViewModel> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer);
         Task MoveBonsai(Guid customerId, Guid customerBonsaiId, Guid customerGardenId);
         Task Update(Guid customerBonsaiId, BonsaiModel bonsaiModel);
         Task<Pagination<CustomerBonsaiViewModel>> GetBonsaiOfCustomer(Guid customerId, int pageIndex, int pageSize);

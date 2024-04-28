@@ -239,7 +239,7 @@ namespace Application.Services
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted, includes: includes);
             return bonsais;
         }
-        public async Task<CustomerBonsai> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer)
+        public async Task<CustomerBonsaiViewModel> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer)
         {
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
                                  x => x.Bonsai.BonsaiImages,
@@ -254,7 +254,8 @@ namespace Application.Services
                     throw new Exception("Bạn không có quyền truy cập vào bonsai này");
                 }
             }
-            return bonsais.Items[0];
+
+            return _mapper.Map<CustomerBonsaiViewModel>(bonsais.Items[0]);
         }
         public async Task MoveBonsai(Guid customerId, Guid customerBonsaiId, Guid customerGardenId)
         {
