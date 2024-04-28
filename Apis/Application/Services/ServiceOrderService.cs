@@ -623,5 +623,17 @@ namespace Application.Services
             _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
             await _unitOfWork.SaveChangeAsync();
         }
+
+        public async Task CancelOverdueServiceOrder()
+        {
+            var listOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().AsNoTracking().Where(x => x.ServiceOrderStatus == ServiceOrderStatus.WaitingForPayment && x.StartDate.Date == DateTime.Now.Date).ToListAsync();
+            if(listOrder ==null || listOrder.Count ==0) { }
+            foreach (var item in listOrder)
+            {
+                item.ServiceOrderStatus = ServiceOrderStatus.Fail;
+            }
+            _unitOfWork.ServiceOrderRepository.UpdateRange(listOrder);
+            await _unitOfWork.SaveChangeAsync();
+        }
     }
 }

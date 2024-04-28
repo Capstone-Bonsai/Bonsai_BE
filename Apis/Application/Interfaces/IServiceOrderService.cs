@@ -24,5 +24,6 @@ namespace Application.Interfaces
         Task<OverallServiceOrderViewModel> GetServiceOrderById(Guid serviceOrderId, bool isCustomer, Guid userId);
         Task AddContractImage(Guid contractId, ServiceOrderImageModel serviceOrderImageModel);
         Task UpdateServiceOrderStatus(Guid serviceOrderId, ServiceOrderStatus serviceOrderStatus);
+        Task CancelOverdueServiceOrder(); 
     }
 }

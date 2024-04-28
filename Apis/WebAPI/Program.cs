@@ -1,6 +1,8 @@
 using Application.Commons;
 using Application.Hubs;
 using Domain.Entities;
+using Hangfire;
+using HangfireBasicAuthenticationFilter;
 using Infrastructures;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -28,6 +30,8 @@ builder.Services.AddCors(options =>
                           policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod();
                       });
 });
+builder.Services.AddHangfireServer();
+
 
 // parse the configuration in appsettings
 var configuration = builder.Configuration.Get<AppConfiguration>();
@@ -120,6 +124,17 @@ using (var scope = app.Services.CreateScope())
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<PerformanceMiddleware>();
 app.MapHealthChecks("/healthchecks");
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    DashboardTitle = "Thanh Son Garden Background Service Dashboard",
+    Authorization = new[] {
+    new HangfireCustomBasicAuthenticationFilter()
+    {
+        Pass = "Manager1!",
+        User= "Manager@localhost"
+    }
+    }
+});
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
