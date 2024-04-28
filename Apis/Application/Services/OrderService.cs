@@ -310,11 +310,11 @@ namespace Application.Services
             MailService mail = new MailService();
             var ordertemp = $"<div style=\"font-weight: bold;\">Ngày đặt hàng: </div>{orderDate}<div style=\"font-weight: bold;\">Khách hàng: </div>{order.Customer.ApplicationUser.Fullname}" +
                 $"<div style=\"font-weight: bold;\">Email: </div>{order.Customer.ApplicationUser.Email}<div style=\"font-weight: bold;\">Địa chỉ: </div>{order.Address}" +
-                $"<div style=\"font-weight: bold;\">Số điện thoại: </div>{order.Customer.ApplicationUser.PhoneNumber}<div style=\"font-weight: bold;\">Phí giao hàng: </div>{order.DeliveryPrice} VND<div style=\"font-weight: bold;\">Tổng đơn hàng:</div> {order.TotalPrice} VND<div style=\"font-weight: bold;\">Ngày dự kiến giao hàng: </div> {start} - {end}";
+                $"<div style=\"font-weight: bold;\">Số điện thoại: </div>{order.Customer.ApplicationUser.PhoneNumber}<div style=\"font-weight: bold;\">Phí giao hàng: </div>{FormatMoney(order.DeliveryPrice)} VND<div style=\"font-weight: bold;\">Tổng đơn hàng:</div> {FormatMoney(order.TotalPrice)} VND<div style=\"font-weight: bold;\">Ngày dự kiến giao hàng: </div> {start} - {end}";
             var table = "<table style=\"font-family: Arial, Helvetica, sans-serif; border-collapse: collapse; width: 100%;\">\r\n  <tr>\r\n    <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #04AA6D; color: white; padding-top: 12px; padding-bottom: 12px;\">Tên Bonsai</th>\r\n    <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #04AA6D; color: white; padding-top: 12px; padding-bottom: 12px;\">Mã bonsai</th>\r\n    <th style=\"border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #04AA6D; color: white; padding-top: 12px; padding-bottom: 12px;\">Giá tiền</th>\r\n  </tr>";
             foreach (var item in order.OrderDetails)
             {
-                table = table + $"<tr style=\"background-color: #f2f2f2;\">\r\n    <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Bonsai.Name}</td>\r\n  <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Bonsai.Code}</td>\r\n    <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Price}</td>\r\n  </tr>";
+                table = table + $"<tr style=\"background-color: #f2f2f2;\">\r\n    <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Bonsai.Name}</td>\r\n  <td style=\"border: 1px solid #ddd; padding: 8px;\">{item.Bonsai.Code}</td>\r\n    <td style=\"border: 1px solid #ddd; padding: 8px;\">{FormatMoney(item.Price)}</td>\r\n  </tr>";
             }
             table = table + "</table>";
             var temp = mail.SendEmail(order.Customer.ApplicationUser.Email, "Thông tin đơn hàng từ Thanh Sơn Garden",
@@ -350,6 +350,11 @@ namespace Application.Services
                 _unit.RollbackTransaction();
             }
             
+        }
+        public string FormatMoney(double price)
+        {
+            string formattedAmount = string.Format("{0:N0}", price);
+            return formattedAmount.Replace(",", ".");
         }
         public async Task<Pagination<OrderViewModel>> GetPaginationAsync(string userId, int pageIndex = 0, int pageSize = 10)
         {

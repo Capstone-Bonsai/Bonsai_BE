@@ -24,8 +24,8 @@ namespace Application.Commons
                 "  src=\"https://firebasestorage.googleapis.com/v0/b/capstone-9b0f3.appspot.com/o/00fa268f-dc5d-4024-aab7-f2cacd568527%20(1).png?alt=media&token=570fa007-015e-48ee-8875-64a533f0ca20\"\r\n    " +
                 "  alt=\"Logo Thanh Sơn Garden\">  <div style=\"margin-top: 20px;\r\n    text-align: left;\">\r\n    " +
                 "  <p style=\"margin-bottom: 10px;\r\n text-align: left; margin: 5px 0; \"><strong>Liên hệ với chúng tôi để được hỗ trợ nhiều\r\n hơn</strong>" +
-                "</p>\r\n <p style=\"margin-bottom: 10px;\r\n text-align: left; margin: 5px 0;\"><strong>Email:</strong> hotro@thanhson.vn</p>\r\n " +
-                " <p style=\"margin-bottom: 10px;\r\n      text-align: left; margin: 5px 0;\"><strong>Hotline:</strong> (024) 6680 5588</p>\r\n    </div>\r\n  </div>";
+                "</p>\r\n <p style=\"margin-bottom: 10px;\r\n text-align: left; margin: 5px 0;\"><strong>Email:</strong> caycanhlamdongTTS@gmail.com\r\n</p>\r\n " +
+                " <p style=\"margin-bottom: 10px;\r\n      text-align: left; margin: 5px 0;\"><strong>Hotline:</strong> 0909.045.444</p>\r\n    </div>\r\n  </div>";
             email.Body = builder.ToMessageBody();
             using var smtp = new MailKit.Net.Smtp.SmtpClient();
             smtp.Connect("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.SslOnConnect);
