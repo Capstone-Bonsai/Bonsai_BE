@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
 
         }
         [HttpPut("MoveBonsai")]
-        public async Task<IActionResult> MoveBonsai([FromRoute] Guid customerBonsaiId, Guid customerGardenId)
+        public async Task<IActionResult> MoveBonsai(Guid customerBonsaiId, Guid customerGardenId)
         {
             try
             {

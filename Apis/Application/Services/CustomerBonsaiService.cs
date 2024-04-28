@@ -274,7 +274,7 @@ namespace Application.Services
             {
                 throw new Exception("Đây không phải là vườn của bạn");
             }
-            customerBonsai.CustomerGardenId = customerBonsaiId;
+            customerBonsai.CustomerGardenId = customerGardenId;
             await _unitOfWork.CustomerBonsaiRepository.AddAsync(customerBonsai);
             await _unitOfWork.SaveChangeAsync();
         }

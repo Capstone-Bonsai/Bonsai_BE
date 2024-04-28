@@ -47,5 +47,14 @@ namespace Application.Utils
                 throw new Exception("Không tìm thấy thông tin người dùng");
             return gardener;
         }
+        public async Task<Guid> GetApplicationUserId(Guid customerId)
+        {
+            var customer = await _unitOfWork.CustomerRepository
+                .GetAllQueryable()
+                .Where(x => x.Id == customerId)
+                .Include(x => x.ApplicationUser)
+                .FirstOrDefaultAsync();
+            return Guid.Parse(customer.ApplicationUser.Id);
+        }
     }
 }
