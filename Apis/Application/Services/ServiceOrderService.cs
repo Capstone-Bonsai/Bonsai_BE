@@ -192,7 +192,9 @@ namespace Application.Services
                        order.ServiceOrderStatus == ServiceOrderStatus.DoneTaskComplaint ? 5 :
                        order.ServiceOrderStatus == ServiceOrderStatus.Processing ? 6 :
                        order.ServiceOrderStatus == ServiceOrderStatus.ProcessingComplaint ? 7 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.ComplaintCanceled ? 8 : 9), includes: includes);
+                       order.ServiceOrderStatus == ServiceOrderStatus.ComplaintCanceled ? 8 :
+                       order.ServiceOrderStatus == ServiceOrderStatus.WaitingForPayment ? 9:
+                       order.ServiceOrderStatus == ServiceOrderStatus.Completed ? 10 : 11), includes: includes);
                 return serviceOrders;
             }
         }

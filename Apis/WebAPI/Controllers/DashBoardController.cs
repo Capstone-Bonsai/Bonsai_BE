@@ -2,6 +2,7 @@
 using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 
 namespace WebAPI.Controllers
 {
@@ -53,6 +54,15 @@ namespace WebAPI.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet("download")]
+        public async Task<IActionResult> DownloadExcel()
+        {
+            using (var package = new ExcelPackage())
+            {
+                byte[] excelBytes = await _dashBoardService.GetExcel(); 
+                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "OrdersAndServiceOrders.xlsx");
             }
         }
     }
