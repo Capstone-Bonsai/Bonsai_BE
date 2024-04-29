@@ -259,7 +259,7 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     orderStatus = OrderStatus.Paid;
                 }
-                var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).ThenInclude(x => x.Bonsai).Include(c => c.Customer.ApplicationUser).AsNoTracking().FirstOrDefaultAsync(x => x.Id == orderId);
+                var order = await _unit.OrderRepository.GetAllQueryable().AsNoTracking().Include(x => x.OrderDetails).ThenInclude(x => x.Bonsai).Include(c => c.Customer.ApplicationUser).AsNoTracking().FirstOrDefaultAsync(x => x.Id == orderId);
                 if (order == null)
                     throw new Exception("Không tìm thấy đơn hàng.");
                 var orderTransaction = new OrderTransaction();
@@ -328,29 +328,18 @@ namespace Application.Services
 
         public async Task UpdateBonsaiFromOrder(Guid orderId)
         {
-             _unit.BeginTransaction();
-            try
+            var lists = new List<Bonsai>();
+            var listBonsai = await _unit.OrderDetailRepository.GetAllQueryable().AsNoTracking().Include(x => x.Bonsai).Where(x => x.IsDeleted == false && x.OrderId == orderId).ToListAsync();
+            foreach (var item in listBonsai)
             {
-                var order = await _unit.OrderRepository.GetAllQueryable().Include(x => x.OrderDetails).Where(x => !x.IsDeleted && x.Id == orderId && x.OrderStatus == OrderStatus.Failed).FirstOrDefaultAsync();
-                if (order == null)
-                    throw new Exception("Không tìm thấy đơn hàng.");
-                foreach (var item in order.OrderDetails)
-                {
-                    var bonsai = await _unit.BonsaiRepository.GetByIdAsync(item.BonsaiId);
-                    if (bonsai == null)
-                        throw new Exception("Không tìm thấy bonsai bạn muốn mua");
-                    bonsai.isSold = false;
-                    bonsai.isDisable = false;
-                    _unit.BonsaiRepository.Update(bonsai);
-                    await _unit.SaveChangeAsync();
-                }
-                await _unit.CommitTransactionAsync();
+                item.Bonsai.isSold = false;
+                item.Bonsai.isDisable = false;
+                lists.Add(item.Bonsai);
             }
-            catch (Exception ex)
-            {
-                _unit.RollbackTransaction();
-            }
-            
+            _unit.ClearTrack();
+            _unit.BonsaiRepository.UpdateRange(lists);
+            await _unit.SaveChangeAsync();
+
         }
         public string FormatMoney(double price)
         {
@@ -451,7 +440,7 @@ namespace Application.Services
 
             var customer = await GetCustomerAsync(model, userId);
             var user = await _userManager.FindByIdAsync(customer.UserId);
-            if(userId == null)
+            if (userId == null)
             {
                 if (model.OtpCode == null) throw new Exception("Vui lòng xác thực email trước khi thực hiện đăt hàng.");
                 var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, TokenOptions.DefaultPhoneProvider, model.OtpCode);
