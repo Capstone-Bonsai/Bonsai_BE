@@ -1,4 +1,4 @@
-using Application.Commons;
+﻿using Application.Commons;
 using Application.Hubs;
 using Domain.Entities;
 using Hangfire;
@@ -103,11 +103,11 @@ using (var scope = app.Services.CreateScope())
 
 using (var scope = app.Services.CreateScope())
 {
-    var manager = new ApplicationUser { UserName = "Manager@localhost", Email = "Manager@localhost", Fullname = "Manager", AvatarUrl = "(null)", IsRegister = true, EmailConfirmed= true };
+    var manager = new ApplicationUser { UserName = "Haunguyen", Email = "Myntthe163364@fpt.edu.vn", Fullname = "Nguyễn Thị Hậu", AvatarUrl = "https://firebasestorage.googleapis.com/v0/b/capstone-9b0f3.appspot.com/o/7309687.jpg?alt=media&token=902ec767-9f76-4296-a336-be3789a78503", IsRegister = true, EmailConfirmed= true };
     var _userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     if (_userManager.Users.All(u => u.UserName != manager.UserName))
     {
-        await _userManager.CreateAsync(manager, "Manager@123");
+        await _userManager.CreateAsync(manager, "Manager1!");
         if (!string.IsNullOrWhiteSpace("Manager"))
         {
             await _userManager.AddToRolesAsync(manager, new[] { "Manager" });
