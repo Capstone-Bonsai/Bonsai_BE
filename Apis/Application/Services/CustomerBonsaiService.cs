@@ -377,8 +377,6 @@ namespace Application.Services
         public async Task CreateNewGardenForBoughtBonsai(Guid userId, AddGardenForBoughtBonsai addGardenForBoughtBonsai)
         {
             await CheckGarden(userId);
-            if (addGardenForBoughtBonsai.Image == null || addGardenForBoughtBonsai.Image.Count == 0)
-                throw new Exception("Vui lòng thêm hình ảnh");
             if (addGardenForBoughtBonsai.Address == null || addGardenForBoughtBonsai.Square == 0 || addGardenForBoughtBonsai.Address == "")
             {
                 throw new Exception("Chưa nhập đủ thông tin vườn");

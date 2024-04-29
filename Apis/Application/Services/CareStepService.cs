@@ -28,6 +28,11 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
+                var category = _unitOfWork.CategoryRepository.GetByIdAsync(careStepModel.CategoryId);
+                if (category == null)
+                {
+                    throw new Exception("Không tìm thấy danh mục bonsai!");
+                }
                 var result = await _unitOfWork.CareStepRepository.GetAsync(isTakeAll: true, expression: x => x.CategoryId == careStepModel.CategoryId && !x.IsDeleted);
                 if(result.Items.Count > 0)
                     _unitOfWork.CareStepRepository.SoftRemoveRange(result.Items);

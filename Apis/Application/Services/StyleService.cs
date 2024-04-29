@@ -23,7 +23,7 @@ namespace Application.Services
         }
         public async Task<Pagination<Style>> GetStyles()
         {
-            var styles = await _unitOfWork.StyleRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true);
+            var styles = await _unitOfWork.StyleRepository.GetAsync(isTakeAll: true, expression: x => !x.IsDeleted, isDisableTracking: true, orderBy: x => x.OrderBy(style => style.Name.Contains("Khác")));
             return styles;
         }
         public async Task AddStyle(StyleModel styleModel)

@@ -46,11 +46,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-               var customerGarden = await _customerGardenService.GetByCustomerId(pageIndex, pageSize,_claims.GetCurrentUserId);
-                if (customerGarden.Items.Count == 0)
-                {
-                    throw new Exception("Không tìm thấy");
-                }
+                var customerGarden = await _customerGardenService.GetByCustomerId(pageIndex, pageSize,_claims.GetCurrentUserId);
                 return Ok(customerGarden);
             }
             catch (Exception ex)
@@ -79,10 +75,6 @@ namespace WebAPI.Controllers
             try
             {
                 var customerGarden = await _customerGardenService.GetPaginationForManager(pageIndex, pageSize);
-                if (customerGarden.Items.Count == 0)
-                {
-                    throw new Exception("Không tìm thấy");
-                }
                 return Ok(customerGarden);
             }
             catch (Exception ex)
