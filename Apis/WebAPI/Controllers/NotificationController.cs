@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("Pagination")]
+        [HttpGet("{id}")]
         [Authorize]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
