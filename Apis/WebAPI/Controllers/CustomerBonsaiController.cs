@@ -94,11 +94,11 @@ namespace WebAPI.Controllers
         }
         [HttpPut("{customerBonsaiId}")]
         [Authorize(Roles = "Customer")]
-        public async Task<IActionResult> Put([FromRoute] Guid customerBonsaiId, [FromForm] BonsaiModel bonsaiModel)
+        public async Task<IActionResult> Put([FromRoute] Guid customerBonsaiId, [FromForm] BonsaiModelForCustomer bonsaiModelForCustomer)
         {
             try
             {
-                await _customerBonsaiService.Update(customerBonsaiId, bonsaiModel);
+                await _customerBonsaiService.Update(customerBonsaiId, bonsaiModelForCustomer);
             }
             catch (Exception ex)
             {

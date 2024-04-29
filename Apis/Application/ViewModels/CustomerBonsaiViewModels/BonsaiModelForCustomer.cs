@@ -18,5 +18,7 @@ namespace Application.ViewModels.CustomerBonsaiViewModels
         public int NumberOfTrunk { get; set; }
         [NotMapped]
         public List<IFormFile>? Image { get; set; } = default!;
+        [NotMapped]
+        public List<String>? OldImage { get; set; } = default!;
     }
 }

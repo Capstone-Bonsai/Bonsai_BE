@@ -132,49 +132,51 @@ namespace Application.Services
                 throw;
             }
         }
-        public async Task Update(Guid customerBonsaiId, BonsaiModel bonsaiModel)
+        public async Task Update(Guid customerBonsaiId, BonsaiModelForCustomer bonsaiModelForCustomer)
         {
+            if (bonsaiModelForCustomer == null)
+                throw new ArgumentNullException(nameof(bonsaiModelForCustomer), "Vui lòng điền đầy đủ thông tin!");
 
-            if (bonsaiModel == null)
-                throw new ArgumentNullException(nameof(bonsaiModel), "Vui lòng điền đầy đủ thông tin!");
-            var validationRules = new BonsaiModelValidator();
-            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModel);
+            var validationRules = new BonsaiModelForCustomerValidator();
+            var resultBonsaiInfo = await validationRules.ValidateAsync(bonsaiModelForCustomer);
             if (!resultBonsaiInfo.IsValid)
             {
                 var errors = resultBonsaiInfo.Errors.Select(x => x.ErrorMessage);
                 string errorMessage = string.Join(Environment.NewLine, errors);
                 throw new Exception(errorMessage);
             }
-            if ((bonsaiModel.Image == null || bonsaiModel.Image.Count == 0) && (bonsaiModel.OldImage == null || bonsaiModel.OldImage.Count == 0))
+            if ((bonsaiModelForCustomer.Image == null || bonsaiModelForCustomer.Image.Count == 0) && (bonsaiModelForCustomer.OldImage == null || bonsaiModelForCustomer.OldImage.Count == 0))
                 throw new Exception("Vui lòng thêm hình ảnh");
             var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetByIdAsync(customerBonsaiId);
             if (customerBonsai == null)
             {
                 throw new Exception("Không tìm thấy bonsai của bạn");
             }
-            var bonsai = _mapper.Map<Bonsai>(bonsaiModel);
+            var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
             bonsai.Id = customerBonsai.BonsaiId;
-            bonsai.DeliverySize = bonsaiModel.DeliverySize;
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(bonsai.Id);
             if (result == null)
                 throw new Exception("Không tìm thấy!");
-            if (result.Code.Contains("KHACHHANG"))
+            if (!result.Code.Contains("KHACHHANG"))
             {
                 throw new Exception("Không được chỉnh sửa cây đã mua từ Thanh Sơn Garden");
             }
             bonsai.Code = result.Code;
+            bonsai.Price = 0;
+            bonsai.isDisable = true;
+            bonsai.isSold = null;
             try
             {
                 _unitOfWork.BeginTransaction();
                 _unitOfWork.BonsaiRepository.Update(bonsai);
-                if (bonsaiModel.Image != null)
+                if (bonsaiModelForCustomer.Image != null)
                 {
                     var images = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => x.BonsaiId == bonsai.Id && !x.IsDeleted, isDisableTracking: true);
-                    if (bonsaiModel.OldImage != null)
+                    if (bonsaiModelForCustomer.OldImage != null)
                     {
                         foreach (BonsaiImage image in images.Items.ToList())
                         {
-                            if (bonsaiModel.OldImage.Contains(image.ImageUrl))
+                            if (bonsaiModelForCustomer.OldImage.Contains(image.ImageUrl))
                             {
                                 images.Items.Remove(image);
                             }
@@ -182,7 +184,7 @@ namespace Application.Services
 
                     }
                     _unitOfWork.BonsaiImageRepository.SoftRemoveRange(images.Items);
-                    foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
+                    foreach (var singleImage in bonsaiModelForCustomer.Image.Select((image, index) => (image, index)))
                     {
                         string newImageName = bonsai.Id + "_i" + singleImage.index;
                         string folderName = $"bonsai/{bonsai.Id}/Image";
