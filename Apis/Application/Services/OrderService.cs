@@ -624,7 +624,7 @@ namespace Application.Services
                 order.ExpectedDeliveryDate = deliveryPrice.ExpectedDeliveryDate;
                 order.Price = total;
                 order.TotalPrice = total + deliveryPrice.DeliveryFee;
-                if (order.TotalPrice > 100000000) throw new Exception("Hiện tại phương thức thanh toán chưa hỗ trợ đối với nhứng đơn hàng có giá trị lớn hơn 100.000.000 VNĐ");
+                if (order.TotalPrice > 100000000) throw new Exception("Hiện tại phương thức thanh toán chưa hỗ trợ đối với những đơn hàng có giá trị lớn hơn 100.000.000 VNĐ");
                 _unit.ClearTrack();
                 _unit.OrderRepository.Update(order);
                 await _unit.SaveChangeAsync();
