@@ -296,6 +296,7 @@ namespace Application.Services
                 {
                     await SendOrderEmail(order);
                 }
+                await _notificationService.SendToStaff("Đơn đặt hàng bonsai", $"Đơn hàng của {order.Customer.ApplicationUser.Fullname} đã được thanh toán thành công");
             }
             catch (Exception exx)
             {

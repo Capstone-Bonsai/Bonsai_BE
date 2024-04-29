@@ -65,5 +65,18 @@ namespace WebAPI.Controllers
                 return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "OrdersAndServiceOrders.xlsx");
             }
         }
+        [HttpGet("Staff")]
+        public async Task<IActionResult> GetForStaff()
+        {
+            try
+            {
+                var dashboard = await _dashBoardService.GetDashboardForStaffAsync();
+                return Ok(dashboard);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

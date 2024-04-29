@@ -232,5 +232,20 @@ namespace Application.Services
             worksheet.Cells[row, 6].Value = "Tổng:";
             worksheet.Cells[row, 7].Value = totalSum;
         }
+        public async Task<DashboardViewModel> GetDashboardForStaffAsync()
+        {
+
+            var newUser = await _unitOfWork.CustomerRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30));
+            var newOrder = await _unitOfWork.OrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.OrderStatus >= Domain.Enums.OrderStatus.Paid && x.OrderStatus != Domain.Enums.OrderStatus.Failed);
+            var newServiceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.Fail);
+            var currentServiceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.Completed && x.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.Fail);
+            DashboardViewModel dashboardViewModel = new DashboardViewModel()
+            {
+                NewUser = newUser.Items.Count,
+                NewOrder = newOrder.Items.Count,
+                CurrentServiceOngoing = currentServiceOrder.Items.Count
+            };
+            return dashboardViewModel;
+        }
     }
 }
