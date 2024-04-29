@@ -229,7 +229,7 @@ namespace Application.Services
         public async Task<IList<string>> UpdateService(Guid id, ServiceModel model)
         {
             var service = await _unit.ServiceRepository
-                .GetAllQueryable()
+                .GetAllQueryable().Include(x=>x.ServiceType)
                 .Include(x => x.ServiceBaseTasks)
                 .FirstOrDefaultAsync(x => x.Id == id && x.IsDeleted == false);
             if (service == null)
@@ -254,11 +254,14 @@ namespace Application.Services
                         Update(service, model, list[1]);
                     else
                         Update(service, model, null);
-
-                    //xóa serviceBaseTAsk
-                    _unit.ServiceBaseTaskRepository.HardDeleteRange(service.ServiceBaseTasks.ToList());
-                    // Add service task
-                    await CreateServiceBaseTask(model.ServiceBaseTaskId, service.Id);
+                    if(service.ServiceType.TypeEnum == Domain.Enums.TypeEnum.Garden)
+                    {
+                        //xóa serviceBaseTAsk
+                        _unit.ServiceBaseTaskRepository.HardDeleteRange(service.ServiceBaseTasks.ToList());
+                        // Add service task
+                        await CreateServiceBaseTask(model.ServiceBaseTaskId, service.Id);
+                    }
+                   
                     await _unit.CommitTransactionAsync();
                     return null;
                 }
