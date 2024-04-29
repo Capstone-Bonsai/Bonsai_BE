@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task SendMessageForUserId(Guid id, string title, string message);
         Task SendToStaff(string title, string message);
         Task<Pagination<Notification>> GetNotification(Guid userId, int pageIndex, int pageSize);
+        Task<Notification> GetNotificationById(Guid userId, Guid id);
     }
 }

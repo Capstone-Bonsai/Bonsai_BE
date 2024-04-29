@@ -70,5 +70,13 @@ namespace Application.Services
             notifications = await _unitOfWork.NotificationRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.UserId == userId.ToString().ToLower());
             return notifications;
         }
+        public async Task<Notification> GetNotificationById(Guid userId, Guid id)
+        {
+            var notifications = await _unitOfWork.NotificationRepository.GetAsync(isTakeAll: true, expression: x => x.UserId == userId.ToString().ToLower() && x.Id == id);
+            notifications.Items[0].IsRead = true;
+            _unitOfWork.NotificationRepository.Update(notifications.Items[0]);
+            await _unitOfWork.SaveChangeAsync();
+            return notifications.Items[0];
+        }
     }
 }

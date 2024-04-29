@@ -32,5 +32,19 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("Pagination")]
+        [Authorize]
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
+        {
+            try
+            {
+                var notifications = await _notificationService.GetNotificationById(_claims.GetCurrentUserId, id);
+                return Ok(notifications);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
