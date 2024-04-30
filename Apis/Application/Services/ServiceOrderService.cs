@@ -632,7 +632,7 @@ namespace Application.Services
             {
                 throw new Exception("Không tìm thấy đơn hàng dịch vụ!");
             }
-            if (serviceOrderStatus < serviceOrder.ServiceOrderStatus)
+            if (serviceOrderStatus == ServiceOrderStatus.Completed && (serviceOrder.ServiceOrderStatus != ServiceOrderStatus.TaskFinished || serviceOrder.ServiceOrderStatus != ServiceOrderStatus.DoneTaskComplaint) && serviceOrder.EndDate.Date.AddDays(3) > DateTime.Today.Date)
             {
                 throw new Exception("Trạng thái không hợp lệ.");
             }
