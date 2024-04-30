@@ -380,14 +380,17 @@ namespace Infrastructures.Services
         }
 
 
-        public async Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize, Guid contractId)
+        public async Task<Pagination<GardenerViewModel>> GetListGardenerAsync(int pageIndex, int pageSize, Guid serviceOrderId)
         {
-            var contract = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
-            if (contract == null)
+            var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable()
+                .Where(x => x.Id == serviceOrderId)
+                .Include(x => x.ServiceOrderGardener)
+                .FirstOrDefaultAsync();
+            if (serviceOrder == null)
             {
-                throw new Exception("Không tìm thấy hợp đồng!");
+                throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ!");
             }
-            var listUser = await _userManager.Users.Where(x => x.Gardener != null).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
+            var listUser = await _userManager.Users.Where(x => x.Gardener != null && x.Gardener.ContractGardeners.Any(query => query.GardenerId == x.Gardener.Id && query.ServiceOrderId == serviceOrderId && !query.IsDeleted) == false).AsNoTracking().OrderBy(x => x.Email).ToListAsync();
             var itemCount = listUser.Count();
             var items = listUser.Skip(pageIndex * pageSize)
                                     .Take(pageSize)
@@ -406,7 +409,7 @@ namespace Infrastructures.Services
                 var gardener = await GetGardenerAsync(Guid.Parse(item.Id));
                 var contracts = _unitOfWork.ServiceOrderRepository
                     .GetAllQueryable()
-                    .Where(x => x.StartDate.Date <= contract.EndDate.Date && x.EndDate.Date >= contract.StartDate.Date && x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id));
+                    .Where(x => x.StartDate.Date <= serviceOrder.EndDate.Date && x.EndDate.Date >= serviceOrder.StartDate.Date && x.ServiceOrderGardener.Any(y => y.GardenerId == gardener.Id));
                 var user = await _userManager.FindByIdAsync(item.Id);
                 var isLockout = await _userManager.IsLockedOutAsync(user);
                 var roles = await _userManager.GetRolesAsync(user);
