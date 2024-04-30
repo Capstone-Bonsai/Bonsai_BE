@@ -24,14 +24,16 @@ namespace Application.Services
         private readonly FirebaseService _fireBaseService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IdUtil _idUtil;
+        private readonly INotificationService _notificationService;
 
-        public CustomerGardenService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager, IdUtil idUtil)
+        public CustomerGardenService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, UserManager<ApplicationUser> userManager, IdUtil idUtil, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fireBaseService = fireBaseService;
             _userManager = userManager;
             _idUtil = idUtil;
+            _notificationService = notificationService;
         }
 
         public async Task AddCustomerGarden(CustomerGardenModel customerGardenModel, Guid id)
@@ -119,6 +121,7 @@ namespace Application.Services
                 Items = customerGardens,
                 TotalItemsCount = count
             };
+            await _notificationService.SendMessageForUserId(id, "Message", "Đã vô trang bonsai");
             return garden;
         }
         public async Task<Pagination<CustomerGarden>> GetAllByCustomerId(Guid id)
