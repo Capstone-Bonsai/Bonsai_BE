@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
             try
             {
                 var dashboard = await _dashBoardService.GetDashboardAsync();
-                return BadRequest("Không tìm thấy!");
+                return Ok(dashboard);
             }
             catch (Exception ex)
             {
