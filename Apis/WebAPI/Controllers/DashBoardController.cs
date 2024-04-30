@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Domain.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
@@ -17,6 +18,7 @@ namespace WebAPI.Controllers
             _dashBoardService = dashBoardService;
         }
         [HttpGet]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> Get()
         {
             try
@@ -30,6 +32,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("RevenueLineGraph")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetLineGraph()
         {
             try
@@ -43,6 +46,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("Staff")]
+        [Authorize(Roles = "Staff")]
         public async Task<IActionResult> GetForStaff()
         {
             try

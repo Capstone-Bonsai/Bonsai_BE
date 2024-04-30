@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
@@ -16,6 +17,7 @@ namespace WebAPI.Controllers
             _revenueService = revenueService;
         }
         [HttpGet]
+        [Authorize(Roles ="Manager")]
         public async Task<IActionResult> Get()
         {
             try
@@ -30,6 +32,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("download")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> DownloadExcel()
         {
             using (var package = new ExcelPackage())
@@ -39,6 +42,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("Order")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetOrder()
         {
             try
@@ -53,6 +57,7 @@ namespace WebAPI.Controllers
             }
         }
         [HttpGet("ServiceOrder")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> GetServiceOrder()
         {
             try
