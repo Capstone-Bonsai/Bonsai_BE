@@ -6,6 +6,7 @@ using Domain.Entities;
 using Firebase.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +68,9 @@ namespace Application.Services
         public async Task<Pagination<Notification>> GetNotification(Guid userId, int pageIndex, int pageSize)
         {
             Pagination<Notification> notifications = new Pagination<Notification>();
-            notifications = await _unitOfWork.NotificationRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.UserId == userId.ToString().ToLower());
+            notifications = await _unitOfWork.NotificationRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.UserId.ToLower().Equals(userId.ToString().ToLower()), orderBy: x => x.OrderByDescending(noti => noti.CreationDate));
+            var isReadNote = await _unitOfWork.NotificationRepository.GetAllQueryable().CountAsync(x => x.IsRead == false && x.IsDeleted == false && x.UserId.ToLower().Equals(userId.ToString().ToLower()));
+            notifications.TotalItemsCount= isReadNote;
             return notifications;
         }
         public async Task<Notification> GetNotificationById(Guid userId, Guid id)
