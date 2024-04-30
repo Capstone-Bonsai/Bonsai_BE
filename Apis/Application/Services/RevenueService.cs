@@ -129,6 +129,7 @@ namespace Application.Services
                .Where(x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ServiceOrderStatus >= ServiceOrderStatus.Paid && x.ServiceOrderStatus != ServiceOrderStatus.Fail)
                .Include(x => x.CustomerGarden.Customer)
                .ThenInclude(customer => customer.ApplicationUser)
+               .Include(x => x.Service)
                .ToListAsync();
             return newServiceOrder;
         }
