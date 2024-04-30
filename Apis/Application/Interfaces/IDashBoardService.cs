@@ -12,8 +12,6 @@ namespace Application.Interfaces
     {
         Task<DashboardViewModel> GetDashboardAsync();
         Task<List<RevenueLineGraph>> GetRevenueLineGraph();
-        Task<byte[]> GetExcel();
         Task<DashboardViewModel> GetDashboardForStaffAsync();
-        Task<RevenueViewModel> GetRevenueAsync();
     }
 }

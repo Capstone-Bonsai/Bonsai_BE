@@ -42,15 +42,6 @@ namespace WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [HttpGet("download")]
-        public async Task<IActionResult> DownloadExcel()
-        {
-            using (var package = new ExcelPackage())
-            {
-                byte[] excelBytes = await _dashBoardService.GetExcel(); 
-                return File(excelBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "OrdersAndServiceOrders.xlsx");
-            }
-        }
         [HttpGet("Staff")]
         public async Task<IActionResult> GetForStaff()
         {

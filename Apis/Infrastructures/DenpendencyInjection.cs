@@ -42,8 +42,8 @@ namespace Infrastructures
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDashBoardService, DashBoardService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IRevenueService, RevenueService>();
 
-            
 
             services.AddScoped<IDeliveryFeeRepository, DeliveryFeeRepository>();
             services.AddScoped<IStaffRepository, StaffRepository>();
