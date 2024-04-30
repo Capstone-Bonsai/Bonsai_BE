@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var notifications = await _notificationService.GetNotificationById(_claims.GetCurrentUserId, id);
+                var notifications = await _notificationService.GetNotificationById(id);
                 return Ok(notifications);
             }
             catch (Exception ex)
