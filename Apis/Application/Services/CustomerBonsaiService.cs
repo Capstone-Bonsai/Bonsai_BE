@@ -237,7 +237,7 @@ namespace Application.Services
         public async Task<Pagination<CustomerBonsai>> GetBonsaiOfGarden(Guid gardenId)
         {
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
-                                 x => x.Bonsai.BonsaiImages
+                                 x => x.Bonsai.BonsaiImages.Where(image => !image.IsDeleted)
                                     };
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == gardenId && !x.IsDeleted, includes: includes);
             return bonsais;
@@ -245,7 +245,7 @@ namespace Application.Services
         public async Task<CustomerBonsaiViewModel> GetCustomerBonsaiById(Guid customerBonsaiId, Guid userId, bool isCustomer)
         {
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
-                                 x => x.Bonsai.BonsaiImages,
+                                 x => x.Bonsai.BonsaiImages.Where(image => !image.IsDeleted),
                                  x => x.CustomerGarden
                                     };
             var bonsais = await _unitOfWork.CustomerBonsaiRepository.GetAsync(isTakeAll: true, expression: x => x.Id == customerBonsaiId && !x.IsDeleted, includes: includes);
@@ -285,7 +285,7 @@ namespace Application.Services
         {
             var customer = await _idUtil.GetCustomerAsync(customerId);
             List<Expression<Func<CustomerBonsai, object>>> includes = new List<Expression<Func<CustomerBonsai, object>>>{
-                                 x => x.Bonsai.BonsaiImages,
+                                 x => x.Bonsai.BonsaiImages.Where(image => !image.IsDeleted),
                                  x => x.CustomerGarden
                                     };
             var customerBonsai = await _unitOfWork.CustomerBonsaiRepository.GetAsync(expression: x => x.CustomerGarden.CustomerId == customer.Id, pageIndex: pageIndex, pageSize: pageSize, includes: includes);

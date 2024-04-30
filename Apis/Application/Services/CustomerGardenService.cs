@@ -107,7 +107,7 @@ namespace Application.Services
                     .GetAllQueryable()
                     .Where(cb => cb.CustomerGardenId == _garden.Id)
                     .Include(bonsai => bonsai.Bonsai)
-                    .ThenInclude(x => x.BonsaiImages)
+                    .ThenInclude(x => x.BonsaiImages.Where(image => !image.IsDeleted))
                     .ToListAsync();
 
                 _garden.CustomerBonsais = bonsais;
@@ -154,7 +154,7 @@ namespace Application.Services
         {
             List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
                                  x => x.Customer.ApplicationUser,
-                                 x => x.CustomerGardenImages
+                                 x => x.CustomerGardenImages.Where(image => !image.IsDeleted)
                                     };
             var customerGardens = await _unitOfWork.CustomerGardenRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted, includes: includes);
             return customerGardens;
@@ -232,7 +232,7 @@ namespace Application.Services
         {   
             List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
                                  x => x.Customer.ApplicationUser,
-                                 x => x.CustomerGardenImages
+                                 x => x.CustomerGardenImages.Where(image => !image.IsDeleted)
                                     };
             Pagination<CustomerGarden> customerGarden;
             if (isCustomer)

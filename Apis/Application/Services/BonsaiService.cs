@@ -396,7 +396,7 @@ namespace Application.Services
             {
                 var bonsai = await _unitOfWork.BonsaiRepository
                     .GetAllQueryable()
-                    .Include(x => x.BonsaiImages)
+                    .Include(x => x.BonsaiImages.Where(image => !image.IsDeleted))
                     .Where(x => x.Id == id)
                     .FirstOrDefaultAsync();
                 if (bonsai == null)
