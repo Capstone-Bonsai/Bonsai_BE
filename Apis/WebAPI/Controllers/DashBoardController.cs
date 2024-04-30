@@ -22,14 +22,7 @@ namespace WebAPI.Controllers
             try
             {
                 var dashboard = await _dashBoardService.GetDashboardAsync();
-                if (dashboard == null)
-                {
-                    return BadRequest("Không tìm thấy!");
-                }
-                else
-                {
-                    return Ok(dashboard);
-                }
+                return BadRequest("Không tìm thấy!");
             }
             catch (Exception ex)
             {
@@ -42,14 +35,7 @@ namespace WebAPI.Controllers
             try
             {
                 var dashboard = await _dashBoardService.GetRevenueLineGraph();
-                if (dashboard == null)
-                {
-                    return BadRequest("Không tìm thấy!");
-                }
-                else
-                {
-                    return Ok(dashboard);
-                }
+                return Ok(dashboard);
             }
             catch (Exception ex)
             {

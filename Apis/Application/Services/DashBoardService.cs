@@ -27,9 +27,9 @@ namespace Application.Services
         {
 
             var newUser = await _unitOfWork.CustomerRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ApplicationUser.IsRegister);
-            var newOrder = await _unitOfWork.OrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.OrderStatus >= Domain.Enums.OrderStatus.Paid && x.OrderStatus != Domain.Enums.OrderStatus.Failed);
+            var newOrder = await _unitOfWork.OrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.OrderStatus >= OrderStatus.Paid && x.OrderStatus != Domain.Enums.OrderStatus.Failed);
             double totalOrderIncome = newOrder.Items.Sum(item => item.Price);
-            var newServiceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.Fail);
+            var newServiceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Canceled);
             double totalServiceOrderIncome = newServiceOrder.Items.Sum(item => item.TotalPrice);
             var currentServiceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CreationDate >= DateTime.Now.AddDays(-30) && x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.Completed && x.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.Fail);
             DashboardViewModel dashboardViewModel = new DashboardViewModel()
@@ -120,13 +120,13 @@ namespace Application.Services
             var orders = await _unitOfWork.OrderRepository.GetAsync(
                 isTakeAll: true,
                 expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
-                                 x.OrderStatus >= Domain.Enums.OrderStatus.Paid
+                                 x.OrderStatus >= OrderStatus.Paid && x.OrderStatus != OrderStatus.Failed
             );
 
             var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(
                 isTakeAll: true,
                 expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
-                                 x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid
+                                 x.ServiceOrderStatus >= ServiceOrderStatus.Paid && x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Canceled
             );
             var groupedOrders = orders.Items.GroupBy(o => new DateTime(o.CreationDate.Year, o.CreationDate.Month, 1));
             var groupedServiceOrders = serviceOrders.Items.GroupBy(so => new DateTime(so.CreationDate.Year, so.CreationDate.Month, 1));
@@ -246,6 +246,18 @@ namespace Application.Services
                 CurrentServiceOngoing = currentServiceOrder.Items.Count
             };
             return dashboardViewModel;
+        }
+        public async Task<RevenueViewModel> GetRevenueAsync()
+        {
+            var newOrder = await _unitOfWork.OrderRepository.GetAsync(isTakeAll: true, expression: x => x.OrderStatus >= OrderStatus.Paid && x.OrderStatus != Domain.Enums.OrderStatus.Failed);
+            double totalOrderIncome = newOrder.Items.Sum(item => item.Price);
+            var newServiceOrder = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.ServiceOrderStatus >= Domain.Enums.ServiceOrderStatus.Paid && x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Canceled);
+            double totalServiceOrderIncome = newServiceOrder.Items.Sum(item => item.TotalPrice);
+            return new RevenueViewModel()
+            {
+                TotalOrderIncome = totalOrderIncome,
+                TotalServiceIncome = totalServiceOrderIncome
+            };
         }
     }
 }
