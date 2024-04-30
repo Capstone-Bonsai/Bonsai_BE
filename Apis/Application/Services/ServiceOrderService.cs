@@ -174,7 +174,8 @@ namespace Application.Services
         {
             List<Expression<Func<ServiceOrder, object>>> includes = new List<Expression<Func<ServiceOrder, object>>>{
                                  x => x.ServiceOrderGardener,
-                                 x => x.Service
+                                 x => x.Service,
+                                 x => x.Contract
                                     };
             if (isCustomer)
             {
