@@ -141,6 +141,7 @@ namespace Application.Services
                 serviceOrder.ServiceOrderStatus = ServiceOrderStatus.Pending;
                 await _unitOfWork.ServiceOrderRepository.AddAsync(serviceOrder);
                 await _unitOfWork.CommitTransactionAsync();
+                await _notificationService.SendToStaff("Có đơn hàng dịch vụ mới", $"{serviceOrder.CustomerName} đã đăng ký đơn hàng dịch vụ thành công!");
             }
             catch (Exception)
             {
@@ -369,7 +370,10 @@ namespace Application.Services
                     transactionStatus = TransactionStatus.Success;
                     serviceOrderStatus = ServiceOrderStatus.Paid;
                 }
-                var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetByIdAsync(contractId);
+                var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable()
+                    .Where(x => x.Id == contractId)
+                    .Include(x => x.CustomerGarden.Customer.ApplicationUser)
+                    .FirstOrDefaultAsync();
                 if (serviceOrder == null)
                     throw new Exception("Không tìm thấy hợp đồng.");
                 var serviceOrderTransaction = new ServiceOrderTransaction();
@@ -398,7 +402,7 @@ namespace Application.Services
                 serviceOrder.ServiceOrderStatus = serviceOrderStatus;
                 _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                 await _unitOfWork.SaveChangeAsync();
-
+                await _notificationService.SendToStaff("Đơn đặt hàng dịch vụ", $"Đơn hàng dịch vụ của {serviceOrder.CustomerGarden.Customer.ApplicationUser} đã được thanh toán thành công");
             }
             catch (Exception exx)
             {
