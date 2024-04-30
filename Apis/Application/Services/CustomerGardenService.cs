@@ -197,7 +197,7 @@ namespace Application.Services
                     _unitOfWork.CustomerGardenImageRepository.SoftRemoveRange(images.Items);
                     foreach (var singleImage in customerGardenModel.Image.Select((image, index) => (image, index)))
                     {
-                        string newImageName = customerGarden.Id + "_i" + singleImage.index;
+                        string newImageName = customerGarden.Id + "_i" + singleImage.GetHashCode() + DateTime.Now.Ticks;
                         string folderName = $"customerGarden/{customerGarden.Id}/Image";
                         string imageExtension = Path.GetExtension(singleImage.image.FileName);
                         //Kiểm tra xem có phải là file ảnh không.

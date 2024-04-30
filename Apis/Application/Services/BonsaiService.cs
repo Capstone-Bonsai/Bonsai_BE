@@ -253,7 +253,7 @@ namespace Application.Services
             {
                 _unitOfWork.BeginTransaction();
                 _unitOfWork.BonsaiRepository.Update(bonsai);
-                if (bonsaiModel.Image != null)
+                if (bonsaiModel.Image != null || bonsaiModel.Image != null)
                 {
                     var images = await _unitOfWork.BonsaiImageRepository.GetAsync(isTakeAll: true, expression: x => x.BonsaiId == id && !x.IsDeleted, isDisableTracking: true);
                     if (bonsaiModel.OldImage != null)
@@ -262,7 +262,6 @@ namespace Application.Services
                         {
                             if (bonsaiModel.OldImage.Contains(image.ImageUrl))
                             {
-                                //Bỏ những cái có trong danh sách cũ truyền về -> không xóa
                                 images.Items.Remove(image);
                             }
                         }
@@ -271,7 +270,7 @@ namespace Application.Services
                     _unitOfWork.BonsaiImageRepository.SoftRemoveRange(images.Items);
                     foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
                     {
-                        string newImageName = bonsai.Id + "_i" + singleImage.index;
+                        string newImageName = bonsai.Id + "_i" + singleImage.index + singleImage.GetHashCode() + DateTime.Now.Ticks;
                         string folderName = $"bonsai/{bonsai.Id}/Image";
                         string imageExtension = Path.GetExtension(singleImage.image.FileName);
                         string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
