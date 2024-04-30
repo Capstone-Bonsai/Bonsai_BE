@@ -423,6 +423,7 @@ namespace Application.Services
                     .Include(x => x.Complaints)
                     .Include(x => x.Service.ServiceType)
                     .Include(x => x.ServiceOrderGardener).ThenInclude(query => query.Gardener.ApplicationUser)
+                    .Include(x => x.ContractTransactions)
                     .FirstOrDefaultAsync();
                 if (serviceOrders == null)
                 {
@@ -438,6 +439,7 @@ namespace Application.Services
                    .Include(x => x.Complaints)
                    .Include(x => x.Service.ServiceType)
                    .Include(x => x.ServiceOrderGardener).ThenInclude(query => query.Gardener.ApplicationUser)
+                   .Include(x => x.ContractTransactions)
                    .FirstOrDefaultAsync();
                 if (serviceOrders == null)
                 {
