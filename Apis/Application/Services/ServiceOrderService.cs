@@ -206,7 +206,7 @@ namespace Application.Services
             var gardener = await _idUtil.GetGardenerAsync(id);
             if (gardener == null)
             {
-                throw new Exception("Không tìm thấy nnguoiwf !");
+                throw new Exception("Không tìm thấy người !");
             }
             var startDate = new DateTime(year, month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);

@@ -30,7 +30,7 @@ namespace Application.ViewModels.ServiceOrderViewModels
         public IList<Contract> Contract { get; set; }
         public IList<GardenCareTask> GardenCareTasks { get; set; }
         public IList<ServiceOrderGardener> ServiceOrderGardeners { get; set; }
-        public IList<ServiceOrderTransaction> ServiceOrderTransactions { get; set; }
+        public IList<ServiceOrderTransaction> ContractTransactions { get; set; }
         public IList<Complaint> Complaints { get; set; }
         [NotMapped]
         public List<TaskOfServiceOrder> TaskOfServiceOrders { get; set; } = default!;
