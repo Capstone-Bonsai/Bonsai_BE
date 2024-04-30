@@ -131,7 +131,7 @@ namespace Application.Services
                 if(model.ComplaintStatus == Domain.Enums.ComplaintStatus.Canceled)
                 {
                     complaint.CancelReason = model.CancelReason;
-                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.Completed;
+                    serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.TaskFinished;
                     _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                 }
                 else if (model.ComplaintStatus == Domain.Enums.ComplaintStatus.Processing)
