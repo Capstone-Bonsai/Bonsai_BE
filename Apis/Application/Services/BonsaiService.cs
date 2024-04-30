@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Utils;
 using Application.Validations.Bonsai;
 using Application.ViewModels.BonsaiViewModel;
+using Application.ViewModels.CustomerBonsaiViewModels;
 using Application.ViewModels.DeliveryFeeViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -30,7 +31,7 @@ namespace Application.Services
         private readonly IdUtil _idUtil;
         private readonly INotificationService _notificationService;
 
-        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, IdUtil idUtil,INotificationService notificationService)
+        public BonsaiService(IUnitOfWork unitOfWork, IMapper mapper, FirebaseService fireBaseService, IdUtil idUtil, INotificationService notificationService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -56,7 +57,7 @@ namespace Application.Services
                 bonsais = await _unitOfWork.BonsaiRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => !x.IsDeleted && !x.Code.Contains("KHACHHANG") && !x.isDisable && x.isSold != null && !x.isSold.Value, includes: includes);
             }
 
-           
+
             return bonsais;
         }
         public async Task<Pagination<Bonsai>> GetAll(bool isAdmin = false)
@@ -82,7 +83,7 @@ namespace Application.Services
         }
         public async Task<Pagination<Bonsai>?> GetByFilter(int pageIndex, int pageSize, FilterBonsaiModel filterBonsaiModel, bool isAdmin = false)
         {
-            if(filterBonsaiModel.Keyword != null && filterBonsaiModel.Keyword.Length > 50)
+            if (filterBonsaiModel.Keyword != null && filterBonsaiModel.Keyword.Length > 50)
             {
                 throw new Exception("Từ khóa phải dưới 50 kí tự");
             }
@@ -265,34 +266,37 @@ namespace Application.Services
                                 images.Items.Remove(image);
                             }
                         }
-                        
+
                     }
                     _unitOfWork.BonsaiImageRepository.SoftRemoveRange(images.Items);
-                    foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
+                    if (bonsaiModel.Image != null)
                     {
-                        string newImageName = bonsai.Id + "_i" + singleImage.index + singleImage.GetHashCode() + DateTime.Now.Ticks;
-                        string folderName = $"bonsai/{bonsai.Id}/Image";
-                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
-                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-                        const long maxFileSize = 20 * 1024 * 1024;
-                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                        foreach (var singleImage in bonsaiModel.Image.Select((image, index) => (image, index)))
                         {
-                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                            string newImageName = bonsai.Id + "_i" + singleImage.index + singleImage.GetHashCode() + DateTime.Now.Ticks;
+                            string folderName = $"bonsai/{bonsai.Id}/Image";
+                            string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                            const long maxFileSize = 20 * 1024 * 1024;
+                            if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                            {
+                                throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                            }
+                            var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                            if (url == null)
+                                throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                            BonsaiImage bonsaiImage = new BonsaiImage()
+                            {
+                                BonsaiId = bonsai.Id,
+                                ImageUrl = url
+                            };
+
+                            await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                         }
-                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
-                        if (url == null)
-                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
-
-                        BonsaiImage bonsaiImage = new BonsaiImage()
-                        {
-                            BonsaiId = bonsai.Id,
-                            ImageUrl = url
-                        };
-
-                        await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                     }
+                    await _unitOfWork.CommitTransactionAsync();
                 }
-                await _unitOfWork.CommitTransactionAsync();
             }
             catch (Exception)
             {
@@ -304,7 +308,7 @@ namespace Application.Services
             var result = await _unitOfWork.BonsaiRepository.GetByIdAsync(id);
             if (result == null)
                 throw new Exception("Không tìm thấy!");
-            if ((result.isSold != null && result.isSold.Value == true )|| result.Code.Contains("KHACHHANG"))
+            if ((result.isSold != null && result.isSold.Value == true) || result.Code.Contains("KHACHHANG"))
             {
                 throw new Exception("Cây này thuộc về khách hàng, không thể xóa");
             }
@@ -391,7 +395,7 @@ namespace Application.Services
         public async Task<List<Bonsai>> getCurrentCart(List<Guid> bonsaiId)
         {
             List<Bonsai> bonsais = new List<Bonsai>();
-            foreach(Guid id in bonsaiId)
+            foreach (Guid id in bonsaiId)
             {
                 var bonsai = await _unitOfWork.BonsaiRepository
                     .GetAllQueryable()
@@ -404,7 +408,7 @@ namespace Application.Services
                 }
                 bonsais.Add(bonsai);
             }
-            if(bonsaiId.Count != bonsais.Count)
+            if (bonsaiId.Count != bonsais.Count)
             {
                 throw new Exception("Số lượng cây trong cart khác với số lượng cây");
             }

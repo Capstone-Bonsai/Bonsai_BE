@@ -183,28 +183,31 @@ namespace Application.Services
                         }
                     }
                     _unitOfWork.BonsaiImageRepository.SoftRemoveRange(images.Items);
-                    foreach (var singleImage in bonsaiModelForCustomer.Image.Select((image, index) => (image, index)))
+                    if (bonsaiModelForCustomer.Image != null)
                     {
-                        string newImageName = bonsai.Id + "_i" + singleImage.GetHashCode() + DateTime.Now.Ticks;
-                        string folderName = $"bonsai/{bonsai.Id}/Image";
-                        string imageExtension = Path.GetExtension(singleImage.image.FileName);
-                        string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-                        const long maxFileSize = 20 * 1024 * 1024;
-                        if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                        foreach (var singleImage in bonsaiModelForCustomer.Image.Select((image, index) => (image, index)))
                         {
-                            throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                            string newImageName = bonsai.Id + "_i" + singleImage.GetHashCode() + DateTime.Now.Ticks;
+                            string folderName = $"bonsai/{bonsai.Id}/Image";
+                            string imageExtension = Path.GetExtension(singleImage.image.FileName);
+                            string[] validImageExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+                            const long maxFileSize = 20 * 1024 * 1024;
+                            if (Array.IndexOf(validImageExtensions, imageExtension.ToLower()) == -1 || singleImage.image.Length > maxFileSize)
+                            {
+                                throw new Exception("Có chứa file không phải ảnh hoặc quá dung lượng tối đa(>20MB)!");
+                            }
+                            var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
+                            if (url == null)
+                                throw new Exception("Lỗi khi đăng ảnh lên firebase!");
+
+                            BonsaiImage bonsaiImage = new BonsaiImage()
+                            {
+                                BonsaiId = bonsai.Id,
+                                ImageUrl = url
+                            };
+
+                            await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                         }
-                        var url = await _fireBaseService.UploadFileToFirebaseStorage(singleImage.image, newImageName, folderName);
-                        if (url == null)
-                            throw new Exception("Lỗi khi đăng ảnh lên firebase!");
-
-                        BonsaiImage bonsaiImage = new BonsaiImage()
-                        {
-                            BonsaiId = bonsai.Id,
-                            ImageUrl = url
-                        };
-
-                        await _unitOfWork.BonsaiImageRepository.AddAsync(bonsaiImage);
                     }
                 }
                 await _unitOfWork.CommitTransactionAsync();
@@ -323,7 +326,7 @@ namespace Application.Services
                 CustomerId = customer.Id,
                 Address = bonsaiModelForCustomer.Address,
                 Square = bonsaiModelForCustomer.Square.Value
-                
+
             };
             await _unitOfWork.CustomerGardenRepository.AddAsync(customerGarden);
             var bonsai = _mapper.Map<Bonsai>(bonsaiModelForCustomer);
