@@ -13,5 +13,6 @@ namespace Application.Interfaces
     {
         Task<Pagination<UserViewModel>> GetGardenerOfServiceOrder(int pageIndex, int pageSize, Guid contractId);
         Task AddGardener(ServiceOrderGardenerModel serviceOrderGardenerModel);
+        Task DeleteServiceOrderGarden(Guid serviceOrderId, Guid gardenerId);
     }
 }

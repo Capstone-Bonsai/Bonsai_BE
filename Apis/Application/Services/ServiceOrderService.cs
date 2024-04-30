@@ -407,30 +407,40 @@ namespace Application.Services
         }
         public async Task<OverallServiceOrderViewModel> GetServiceOrderById(Guid serviceOrderId, bool isCustomer, Guid userId)
         {
-            List<Expression<Func<ServiceOrder, object>>> includes = new List<Expression<Func<ServiceOrder, object>>>{
-                                 x => x.Contract,
-                                 x => x.Complaints,
-                                 x => x.Service.ServiceType
-                                    };
-            Pagination<ServiceOrder>? serviceOrders;
+            ServiceOrder? serviceOrders;
             if (isCustomer)
             {
                 var customer = await _idUtil.GetCustomerAsync(userId);
-                serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGarden.CustomerId == customer.Id && x.Id == serviceOrderId, includes: includes);
-                if (serviceOrders.Items.Count == 0)
+                //serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGarden.CustomerId == customer.Id && x.Id == serviceOrderId, includes: includes);
+                serviceOrders = await _unitOfWork.ServiceOrderRepository
+                    .GetAllQueryable()
+                    .Where(x => x.CustomerGarden.CustomerId == customer.Id && x.Id == serviceOrderId)
+                    .Include(x => x.Contract)
+                    .Include(x => x.Complaints)
+                    .Include(x => x.Service.ServiceType)
+                    .Include(x => x.ServiceOrderGardener).ThenInclude(query => query.Gardener.ApplicationUser)
+                    .FirstOrDefaultAsync();
+                if (serviceOrders == null)
                 {
                     throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ");
                 }
             }
             else
             {
-                serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(isTakeAll: true, expression: x => x.Id == serviceOrderId, includes: includes);
-                if (serviceOrders.Items.Count == 0)
+                serviceOrders = await _unitOfWork.ServiceOrderRepository
+                   .GetAllQueryable()
+                   .Where(x => x.Id == serviceOrderId)
+                   .Include(x => x.Contract)
+                   .Include(x => x.Complaints)
+                   .Include(x => x.Service.ServiceType)
+                   .Include(x => x.ServiceOrderGardener).ThenInclude(query => query.Gardener.ApplicationUser)
+                   .FirstOrDefaultAsync();
+                if (serviceOrders == null)
                 {
                     throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ");
                 }
             }
-            OverallServiceOrderViewModel overallServiceOrderViewModel = _mapper.Map<OverallServiceOrderViewModel>(serviceOrders.Items[0]);
+            OverallServiceOrderViewModel overallServiceOrderViewModel = _mapper.Map<OverallServiceOrderViewModel>(serviceOrders);
             overallServiceOrderViewModel.TaskOfServiceOrders = await GetTasksAsync(serviceOrderId, overallServiceOrderViewModel.CustomerBonsaiId != null ? true : false);
             overallServiceOrderViewModel.GardenersOfServiceOrder = await GetGardenerOfServiceOrder(serviceOrderId);
             foreach (Complaint complaint in overallServiceOrderViewModel.Complaints)

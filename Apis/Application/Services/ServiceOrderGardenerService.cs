@@ -162,5 +162,18 @@ namespace Application.Services
                 await _unitOfWork.BonsaiCareStepRepository.AddRangeAsync(bonsaiCareSteps);
             }
         }
+        public async Task DeleteServiceOrderGarden(Guid serviceOrderId, Guid gardenerId)
+        {
+            var serviceOrderGardener = await _unitOfWork.ServiceOrderGardenerRepository.GetAllQueryable()
+                .Where(x => x.ServiceOrderId == serviceOrderId && x.GardenerId == gardenerId)
+                .FirstOrDefaultAsync();
+            if(serviceOrderGardener != null)
+            {
+                serviceOrderGardener.IsDeleted = true;
+                _unitOfWork.ServiceOrderGardenerRepository.SoftRemove(serviceOrderGardener);
+                await _unitOfWork.SaveChangeAsync();
+            }
+            
+        }
     }
 }

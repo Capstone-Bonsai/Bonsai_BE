@@ -70,7 +70,7 @@ namespace Application.Services
             notifications = await _unitOfWork.NotificationRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => x.UserId == userId.ToString().ToLower());
             return notifications;
         }
-        public async Task<Notification> GetNotificationById(Guid userId, Guid id)
+        public async Task<Notification> GetNotificationById(Guid id)
         {
             var notifications = await _unitOfWork.NotificationRepository.GetByIdAsync(id);
             notifications.IsRead = true;

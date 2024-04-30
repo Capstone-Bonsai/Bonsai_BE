@@ -19,6 +19,19 @@ namespace WebAPI.Controllers
             _serviceOrderGardenerService = serviceOrderGardenerService;
             _claims = claimsService;
         }
+        [HttpDelete("{serviceOrderId}")]
+        public async Task<IActionResult> GetGardenerOfServiceOrder([FromRoute] Guid serviceOrderId, [FromQuery] Guid gardenerId)
+        {
+            try
+            {
+                await _serviceOrderGardenerService.DeleteServiceOrderGarden(serviceOrderId, serviceOrderId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
         [HttpGet("{serviceOrderId}")]
         public async Task<IActionResult> GetGardenerOfServiceOrder([FromQuery] int pageIndex, int pageSize,[FromRoute] Guid serviceOrderId)
         {
