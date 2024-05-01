@@ -28,7 +28,7 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                var category = _unitOfWork.CategoryRepository.GetByIdAsync(careStepModel.CategoryId);
+                var category = await _unitOfWork.CategoryRepository.GetByIdAsync(careStepModel.CategoryId);
                 if (category == null)
                 {
                     throw new Exception("Không tìm thấy danh mục bonsai!");
