@@ -141,7 +141,7 @@ namespace Application.Services
                 serviceOrder.ServiceOrderStatus = ServiceOrderStatus.Pending;
                 await _unitOfWork.ServiceOrderRepository.AddAsync(serviceOrder);
                 await _unitOfWork.CommitTransactionAsync();
-                await _notificationService.SendToStaff("Có đơn hàng dịch vụ mới", $"{serviceOrder.CustomerName} đã đăng ký đơn hàng dịch vụ thành công!");
+                await _notificationService.SendToStaff("Có đơn hàng dịch vụ mới", $"{customerGarden.Customer.ApplicationUser.Email} đã đăng ký đơn hàng dịch vụ thành công!");
             }
             catch (Exception)
             {
@@ -402,7 +402,7 @@ namespace Application.Services
                 serviceOrder.ServiceOrderStatus = serviceOrderStatus;
                 _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                 await _unitOfWork.SaveChangeAsync();
-                await _notificationService.SendToStaff("Đơn đặt hàng dịch vụ", $"Đơn hàng dịch vụ của {serviceOrder.CustomerGarden.Customer.ApplicationUser} đã được thanh toán thành công");
+                await _notificationService.SendToStaff("Đơn đặt hàng dịch vụ", $"Đơn hàng dịch vụ của {serviceOrder.CustomerGarden.Customer.ApplicationUser.Email} đã được thanh toán thành công");
             }
             catch (Exception exx)
             {

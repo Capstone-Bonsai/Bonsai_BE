@@ -2,6 +2,7 @@
 using Application.Interfaces;
 using Application.Utils;
 using Application.ViewModels.BonsaiViewModel;
+using Application.ViewModels.CustomerBonsaiViewModels;
 using Application.ViewModels.CustomerGardenViewModels;
 using AutoMapper;
 using Domain.Entities;
@@ -162,15 +163,18 @@ namespace Application.Services
 
         public async Task UpdateCustomerGarden(Guid customerGardenId, CustomerGardenModel customerGardenModel, Guid customerId)
         {
+            if (customerGardenModel == null)
+            {
+                throw new Exception("Vui lòng điền đầy đủ thông tin");
+            }
+            if ((customerGardenModel.Image == null || customerGardenModel.Image.Count == 0) && (customerGardenModel.OldImage == null || customerGardenModel.OldImage.Count == 0))
+                throw new Exception("Vui lòng thêm hình ảnh");
             var garden = await _unitOfWork.CustomerGardenRepository.GetByIdAsync(customerGardenId);
             if (garden == null)
             {
                 throw new Exception("Không tìm thấy vườn");
             }
-            if (customerGardenModel == null)
-            {
-                throw new Exception("Vui lòng điền đầy đủ thông tin");
-            }
+
             var customerGarden = _mapper.Map<CustomerGarden>(customerGardenModel);
             var customer = await _idUtil.GetCustomerAsync(customerId);
             customerGarden.CustomerId = customer.Id;
@@ -178,10 +182,11 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                 _unitOfWork.CustomerGardenRepository.Update(customerGarden);
-                if (customerGardenModel.Image != null)
+                _unitOfWork.CustomerGardenRepository.Update(customerGarden);
+                var images = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == customerGardenId && !x.IsDeleted, isDisableTracking: true);
+                if (customerGardenModel.OldImage != null)
                 {
-                    var images = await _unitOfWork.CustomerGardenImageRepository.GetAsync(isTakeAll: true, expression: x => x.CustomerGardenId == customerGardenId && !x.IsDeleted, isDisableTracking: true);
+
                     if (customerGardenModel.OldImage != null)
                     {
                         foreach (CustomerGardenImage image in images.Items.ToList())
@@ -192,9 +197,12 @@ namespace Application.Services
                                 images.Items.Remove(image);
                             }
                         }
-
                     }
-                    _unitOfWork.CustomerGardenImageRepository.SoftRemoveRange(images.Items);
+                }
+                _unitOfWork.CustomerGardenImageRepository.SoftRemoveRange(images.Items);
+                if (customerGardenModel.OldImage != null)
+                {
+
                     foreach (var singleImage in customerGardenModel.Image.Select((image, index) => (image, index)))
                     {
                         string newImageName = customerGarden.Id + "_i" + singleImage.GetHashCode() + DateTime.Now.Ticks;
@@ -229,7 +237,7 @@ namespace Application.Services
             }
         }
         public async Task<CustomerGarden> GetById(Guid customerGardenId, bool isCustomer, Guid userId)
-        {   
+        {
             List<Expression<Func<CustomerGarden, object>>> includes = new List<Expression<Func<CustomerGarden, object>>>{
                                  x => x.Customer.ApplicationUser,
                                  x => x.CustomerGardenImages.Where(image => !image.IsDeleted)

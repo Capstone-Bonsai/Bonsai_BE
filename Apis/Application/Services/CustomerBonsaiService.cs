@@ -91,7 +91,7 @@ namespace Application.Services
             try
             {
                 _unitOfWork.BeginTransaction();
-                _unitOfWork.BonsaiRepository.Update(bonsai);
+                await _unitOfWork.BonsaiRepository.AddAsync(bonsai);
                 if (bonsaiModelForCustomer.Image != null)
                 {
                     foreach (var singleImage in bonsaiModelForCustomer.Image.Select((image, index) => (image, index)))
