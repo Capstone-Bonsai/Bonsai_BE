@@ -295,8 +295,13 @@ namespace Application.Services
                 if (momo.resultCode == 0)
                 {
                     await SendOrderEmail(order);
+                    await _notificationService.SendToStaff("Đơn đặt hàng bonsai", $"Đơn hàng của {order.Customer.ApplicationUser.Fullname} đã được thanh toán thành công");
+
                 }
+<<<<<<< HEAD
                 await _notificationService.SendToStaff("Đơn đặt hàng bonsai", $"Đơn hàng của {order.Customer.ApplicationUser.Email} đã được thanh toán thành công");
+=======
+>>>>>>> 1e2c1c9a0fe9297c557e36a7e2d880a2e373ba15
             }
             catch (Exception exx)
             {
