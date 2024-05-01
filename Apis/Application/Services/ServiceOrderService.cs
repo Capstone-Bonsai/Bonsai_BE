@@ -171,7 +171,7 @@ namespace Application.Services
                 throw;
             }
         }
-        public async Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize, bool isCustomer, Guid id)
+        public async Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize, bool isCustomer, Guid id, ServiceOrderStatus? serviceOrderStatus)
         {
             List<Expression<Func<ServiceOrder, object>>> includes = new List<Expression<Func<ServiceOrder, object>>>{
                                  x => x.ServiceOrderGardener,
@@ -186,17 +186,8 @@ namespace Application.Services
             }
             else
             {
-                var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize,
-                    orderBy: x => x.OrderByDescending/*OrderBy(order => order.ServiceOrderStatus == ServiceOrderStatus.Pending ? 1 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.Paid ? 2 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.Complained ? 3 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.TaskFinished ? 4 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.DoneTaskComplaint ? 5 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.Processing ? 6 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.ProcessingComplaint ? 7 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.ComplaintCanceled ? 8 :
-                       order.ServiceOrderStatus == ServiceOrderStatus.WaitingForPayment ? 9:
-                       order.ServiceOrderStatus == ServiceOrderStatus.Completed ? 10 : 11).*/(x => x.CreationDate), includes: includes);
+                var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(pageIndex: pageIndex, pageSize: pageSize, expression: x => (serviceOrderStatus != null ? x.ServiceOrderStatus == serviceOrderStatus : x.ServiceOrderGardener != null),
+                    orderBy: x => x.OrderByDescending(x => x.CreationDate), includes: includes);
                 return serviceOrders;
             }
         }
@@ -262,11 +253,11 @@ namespace Application.Services
             //check co phai user ko
             var serviceOrder = await _unitOfWork.ServiceOrderRepository.GetAllQueryable().Include(x => x.CustomerGarden).ThenInclude(x => x.Customer.ApplicationUser).FirstOrDefaultAsync(x => x.Id == contractId);
             if (serviceOrder == null)
-                throw new Exception("Không tìm thấy hợp đồng bạn yêu cầu");
+                throw new Exception("Không tìm thấy đơn hàng dịch vụ");
 
             // check status
             if (serviceOrder.ServiceOrderStatus != Domain.Enums.ServiceOrderStatus.WaitingForPayment)
-                throw new Exception("Không thể tiến hành thanh toán cho hợp đồng này");
+                throw new Exception("Không thể tiến hành thanh toán cho  đơn đặt hàng dịch vụ này");
 
 
             double totalPrice = Math.Round(serviceOrder.TotalPrice);
@@ -375,7 +366,7 @@ namespace Application.Services
                     .Include(x => x.CustomerGarden.Customer.ApplicationUser)
                     .FirstOrDefaultAsync();
                 if (serviceOrder == null)
-                    throw new Exception("Không tìm thấy hợp đồng.");
+                    throw new Exception("Không tìm thấy đơn đặt hàng dịch vụ.");
                 var serviceOrderTransaction = new ServiceOrderTransaction();
                 serviceOrderTransaction.ServiceOrderId = contractId;
                 serviceOrderTransaction.Amount = momo.amount;
@@ -591,7 +582,7 @@ namespace Application.Services
                 .FirstOrDefaultAsync();
             if (serviceOrder == null)
             {
-                throw new Exception("Không tìm thấy hợp đồng!");
+                throw new Exception("Không tìm đơn đặt hàng dịch vụ!");
             }
             try
             {

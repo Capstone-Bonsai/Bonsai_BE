@@ -16,7 +16,7 @@ namespace Application.Interfaces
     {
         Task CreateServiceOrder(ServiceOrderModel serviceOrderModel);
         Task UpdateServiceOrder(Guid serviceOrderId, ResponseServiceOrderModel responseServiceOrderModel);
-        Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize, bool isCustomer, Guid id);
+        Task<Pagination<ServiceOrder>> GetServiceOrders(int pageIndex, int pageSize, bool isCustomer, Guid id, ServiceOrderStatus? serviceOrderStatus);
         Task<List<ServiceOrderForGardenerViewModel>> GetWorkingCalendar(int month, int year, Guid id);
         Task<ServiceOrderForGardenerViewModel> GetServiceOrderByIdForGardener(Guid serviceOrderId);
         Task HandleIpnAsync(MomoRedirect momo);

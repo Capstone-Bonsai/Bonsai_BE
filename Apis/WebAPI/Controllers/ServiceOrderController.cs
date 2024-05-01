@@ -25,11 +25,11 @@ namespace WebAPI.Controllers
         }
         [HttpGet("Pagination")]
         [Authorize]
-        public async Task<IActionResult> Get([FromQuery] int pageIndex, int pageSize)
+        public async Task<IActionResult> Get([FromQuery] int pageIndex, int pageSize, ServiceOrderStatus? serviceOrderStatus)
         {
             try
             {
-                var contracts = await _serviceOrderService.GetServiceOrders(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId);
+                var contracts = await _serviceOrderService.GetServiceOrders(pageIndex, pageSize, _claims.GetIsCustomer, _claims.GetCurrentUserId, serviceOrderStatus);
                 if (contracts.Items.Count == 0)
                 {
                     return BadRequest("Không tìm thấy");
