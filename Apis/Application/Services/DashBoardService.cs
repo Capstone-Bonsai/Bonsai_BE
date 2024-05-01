@@ -119,13 +119,13 @@ namespace Application.Services
 
             var orders = await _unitOfWork.OrderRepository.GetAsync(
                 isTakeAll: true,
-                expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
+                expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate.Date <= DateTime.Now.Date &&
                                  x.OrderStatus >= OrderStatus.Paid && x.OrderStatus != OrderStatus.Failed
             );
 
             var serviceOrders = await _unitOfWork.ServiceOrderRepository.GetAsync(
                 isTakeAll: true,
-                expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate < DateTime.Now.Date &&
+                expression: x => x.CreationDate >= DateTime.Now.Date.AddMonths(-11) && x.CreationDate.Date <= DateTime.Now.Date &&
                                  x.ServiceOrderStatus >= ServiceOrderStatus.Paid && x.ServiceOrderStatus != ServiceOrderStatus.Fail && x.ServiceOrderStatus != ServiceOrderStatus.Canceled
             );
             var groupedOrders = orders.Items.GroupBy(o => new DateTime(o.CreationDate.Year, o.CreationDate.Month, 1));
@@ -135,7 +135,7 @@ namespace Application.Services
                 var monthStart = new DateTime(month.Year, month.Month, 1);
                 var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-                double totalOrderIncome = groupedOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(o => o.Price) ?? 0;
+                double totalOrderIncome = groupedOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(o => o.TotalPrice) ?? 0;
                 double totalServiceOrderIncome = groupedServiceOrders.FirstOrDefault(g => g.Key >= monthStart && g.Key <= monthEnd)?.Sum(so => so.TotalPrice) ?? 0;
 
                 revenueLineGraphs.Add(new RevenueLineGraph()
