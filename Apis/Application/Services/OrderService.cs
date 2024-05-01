@@ -373,13 +373,13 @@ namespace Application.Services
                .Include(x => x.OrderDetails)
                .ThenInclude(x => x.Bonsai.BonsaiImages).Include(x => x.OrderTransaction)
                .Include(x => x.DeliveryImages)
-               .OrderBy(order => order.OrderStatus == OrderStatus.Paid ? 1 :
+               /*.OrderBy(order => order.OrderStatus == OrderStatus.Paid ? 1 :
                        order.OrderStatus == OrderStatus.Preparing ? 2 :
                        order.OrderStatus == OrderStatus.Delivering ? 3 :
                        order.OrderStatus == OrderStatus.Delivered ? 4 :
                        order.OrderStatus == OrderStatus.Failed ? 5 :
-                       order.OrderStatus == OrderStatus.DeliveryFailed ? 6 : 7)
-               .ThenByDescending(order => order.CreationDate)
+                       order.OrderStatus == OrderStatus.DeliveryFailed ? 6 : 7)*/
+               .OrderByDescending(order => order.CreationDate)
                .ToListAsync();
             else if (isGardener)
             {
