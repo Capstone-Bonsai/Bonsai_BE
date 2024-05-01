@@ -196,7 +196,7 @@ namespace Application.Services
                        order.ServiceOrderStatus == ServiceOrderStatus.ProcessingComplaint ? 7 :
                        order.ServiceOrderStatus == ServiceOrderStatus.ComplaintCanceled ? 8 :
                        order.ServiceOrderStatus == ServiceOrderStatus.WaitingForPayment ? 9:
-                       order.ServiceOrderStatus == ServiceOrderStatus.Completed ? 10 : 11), includes: includes);
+                       order.ServiceOrderStatus == ServiceOrderStatus.Completed ? 10 : 11).ThenByDescending(x => x.CreationDate), includes: includes);
                 return serviceOrders;
             }
         }
