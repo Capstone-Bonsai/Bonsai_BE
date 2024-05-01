@@ -200,7 +200,7 @@ namespace Application.Services
                     }
                 }
                 _unitOfWork.CustomerGardenImageRepository.SoftRemoveRange(images.Items);
-                if (customerGardenModel.Image != null)
+                if (customerGardenModel.Image                                                                                                                                                                                            != null)
                 {
 
                     foreach (var singleImage in customerGardenModel.Image.Select((image, index) => (image, index)))

@@ -173,11 +173,11 @@ namespace Application.Services
                         serviceOrder.ServiceOrderStatus = Domain.Enums.ServiceOrderStatus.TaskFinished;
                     } 
                     _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
-                    var userId = await _idUtil.GetApplicationUserId(serviceOrder.CustomerGarden.CustomerId);
-                    await _notificationService.SendMessageForUserId(userId, "Hoàn thành công việc", $"Đơn đặt hàng dịch vụ tại {serviceOrder.CustomerGarden.Address} đã hoàn thành công việc!");
-                    await _notificationService.SendToStaff("Hoàn thành công việc", $"Đơn đặt hàng dịch vụ cho {serviceOrder.CustomerGarden.Customer.ApplicationUser.Email} đã hoàn thành công việc!");
                 }
                 await _unitOfWork.SaveChangeAsync();
+                var userId = await _idUtil.GetApplicationUserId(serviceOrder.CustomerGarden.CustomerId);
+                await _notificationService.SendMessageForUserId(userId, "Hoàn thành công việc", $"Đơn đặt hàng dịch vụ tại {serviceOrder.CustomerGarden.Address} đã hoàn thành công việc!");
+                await _notificationService.SendToStaff("Hoàn thành công việc", $"Đơn đặt hàng dịch vụ cho {serviceOrder.CustomerGarden.Customer.ApplicationUser.Email} đã hoàn thành công việc!");
             }
             else
             {
@@ -212,6 +212,9 @@ namespace Application.Services
                     }
                     _unitOfWork.ServiceOrderRepository.Update(serviceOrder);
                     await _unitOfWork.SaveChangeAsync();
+                    var userId = await _idUtil.GetApplicationUserId(serviceOrder.CustomerGarden.CustomerId);
+                    await _notificationService.SendMessageForUserId(userId, "Hoàn thành công việc", $"Đơn đặt hàng dịch vụ tại {serviceOrder.CustomerGarden.Address} đã hoàn thành công việc!");
+                    await _notificationService.SendToStaff("Hoàn thành công việc", $"Đơn đặt hàng dịch vụ cho {serviceOrder.CustomerGarden.Customer.ApplicationUser.Email} đã hoàn thành công việc!");
                 }
             }
         }
